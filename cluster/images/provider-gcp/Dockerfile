@@ -1,0 +1,15 @@
+FROM alpine:3.20.2
+RUN apk --no-cache add ca-certificates bash
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG CROSSPLANE_PROVIDER_VERSION
+
+ENV USER_ID=65532
+# set user agent
+ENV GOOGLE_TERRAFORM_USERAGENT_EXTENSION "upbound-provider-gcp-beta/${CROSSPLANE_PROVIDER_VERSION}"
+
+USER ${USER_ID}
+EXPOSE 8080
+
+ENTRYPOINT ["provider"]
