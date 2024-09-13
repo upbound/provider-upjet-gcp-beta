@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 	"github.com/pkg/errors"
+
 	"github.com/upbound/provider-gcp-beta/hack"
 )
 
