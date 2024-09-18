@@ -9,18 +9,14 @@ import (
 
 	"github.com/crossplane/upjet/pkg/controller"
 
-	projectserviceidentity "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/projectserviceidentity"
 	cluster "github.com/upbound/provider-gcp-beta/internal/controller/container/cluster"
-	providerconfig "github.com/upbound/provider-gcp-beta/internal/controller/providerconfig"
 )
 
-// Setup_monolith creates all controllers with the supplied logger and adds them to
+// Setup_container creates all controllers with the supplied logger and adds them to
 // the supplied manager.
-func Setup_monolith(mgr ctrl.Manager, o controller.Options) error {
+func Setup_container(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
-		projectserviceidentity.Setup,
 		cluster.Setup,
-		providerconfig.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
 			return err

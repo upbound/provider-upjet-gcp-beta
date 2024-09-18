@@ -11,7 +11,6 @@ import (
 	_ "embed"
 
 	ujconfig "github.com/crossplane/upjet/pkg/config"
-	"github.com/crossplane/upjet/pkg/config/conversion"
 	"github.com/crossplane/upjet/pkg/registry/reference"
 	"github.com/crossplane/upjet/pkg/schema/traverser"
 	conversiontfjson "github.com/crossplane/upjet/pkg/types/conversion/tfjson"
@@ -21,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 	"github.com/pkg/errors"
 
+	"github.com/upbound/provider-gcp-beta/config/container"
 	"github.com/upbound/provider-gcp-beta/hack"
 )
 
@@ -150,11 +150,13 @@ func GetProvider(_ context.Context, generationProvider bool) (*ujconfig.Provider
 		ujconfig.WithFeaturesPackage("internal/features"),
 		ujconfig.WithMainTemplate(hack.MainTemplate),
 		ujconfig.WithTerraformProvider(sdkProvider),
-		ujconfig.WithSchemaTraversers(&ujconfig.SingletonListEmbedder{}),
+		//ujconfig.WithSchemaTraversers(&ujconfig.SingletonListEmbedder{}),
 	)
 
-	bumpVersionsWithEmbeddedLists(pc)
-	for _, configure := range []func(provider *ujconfig.Provider){} {
+	//bumpVersionsWithEmbeddedLists(pc)
+	for _, configure := range []func(provider *ujconfig.Provider){
+		container.Configure,
+	} {
 		configure(pc)
 	}
 
@@ -175,6 +177,7 @@ func resourceList(t map[string]ujconfig.ExternalName) []string {
 	return l
 }
 
+/*
 func bumpVersionsWithEmbeddedLists(pc *ujconfig.Provider) {
 	for n, r := range pc.Resources {
 		r := r
@@ -196,6 +199,7 @@ func bumpVersionsWithEmbeddedLists(pc *ujconfig.Provider) {
 		pc.Resources[n] = r
 	}
 }
+*/
 
 func init() {
 	// GCP specific acronyms
