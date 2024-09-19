@@ -5,7 +5,7 @@ weight: 2
 
 # Configuration
 
-## Install the provider-family-gcp
+## Install the provider-family-gcp-beta
 
 ### Prerequisites
 

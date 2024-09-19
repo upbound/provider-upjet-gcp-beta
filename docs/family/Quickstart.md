@@ -5,9 +5,9 @@ weight: 1
 
 # Quickstart
 
-This guide walks through the process to install Upbound Universal Crossplane and install the GCP official provider-family.
+This guide walks through the process to install Upbound Universal Crossplane and install the GCP Beta provider-family.
 
-To use GCP official provider-family, install Upbound Universal Crossplane into your Kubernetes cluster, install the `Provider`, apply a `ProviderConfig`, and create a *managed resource* in GCP via Kubernetes.
+To use GCP Beta provider-family, install Upbound Universal Crossplane into your Kubernetes cluster, install the `Provider`, apply a `ProviderConfig`, and create a *managed resource* in GCP via Kubernetes.
 
 ## Install the Up command-line
 Download and install the Upbound `up` command-line.
