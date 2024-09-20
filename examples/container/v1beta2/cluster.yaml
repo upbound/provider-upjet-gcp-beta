@@ -1,0 +1,15 @@
+apiVersion: container.gcp-beta.upbound.io/v1beta2
+kind: Cluster
+metadata:
+  annotations:
+    meta.upbound.io/example-id: container/v1beta2/cluster
+  labels:
+    testing.upbound.io/example-name: primary2
+  name: primary2
+spec:
+  forProvider:
+    deletionProtection: false
+    enableAutopilot: true
+    enableIntranodeVisibility: true
+    ipAllocationPolicy: {}
+    location: europe-north1
