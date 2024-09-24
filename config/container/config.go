@@ -124,4 +124,41 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 			return diff, nil
 		}
 	})
+
+	p.AddResourceConfigurator("google_container_node_pool", func(r *config.Resource) {
+		r.Kind = "NodePool"
+		r.LateInitializer = config.LateInitializer{
+			IgnoredFields: []string{
+				"version",
+				"node_count",
+				"initial_node_count",
+			},
+		}
+		r.References["cluster"] = config.Reference{
+			TerraformName: "google_container_cluster",
+			Extractor:     common.ExtractResourceIDFuncPath,
+		}
+
+		r.TerraformCustomDiff = func(diff *terraform.InstanceDiff, _ *terraform.InstanceState, _ *terraform.ResourceConfig) (*terraform.InstanceDiff, error) {
+			if diff == nil || diff.Destroy {
+				return diff, nil
+			}
+			if ppDiff, ok := diff.Attributes["placement_policy.#"]; ok && ppDiff.Old == "" && ppDiff.New == "" {
+				delete(diff.Attributes, "placement_policy.#")
+			}
+			if asDiff, ok := diff.Attributes["autoscaling.#"]; ok && asDiff.Old == "" && asDiff.New == "" {
+				delete(diff.Attributes, "autoscaling.#")
+			}
+			if qpDiff, ok := diff.Attributes["queued_provisioning.#"]; ok && qpDiff.Old == "" && qpDiff.New == "" {
+				delete(diff.Attributes, "queued_provisioning.#")
+			}
+			if incDiff, ok := diff.Attributes["initial_node_count"]; ok && incDiff.Old != "" {
+				// Changes to actual node count can alter the value TF calculates for initial_node_count, resulting in
+				// errors as initial_node_count cannot be updated. TF docs suggest using lifecycle ignore_changes for this
+				// attribute.
+				delete(diff.Attributes, "initial_node_count")
+			}
+			return diff, nil
+		}
+	})
 }

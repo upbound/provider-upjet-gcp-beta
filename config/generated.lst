@@ -1,1 +1,1 @@
-["google_container_cluster","google_project_service_identity"]
+["google_container_cluster","google_container_node_pool","google_project_service_identity","google_service_account"]

@@ -1,24 +1,8 @@
 apiVersion: container.gcp-beta.upbound.io/v1beta2
-kind: Cluster
-metadata:
-  annotations:
-    meta.upbound.io/example-id: container/v1beta2/cluster
-  labels:
-    testing.upbound.io/example-name: primary
-  name: primary
-spec:
-  forProvider:
-    initialNodeCount: 1
-    location: us-central1
-    removeDefaultNodePool: true
-
----
-
-apiVersion: container.gcp-beta.upbound.io/v1beta2
 kind: NodePool
 metadata:
   annotations:
-    meta.upbound.io/example-id: container/v1beta2/cluster
+    meta.upbound.io/example-id: container/v1beta2/nodepool
   labels:
     testing.upbound.io/example-name: primary_preemptible_nodes
   name: primary-preemptible-nodes
@@ -27,7 +11,6 @@ spec:
     clusterSelector:
       matchLabels:
         testing.upbound.io/example-name: primary
-    location: us-central1
     nodeConfig:
     - machineType: e2-medium
       oauthScopes:
@@ -40,11 +23,27 @@ spec:
 
 ---
 
+apiVersion: container.gcp-beta.upbound.io/v1beta2
+kind: Cluster
+metadata:
+  annotations:
+    meta.upbound.io/example-id: container/v1beta2/nodepool
+  labels:
+    testing.upbound.io/example-name: primary
+  name: primary
+spec:
+  forProvider:
+    initialNodeCount: 1
+    location: us-central1
+    removeDefaultNodePool: true
+
+---
+
 apiVersion: cloudplatform.gcp-beta.upbound.io/v1beta1
 kind: ServiceAccount
 metadata:
   annotations:
-    meta.upbound.io/example-id: container/v1beta2/cluster
+    meta.upbound.io/example-id: container/v1beta2/nodepool
   labels:
     testing.upbound.io/example-name: default
   name: default
