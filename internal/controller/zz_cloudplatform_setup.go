@@ -10,6 +10,7 @@ import (
 	"github.com/crossplane/upjet/pkg/controller"
 
 	projectserviceidentity "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/projectserviceidentity"
+	serviceaccount "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/serviceaccount"
 )
 
 // Setup_cloudplatform creates all controllers with the supplied logger and adds them to
@@ -17,6 +18,7 @@ import (
 func Setup_cloudplatform(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		projectserviceidentity.Setup,
+		serviceaccount.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
 			return err

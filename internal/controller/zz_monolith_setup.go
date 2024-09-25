@@ -10,7 +10,9 @@ import (
 	"github.com/crossplane/upjet/pkg/controller"
 
 	projectserviceidentity "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/projectserviceidentity"
+	serviceaccount "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/serviceaccount"
 	cluster "github.com/upbound/provider-gcp-beta/internal/controller/container/cluster"
+	nodepool "github.com/upbound/provider-gcp-beta/internal/controller/container/nodepool"
 	providerconfig "github.com/upbound/provider-gcp-beta/internal/controller/providerconfig"
 )
 
@@ -19,7 +21,9 @@ import (
 func Setup_monolith(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		projectserviceidentity.Setup,
+		serviceaccount.Setup,
 		cluster.Setup,
+		nodepool.Setup,
 		providerconfig.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
