@@ -44,9 +44,11 @@ jobs:
           echo "We are going to scan the last ${supported_releases_number} releases for: ${images}"
 
   scan:
-    uses: upbound/official-providers-ci/.github/workflows/scan.yml@standard-runners
+    uses: upbound/official-providers-ci/.github/workflows/scan.yml@main
     needs:
       - setup-vars
     with:
       images: ${{ needs.setup-vars.outputs.images }}
       supported_releases: ${{ fromJSON(needs.setup-vars.outputs.supported_releases_number) }}
+    secrets:
+      TOKEN: ${{ secrets.UPBOUND_GITHUB_BOT_TOKEN }}
