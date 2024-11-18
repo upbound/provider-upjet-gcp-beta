@@ -1,1 +1,1 @@
-["google_container_cluster","google_container_node_pool","google_project_service_identity","google_service_account"]
+["google_container_cluster","google_container_node_pool","google_network_security_server_tls_policy","google_project_service_identity","google_service_account"]

@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/upbound/provider-gcp-beta/config/container"
+	"github.com/upbound/provider-gcp-beta/config/networksecurity"
 	"github.com/upbound/provider-gcp-beta/hack"
 )
 
@@ -180,6 +181,7 @@ func GetProvider(_ context.Context, generationProvider bool) (*ujconfig.Provider
 	bumpVersionsWithEmbeddedLists(pc)
 	for _, configure := range []func(provider *ujconfig.Provider){
 		container.Configure,
+		networksecurity.Configure,
 	} {
 		configure(pc)
 	}
