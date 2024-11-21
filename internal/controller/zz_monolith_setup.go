@@ -13,6 +13,7 @@ import (
 	serviceaccount "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/serviceaccount"
 	cluster "github.com/upbound/provider-gcp-beta/internal/controller/container/cluster"
 	nodepool "github.com/upbound/provider-gcp-beta/internal/controller/container/nodepool"
+	servertlspolicy "github.com/upbound/provider-gcp-beta/internal/controller/networksecurity/servertlspolicy"
 	providerconfig "github.com/upbound/provider-gcp-beta/internal/controller/providerconfig"
 )
 
@@ -24,6 +25,7 @@ func Setup_monolith(mgr ctrl.Manager, o controller.Options) error {
 		serviceaccount.Setup,
 		cluster.Setup,
 		nodepool.Setup,
+		servertlspolicy.Setup,
 		providerconfig.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {

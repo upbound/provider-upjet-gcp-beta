@@ -28,6 +28,11 @@ var terraformPluginSDKExternalNameConfigs = map[string]config.ExternalName{
 	"google_container_cluster": config.TemplatedStringAsIdentifier("name", "projects/{{ .setup.configuration.project }}/locations/{{ .parameters.location }}/clusters/{{ .external_name }}"),
 	// Imported by using the following format: my-gcp-project/us-east1-a/my-cluster/main-pool
 	"google_container_node_pool": config.TemplatedStringAsIdentifier("name", "{{ .setup.configuration.project }}/{{ .parameters.location }}/{{ .parameters.cluster }}/{{ .external_name }}"),
+
+	// networksecurity
+	//
+	// The resource can be imported using projects/{{project}}/locations/{{location}}/serverTlsPolicies/{{name}}
+	"google_network_security_server_tls_policy": config.TemplatedStringAsIdentifier("name", "projects/{{ .setup.configuration.project }}/locations/{{ .parameters.location }}/serverTlsPolicies/{{ .external_name }}"),
 }
 
 // cliReconciledExternalNameConfigs contains all external name configurations
