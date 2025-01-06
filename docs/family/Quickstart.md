@@ -21,7 +21,7 @@ Verify the version of `up` with `up --version`
 
 ```shell
 $ up --version
-v0.19.1
+v0.35.0
 ```
 _Note_: official providers only support `up` command-line versions v0.13.0 or later.
 
@@ -30,7 +30,7 @@ Install Upbound Universal Crossplane with the Up command-line.
 
 ```shell
 $ up uxp install
-UXP 1.13.2-up.2 installed
+UXP 1.18.0-up.1 installed
 ```
 
 _Note_: Official provider-families only support crossplane version 1.12.1 or UXP version 1.12.1-up.1 or later.
@@ -40,14 +40,14 @@ Verify the UXP pods are running with `kubectl get pods -n upbound-system`
 ```shell
 $ kubectl get pods -n upbound-system
 NAME                                       READY   STATUS    RESTARTS   AGE
-crossplane-77ff754998-k76zz                1/1     Running   0          40s
-crossplane-rbac-manager-79b8bdd6d8-79577   1/1     Running   0          40s
+crossplane-649f76c8db-vm5r5                1/1     Running   0          80s
+crossplane-rbac-manager-645fdf89d6-rvj6q   1/1     Running   0          80s
 ```
 
 ## Install the GCP Beta provider-family
 
 Install the official provider-family into the Kubernetes cluster with a Kubernetes configuration file.
-For instance, let's install the `provider-gcp-beta-storage`
+For instance, let's install the `provider-gcp-beta-cloudplatform`
 
 _Note_: The first provider installed of a family also installs an extra provider-family Provider.
 The provider-family provider manages the ProviderConfig for all other providers in the same family.
@@ -56,9 +56,9 @@ The provider-family provider manages the ProviderConfig for all other providers 
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: provider-gcp-beta-storage
+  name: provider-gcp-beta-cloudplatform
 spec:
-  package: xpkg.upbound.io/upbound/provider-gcp-beta-storage:<version>
+  package: xpkg.upbound.io/upbound/provider-gcp-beta-cloudplatform:<version>
 ```
 
 Apply this configuration with `kubectl apply -f`.
@@ -67,9 +67,9 @@ After installing the provider, verify the install with `kubectl get providers`.
 
 ```shell
 $ kubectl get providers
-NAME                               INSTALLED   HEALTHY   PACKAGE                                                AGE
-provider-gcp-beta-storage          True        True      xpkg.upbound.io/upbound/provider-gcp-beta-storage:v0.36.0   78s
-upbound-provider-family-gcp-beta   True        True      xpkg.upbound.io/upbound/provider-family-gcp-beta:v0.36.0    70s
+NAME                               INSTALLED   HEALTHY   PACKAGE                                                          AGE
+provider-gcp-beta-cloudplatform    True        True      xpkg.upbound.io/upbound/provider-gcp-beta-cloudplatform:v0.3.0   37s
+upbound-provider-family-gcp-beta   True        True      xpkg.upbound.io/upbound/provider-family-gcp-beta:v0.3.0          31s
 ```
 
 It may take up to 5 minutes to report `HEALTHY`.
@@ -77,7 +77,7 @@ It may take up to 5 minutes to report `HEALTHY`.
 If you are going to use your own registry please check [Install Providers in an offline environment](https://docs.upbound.io/providers/provider-families/#installing-a-provider-family:~:text=services%20to%20install.-,Install%20Providers%20in%20an%20offline%20environment,-View%20the%20installed).
 
 ## Create a Kubernetes secret
-The `provider-gcp-beta-storage` requires credentials to create and manage GCP resources.
+The `provider-gcp-beta-cloudplatform` requires credentials to create and manage GCP resources.
 
 ### Generate a GCP JSON key file
 Create a JSON key file containing the GCP account credentials. GCP provides documentation on [how to create a key file](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
@@ -120,7 +120,7 @@ Data
 creds:  2334 bytes
 ```
 ## Create a ProviderConfig
-Create a `ProviderConfig` Kubernetes configuration file to attach the GCP credentials to the installed official `provider-gcp-beta-storage`.
+Create a `ProviderConfig` Kubernetes configuration file to attach the GCP credentials to the installed official `provider-gcp-beta-cloudplatform`.
 
 **Note:** the `ProviderConfig` must contain the correct GCP project ID. The project ID must match the `project_id` from the JSON key file.
 
@@ -163,90 +163,83 @@ Spec:
 ```
 
 ## Create a managed resource
-Create a managed resource to verify the `provider-gcp-beta-storage` is functioning. 
+Create a managed resource to verify the `provider-gcp-beta-cloudplatform` is functioning.
 
-This example creates a GCP storage bucket, which requires a globally unique name. 
+This example creates a GCP cloudplatform ServiceAccount, which requires a globally unique name.
 
-Generate a unique bucket name from the command line.
-
-`echo "upbound-bucket-"$(head -n 4096 /dev/urandom | openssl sha1 | tail -c 10)`
-
-For example
-```
-$ echo "upbound-bucket-"$(head -n 4096 /dev/urandom | openssl sha1 | tail -c 10)
-upbound-bucket-21e85e732
-```
-
-Use this bucket name for `metadata.annotations.crossplane.io/external-name` value.
-
-Create a `Bucket` configuration file. Replace `<BUCKET NAME>` with the `upbound-bucket-` generated name.
+Create a `ServiceAccount` configuration file.
 
 ```yaml
-apiVersion: storage.gcp-beta.upbound.io/v1beta1
-kind: Bucket
+apiVersion: cloudplatform.gcp-beta.upbound.io/v1beta1
+kind: ServiceAccount
 metadata:
-  name: example
-  labels:
   annotations:
-    crossplane.io/external-name: <BUCKET NAME>
+    meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccount
+  labels:
+    testing.upbound.io/example-name: service_account
+  name: service-account
 spec:
   forProvider:
-    location: US
-    storageClass: MULTI_REGIONAL
+    displayName: Upbound GCP Beta Example Service Account
   providerConfigRef:
-    name: default
-  deletionPolicy: Delete
+    name: defaultw
 ```
 
 **Note:** the `spec.providerConfigRef.name` must match the `ProviderConfig` `metadata.name` value.
 
 Apply this configuration with `kubectl apply -f`.
 
-Use `kubectl get managed` to verify bucket creation.
+Use `kubectl get managed` to verify service account creation.
 
 ```shell
-$ kubectl get bucket
-NAME      READY   SYNCED   EXTERNAL-NAME              AGE
-example   True    True     upbound-bucket-4a917c947   90s
+NAME                                                               SYNCED   READY   EXTERNAL-NAME     AGE
+serviceaccount.cloudplatform.gcp-beta.upbound.io/service-account   True     True    service-account   37s
 ```
 
-Provider created the bucket when the values `READY` and `SYNCED` are `True`.
+Provider created the service account when the values `READY` and `SYNCED` are `True`.
 
 If the `READY` or `SYNCED` are blank or `False` use `kubectl describe` to understand why.
 
-Here is an example of a failure because the `Bucket` `spec.providerConfigRef.name` value doesn't match the `ProviderConfig` `metadata.name`.
+Here is an example of a failure because the `ServiceAccount` `spec.providerConfigRef.name` value doesn't match the `ProviderConfig` `metadata.name`.
 
 ```shell
-$ kubectl describe bucket
-Name:         example
+> kubectl describe serviceaccount.cloudplatform.gcp-beta.upbound.io/service-account
+Name:         service-account
 Namespace:
-Labels:       <none>
-Annotations:  crossplane.io/external-name: upbound-bucket-4a917c947
-API Version:  storage.gcp-beta.upbound.io/v1beta1
-Kind:         Bucket
-# Output truncated
+Labels:       testing.upbound.io/example-name=service_account
+Annotations:  crossplane.io/external-name: service-account
+              meta.upbound.io/example-id: cloudplatform/v1beta1/serviceaccount
+API Version:  cloudplatform.gcp-beta.upbound.io/v1beta1
+Kind:         ServiceAccount
+Metadata:
+  Creation Timestamp:  2025-01-06T17:57:29Z
+  Generation:          2
+  Resource Version:    21974
+  UID:                 f7280fd6-8073-4c6a-8d78-5e9552ae6913
 Spec:
   Deletion Policy:  Delete
   For Provider:
-    Location:       US
-    Storage Class:  MULTI_REGIONAL
+    Display Name:  Upbound GCP Beta Example Service Account
+  Init Provider:
+  Management Policies:
+    *
   Provider Config Ref:
-    Name:  default
+    Name:  defaultw
 Status:
   At Provider:
   Conditions:
-    Last Transition Time:  2022-07-26T19:29:35Z
-    Message:               connect failed: cannot get terraform setup: cannot get referenced ProviderConfig: ProviderConfig.gcp-beta.upbound.io "default" not found
+    Last Transition Time:  2025-01-06T17:57:29Z
+    Message:               connect failed: cannot initialize the Terraform plugin SDK async external client: cannot get terraform setup: cannot get referenced ProviderConfig: ProviderConfig.gcp-beta.upbound.io "default" not found
     Reason:                ReconcileError
     Status:                False
     Type:                  Synced
 Events:
-  Type     Reason                   Age               From                                                 Message
-  ----     ------                   ----              ----                                                 -------
-  Warning  CannotConnectToProvider  7s (x5 over 20s)  managed/storage.gcp-beta.upbound.io/v1beta1, kind=bucket  cannot get terraform setup: cannot get referenced ProviderConfig: ProviderConfig.gcp-beta.upbound.io "default" not found
+  Type     Reason                   Age               From                                                                    Message
+  ----     ------                   ----              ----                                                                    -------
+  Warning  CannotConnectToProvider  6s (x4 over 11s)  managed/cloudplatform.gcp-beta.upbound.io/v1beta1, kind=serviceaccount  cannot initialize the Terraform plugin SDK async external client: cannot get terraform setup: cannot get referenced ProviderConfig: ProviderConfig.gcp-beta.upbound.io "default" not found
 ```
 
-The output indicates the `Bucket` is using `ProviderConfig` named `default`. The applied `ProviderConfig` is `my-config`. 
+The output indicates the `ServiceAccount` is using `ProviderConfig` named `default`. The applied `ProviderConfig` is `my-config`.
 
 ```shell
 $ kubectl get providerconfigs
@@ -255,9 +248,9 @@ my-config   56s
 ```
 
 ## Delete the managed resource
-Remove the managed resource by using `kubectl delete -f` with the same `Bucket` object file. Verify the removal of the bucket with `kubectl get bucket`.
+Remove the managed resource by using `kubectl delete -f` with the same `ServiceAccount` object file. Verify the removal of the bucket with `kubectl get managed`.
 
 ```shell
-$ kubectl get bucket
+$ kubectl get managed
 No resources found
 ```
