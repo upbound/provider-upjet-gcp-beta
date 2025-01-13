@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: 2024 The Crossplane Authors <https://crossplane.io>
+# SPDX-FileCopyrightText: 2025 Upbound Inc. <https://upbound.io>
 #
 # SPDX-License-Identifier: Apache-2.0
 

@@ -40,7 +40,7 @@ Find more information in the [Upbound UXP documentation](https://docs.upbound.io
 ### Install the provider-family-gcp-beta
 
 Install the Upbound GCP Beta provider-family with the following configuration file.
-For instance, let's install the `provider-gcp-beta-storage`.
+For instance, let's install the `provider-gcp-beta-cloudplatform`.
 
 _Note_: The first provider installed of a family also installs an extra provider-family Provider.
 The provider-family provider manages the ProviderConfig for all other providers in the same family.
@@ -49,22 +49,22 @@ The provider-family provider manages the ProviderConfig for all other providers 
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: provider-gcp-beta-storage
+  name: provider-gcp-beta-cloudplatform
 spec:
-  package: xpkg.upbound.io/upbound/provider-gcp-beta-storage:<version>
+  package: xpkg.upbound.io/upbound/provider-gcp-beta-cloudplatform:<version>
 ```
 
-Define the `provider-gcp-beta-storage` version with `spec.package`.
+Define the `provider-gcp-beta-cloudplatform` version with `spec.package`.
 
-Install the `provider-gcp-beta-storage` with `kubectl apply -f`.
+Install the `provider-gcp-beta-cloudplatform` with `kubectl apply -f`.
 
 Verify the configuration with `kubectl get providers`.
 
 ```shell
 $ kubectl get providers
-NAME                          INSTALLED   HEALTHY   PACKAGE                                                AGE
-provider-gcp-beta-storage          True        True      xpkg.upbound.io/upbound/provider-gcp-beta-storage:v0.36.0   78s
-upbound-provider-family-gcp   True        True      xpkg.upbound.io/upbound/provider-family-gcp-beta:v0.36.0    70s
+NAME                               INSTALLED   HEALTHY   PACKAGE                                                          AGE
+provider-gcp-beta-cloudplatform    True        True      xpkg.upbound.io/upbound/provider-gcp-beta-cloudplatform:v0.3.0   37s
+upbound-provider-family-gcp-beta   True        True      xpkg.upbound.io/upbound/provider-family-gcp-beta:v0.3.0          31s
 ```
 
 View the
