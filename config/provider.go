@@ -6,10 +6,9 @@ package config
 
 import (
 	"context"
-	"strings"
-
 	// Note(ezgidemirel): we are importing this to embed provider schema document
 	_ "embed"
+	"strings"
 
 	"github.com/crossplane/upjet/pkg/config"
 	ujconfig "github.com/crossplane/upjet/pkg/config"
@@ -23,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 	"github.com/pkg/errors"
 
+	"github.com/upbound/provider-gcp-beta/config/compute"
 	"github.com/upbound/provider-gcp-beta/config/container"
 	"github.com/upbound/provider-gcp-beta/config/networksecurity"
 	"github.com/upbound/provider-gcp-beta/hack"
@@ -182,6 +182,7 @@ func GetProvider(_ context.Context, generationProvider bool) (*ujconfig.Provider
 	for _, configure := range []func(provider *ujconfig.Provider){
 		container.Configure,
 		networksecurity.Configure,
+		compute.Configure,
 	} {
 		configure(pc)
 	}
