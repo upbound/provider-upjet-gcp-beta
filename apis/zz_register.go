@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	v1beta1 "github.com/upbound/provider-gcp-beta/apis/cloudplatform/v1beta1"
+	v1beta1compute "github.com/upbound/provider-gcp-beta/apis/compute/v1beta1"
 	v1beta1container "github.com/upbound/provider-gcp-beta/apis/container/v1beta1"
 	v1beta2 "github.com/upbound/provider-gcp-beta/apis/container/v1beta2"
 	v1beta1networksecurity "github.com/upbound/provider-gcp-beta/apis/networksecurity/v1beta1"
@@ -22,6 +23,7 @@ func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
 	AddToSchemes = append(AddToSchemes,
 		v1beta1.SchemeBuilder.AddToScheme,
+		v1beta1compute.SchemeBuilder.AddToScheme,
 		v1beta1container.SchemeBuilder.AddToScheme,
 		v1beta2.SchemeBuilder.AddToScheme,
 		v1beta1networksecurity.SchemeBuilder.AddToScheme,
