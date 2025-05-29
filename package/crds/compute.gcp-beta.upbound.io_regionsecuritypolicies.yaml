@@ -133,6 +133,8 @@ spec:
                           type: number
                       type: object
                     type: array
+                required:
+                - region
                 type: object
               initProvider:
                 description: |-

@@ -10,6 +10,14 @@ import "github.com/crossplane/upjet/pkg/config"
 // ResourceConfigurators.
 func Configure(p *config.Provider) {
 	p.AddResourceConfigurator("google_compute_region_security_policy", func(r *config.Resource) {
-		r.MarkAsRequired("location")
+		r.MarkAsRequired("region")
+	})
+
+	p.AddResourceConfigurator("google_compute_region_backend_service", func(r *config.Resource) {
+		r.MarkAsRequired("region")
+		r.References["health_checks"] = config.Reference{
+			TerraformName: "google_compute_health_check",
+			Extractor:     `github.com/crossplane/upjet/pkg/resource.ExtractParamPath("id",true)`,
+		}
 	})
 }

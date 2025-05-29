@@ -11,6 +11,8 @@ import (
 
 	projectserviceidentity "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/projectserviceidentity"
 	serviceaccount "github.com/upbound/provider-gcp-beta/internal/controller/cloudplatform/serviceaccount"
+	healthcheck "github.com/upbound/provider-gcp-beta/internal/controller/compute/healthcheck"
+	regionbackendservice "github.com/upbound/provider-gcp-beta/internal/controller/compute/regionbackendservice"
 	regionsecuritypolicy "github.com/upbound/provider-gcp-beta/internal/controller/compute/regionsecuritypolicy"
 	cluster "github.com/upbound/provider-gcp-beta/internal/controller/container/cluster"
 	nodepool "github.com/upbound/provider-gcp-beta/internal/controller/container/nodepool"
@@ -24,6 +26,8 @@ func Setup_monolith(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		projectserviceidentity.Setup,
 		serviceaccount.Setup,
+		healthcheck.Setup,
+		regionbackendservice.Setup,
 		regionsecuritypolicy.Setup,
 		cluster.Setup,
 		nodepool.Setup,
