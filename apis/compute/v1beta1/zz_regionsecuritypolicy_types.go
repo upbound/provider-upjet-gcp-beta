@@ -116,8 +116,8 @@ type RegionSecurityPolicyParameters struct {
 
 	// The Region in which the created Region Security Policy should reside.
 	// If it is not provided, the provider region is used.
-	// +kubebuilder:validation:Optional
-	Region *string `json:"region,omitempty" tf:"region,omitempty"`
+	// +kubebuilder:validation:Required
+	Region *string `json:"region" tf:"region,omitempty"`
 
 	// The type indicates the intended use of the security policy.
 	// +kubebuilder:validation:Optional

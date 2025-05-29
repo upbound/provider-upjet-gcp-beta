@@ -7,4 +7,10 @@
 package v1beta1
 
 // Hub marks this type as a conversion hub.
+func (tr *HealthCheck) Hub() {}
+
+// Hub marks this type as a conversion hub.
+func (tr *RegionBackendService) Hub() {}
+
+// Hub marks this type as a conversion hub.
 func (tr *RegionSecurityPolicy) Hub() {}

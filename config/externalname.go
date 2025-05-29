@@ -36,8 +36,12 @@ var terraformPluginSDKExternalNameConfigs = map[string]config.ExternalName{
 
 	// compute
 	//
+	// Imported by using projects/{{project}}/global/healthChecks/{{name}}
+	"google_compute_health_check": config.TemplatedStringAsIdentifier("name", "projects/{{ if .parameters.project }}{{ .parameters.project }}{{ else }}{{ .setup.configuration.project }}{{ end }}/global/healthChecks/{{ .external_name }}"),
 	// Imported by using projects/{{project}}/regions/{{region}}/securityPolicies/{{name}}
 	"google_compute_region_security_policy": config.TemplatedStringAsIdentifier("name", "projects/{{ if .parameters.project }}{{ .parameters.project }}{{ else }}{{ .setup.configuration.project }}{{ end }}/regions/{{ .parameters.region }}/securityPolicies/{{ .external_name }}"),
+	// Imported by using projects/{{project}}/regions/{{region}}/backendServices/{{name}}
+	"google_compute_region_backend_service": config.TemplatedStringAsIdentifier("name", "projects/{{ if .parameters.project }}{{ .parameters.project }}{{ else }}{{ .setup.configuration.project }}{{ end }}/regions/{{ .parameters.region }}/backendServices/{{ .external_name }}"),
 }
 
 // cliReconciledExternalNameConfigs contains all external name configurations

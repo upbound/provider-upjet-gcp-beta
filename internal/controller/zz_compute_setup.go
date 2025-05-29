@@ -9,6 +9,8 @@ import (
 
 	"github.com/crossplane/upjet/pkg/controller"
 
+	healthcheck "github.com/upbound/provider-gcp-beta/internal/controller/compute/healthcheck"
+	regionbackendservice "github.com/upbound/provider-gcp-beta/internal/controller/compute/regionbackendservice"
 	regionsecuritypolicy "github.com/upbound/provider-gcp-beta/internal/controller/compute/regionsecuritypolicy"
 )
 
@@ -16,6 +18,8 @@ import (
 // the supplied manager.
 func Setup_compute(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
+		healthcheck.Setup,
+		regionbackendservice.Setup,
 		regionsecuritypolicy.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
