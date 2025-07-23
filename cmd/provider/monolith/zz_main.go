@@ -39,6 +39,7 @@ import (
 	"github.com/upbound/provider-gcp-beta/apis/v1alpha1"
 	"github.com/upbound/provider-gcp-beta/config"
 	resolverapis "github.com/upbound/provider-gcp-beta/internal/apis"
+	"github.com/upbound/provider-gcp-beta/internal/bootcheck"
 	"github.com/upbound/provider-gcp-beta/internal/clients"
 	"github.com/upbound/provider-gcp-beta/internal/controller"
 	"github.com/upbound/provider-gcp-beta/internal/features"
@@ -56,6 +57,13 @@ func deprecationAction(flagName string) kingpin.Action {
 		_, err := fmt.Fprintf(os.Stderr, "warning: Command-line flag %q is deprecated and no longer used. It will be removed in a future release. Please remove it from all of your configurations (ControllerConfigs, etc.).\n", flagName)
 		kingpin.FatalIfError(err, "Failed to print the deprecation notice.")
 		return nil
+	}
+}
+
+func init() {
+	err := bootcheck.CheckEnv()
+	if err != nil {
+		log.Fatalf("bootcheck failed. provider will not be started: %v", err)
 	}
 }
 
