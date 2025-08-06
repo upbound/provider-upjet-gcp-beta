@@ -10,10 +10,10 @@ import (
 
 	// Note(ezgidemirel): we are importing this to embed provider schema document
 	_ "embed"
-	"github.com/crossplane/upjet/pkg/config"
-	ujconfig "github.com/crossplane/upjet/pkg/config"
-	"github.com/crossplane/upjet/pkg/registry/reference"
-	"github.com/crossplane/upjet/pkg/schema/traverser"
+	"github.com/crossplane/upjet/v2/pkg/config"
+	ujconfig "github.com/crossplane/upjet/v2/pkg/config"
+	"github.com/crossplane/upjet/v2/pkg/registry/reference"
+	"github.com/crossplane/upjet/v2/pkg/schema/traverser"
 	"github.com/pkg/errors"
 
 	"github.com/upbound/provider-gcp-beta/config/namespaced/compute"

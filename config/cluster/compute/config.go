@@ -4,7 +4,7 @@
 
 package compute
 
-import "github.com/crossplane/upjet/pkg/config"
+import "github.com/crossplane/upjet/v2/pkg/config"
 
 // Configure configures individual resources by adding custom
 // ResourceConfigurators.
@@ -17,7 +17,7 @@ func Configure(p *config.Provider) {
 		r.MarkAsRequired("region")
 		r.References["health_checks"] = config.Reference{
 			TerraformName: "google_compute_health_check",
-			Extractor:     `github.com/crossplane/upjet/pkg/resource.ExtractParamPath("id",true)`,
+			Extractor:     `github.com/crossplane/upjet/v2/pkg/resource.ExtractParamPath("id",true)`,
 		}
 	})
 }

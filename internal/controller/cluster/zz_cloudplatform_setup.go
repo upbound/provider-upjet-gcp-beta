@@ -7,7 +7,7 @@ package controller
 import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/crossplane/upjet/pkg/controller"
+	"github.com/crossplane/upjet/v2/pkg/controller"
 
 	projectserviceidentity "github.com/upbound/provider-gcp-beta/internal/controller/cluster/cloudplatform/projectserviceidentity"
 	serviceaccount "github.com/upbound/provider-gcp-beta/internal/controller/cluster/cloudplatform/serviceaccount"

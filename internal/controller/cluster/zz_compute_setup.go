@@ -7,7 +7,7 @@ package controller
 import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/crossplane/upjet/pkg/controller"
+	"github.com/crossplane/upjet/v2/pkg/controller"
 
 	healthcheck "github.com/upbound/provider-gcp-beta/internal/controller/cluster/compute/healthcheck"
 	regionbackendservice "github.com/upbound/provider-gcp-beta/internal/controller/cluster/compute/regionbackendservice"

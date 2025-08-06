@@ -7,7 +7,7 @@ package controller
 import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/crossplane/upjet/pkg/controller"
+	"github.com/crossplane/upjet/v2/pkg/controller"
 
 	cluster "github.com/upbound/provider-gcp-beta/internal/controller/cluster/container/cluster"
 	nodepool "github.com/upbound/provider-gcp-beta/internal/controller/cluster/container/nodepool"
