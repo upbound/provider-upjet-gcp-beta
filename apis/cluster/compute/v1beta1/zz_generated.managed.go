@@ -27,11 +27,6 @@ func (mg *HealthCheck) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-// GetPublishConnectionDetailsTo of this HealthCheck.
-func (mg *HealthCheck) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
-	return mg.Spec.PublishConnectionDetailsTo
-}
-
 // GetWriteConnectionSecretToReference of this HealthCheck.
 func (mg *HealthCheck) GetWriteConnectionSecretToReference() *xpv1.SecretReference {
 	return mg.Spec.WriteConnectionSecretToReference
@@ -55,11 +50,6 @@ func (mg *HealthCheck) SetManagementPolicies(r xpv1.ManagementPolicies) {
 // SetProviderConfigReference of this HealthCheck.
 func (mg *HealthCheck) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-// SetPublishConnectionDetailsTo of this HealthCheck.
-func (mg *HealthCheck) SetPublishConnectionDetailsTo(r *xpv1.PublishConnectionDetailsTo) {
-	mg.Spec.PublishConnectionDetailsTo = r
 }
 
 // SetWriteConnectionSecretToReference of this HealthCheck.
@@ -87,11 +77,6 @@ func (mg *RegionBackendService) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-// GetPublishConnectionDetailsTo of this RegionBackendService.
-func (mg *RegionBackendService) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
-	return mg.Spec.PublishConnectionDetailsTo
-}
-
 // GetWriteConnectionSecretToReference of this RegionBackendService.
 func (mg *RegionBackendService) GetWriteConnectionSecretToReference() *xpv1.SecretReference {
 	return mg.Spec.WriteConnectionSecretToReference
@@ -115,11 +100,6 @@ func (mg *RegionBackendService) SetManagementPolicies(r xpv1.ManagementPolicies)
 // SetProviderConfigReference of this RegionBackendService.
 func (mg *RegionBackendService) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-// SetPublishConnectionDetailsTo of this RegionBackendService.
-func (mg *RegionBackendService) SetPublishConnectionDetailsTo(r *xpv1.PublishConnectionDetailsTo) {
-	mg.Spec.PublishConnectionDetailsTo = r
 }
 
 // SetWriteConnectionSecretToReference of this RegionBackendService.
@@ -147,11 +127,6 @@ func (mg *RegionSecurityPolicy) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-// GetPublishConnectionDetailsTo of this RegionSecurityPolicy.
-func (mg *RegionSecurityPolicy) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
-	return mg.Spec.PublishConnectionDetailsTo
-}
-
 // GetWriteConnectionSecretToReference of this RegionSecurityPolicy.
 func (mg *RegionSecurityPolicy) GetWriteConnectionSecretToReference() *xpv1.SecretReference {
 	return mg.Spec.WriteConnectionSecretToReference
@@ -175,11 +150,6 @@ func (mg *RegionSecurityPolicy) SetManagementPolicies(r xpv1.ManagementPolicies)
 // SetProviderConfigReference of this RegionSecurityPolicy.
 func (mg *RegionSecurityPolicy) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-// SetPublishConnectionDetailsTo of this RegionSecurityPolicy.
-func (mg *RegionSecurityPolicy) SetPublishConnectionDetailsTo(r *xpv1.PublishConnectionDetailsTo) {
-	mg.Spec.PublishConnectionDetailsTo = r
 }
 
 // SetWriteConnectionSecretToReference of this RegionSecurityPolicy.

@@ -12,13 +12,12 @@ import (
 	xpresource "github.com/crossplane/crossplane-runtime/v2/pkg/resource"
 	errors "github.com/pkg/errors"
 	common "github.com/upbound/provider-gcp-beta/config/cluster/common"
-	client "sigs.k8s.io/controller-runtime/pkg/client"
-
-	// ResolveReferences of this NodePool.
 	apisresolver "github.com/upbound/provider-gcp-beta/internal/apis"
+	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func (mg *NodePool) ResolveReferences(ctx context.Context, c client.Reader) error {
+func (mg *NodePool) ResolveReferences( // ResolveReferences of this NodePool.
+	ctx context.Context, c client.Reader) error {
 	var m xpresource.Managed
 	var l xpresource.ManagedList
 	r := reference.NewAPIResolver(c, mg)
@@ -34,6 +33,7 @@ func (mg *NodePool) ResolveReferences(ctx context.Context, c client.Reader) erro
 		rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
 			CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.Cluster),
 			Extract:      common.ExtractResourceID(),
+			Namespace:    mg.GetNamespace(),
 			Reference:    mg.Spec.ForProvider.ClusterRef,
 			Selector:     mg.Spec.ForProvider.ClusterSelector,
 			To:           reference.To{List: l, Managed: m},

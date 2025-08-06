@@ -40,3 +40,24 @@ func Setup_monolith(mgr ctrl.Manager, o controller.Options) error {
 	}
 	return nil
 }
+
+// SetupGated_monolith creates all controllers with the supplied logger and adds them to
+// the supplied manager gated.
+func SetupGated_monolith(mgr ctrl.Manager, o controller.Options) error {
+	for _, setup := range []func(ctrl.Manager, controller.Options) error{
+		projectserviceidentity.SetupGated,
+		serviceaccount.SetupGated,
+		healthcheck.SetupGated,
+		regionbackendservice.SetupGated,
+		regionsecuritypolicy.SetupGated,
+		cluster.SetupGated,
+		nodepool.SetupGated,
+		servertlspolicy.SetupGated,
+		providerconfig.SetupGated,
+	} {
+		if err := setup(mgr, o); err != nil {
+			return err
+		}
+	}
+	return nil
+}

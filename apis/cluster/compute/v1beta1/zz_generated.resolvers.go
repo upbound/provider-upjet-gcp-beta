@@ -33,6 +33,7 @@ func (mg *RegionBackendService) ResolveReferences( // ResolveReferences of this 
 		mrsp, err = r.ResolveMultiple(ctx, reference.MultiResolutionRequest{
 			CurrentValues: reference.FromPtrValues(mg.Spec.ForProvider.HealthChecks),
 			Extract:       resource.ExtractParamPath("id", true),
+			Namespace:     mg.GetNamespace(),
 			References:    mg.Spec.ForProvider.HealthChecksRefs,
 			Selector:      mg.Spec.ForProvider.HealthChecksSelector,
 			To:            reference.To{List: l, Managed: m},
@@ -52,6 +53,7 @@ func (mg *RegionBackendService) ResolveReferences( // ResolveReferences of this 
 		mrsp, err = r.ResolveMultiple(ctx, reference.MultiResolutionRequest{
 			CurrentValues: reference.FromPtrValues(mg.Spec.InitProvider.HealthChecks),
 			Extract:       resource.ExtractParamPath("id", true),
+			Namespace:     mg.GetNamespace(),
 			References:    mg.Spec.InitProvider.HealthChecksRefs,
 			Selector:      mg.Spec.InitProvider.HealthChecksSelector,
 			To:            reference.To{List: l, Managed: m},
