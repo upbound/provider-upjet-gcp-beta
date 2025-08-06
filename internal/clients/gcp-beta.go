@@ -19,7 +19,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/upbound/provider-gcp-beta/apis/v1beta1"
+	clusterv1beta1 "github.com/upbound/provider-gcp-beta/apis/cluster/v1beta1"
+	namespacedv1beta1 "github.com/upbound/provider-gcp-beta/apis/namespaced/v1beta1"
 )
 
 const (
@@ -87,23 +88,14 @@ func constructFederatedCredentials(providerID, serviceAccount string) ([]byte, e
 func TerraformSetupBuilder(tfProvider *schema.Provider) terraform.SetupFn { //nolint:gocyclo
 	return func(ctx context.Context, client client.Client, mg resource.Managed) (terraform.Setup, error) {
 		ps := terraform.Setup{}
-		configRef := mg.GetProviderConfigReference()
-		if configRef == nil {
-			return ps, errors.New(errNoProviderConfig)
-		}
-		pc := &v1beta1.ProviderConfig{}
-		if err := client.Get(ctx, types.NamespacedName{Name: configRef.Name}, pc); err != nil {
-			return ps, errors.Wrap(err, errGetProviderConfig)
-		}
 
-		t := resource.NewProviderConfigUsageTracker(client, &v1beta1.ProviderConfigUsage{})
-		if err := t.Track(ctx, mg); err != nil {
-			return ps, errors.Wrap(err, errTrackUsage)
+		pcSpec, err := resolveProviderConfig(ctx, client, mg)
+		if err != nil {
+			return terraform.Setup{}, err
 		}
-
 		// set provider configuration
 		ps.Configuration = map[string]interface{}{
-			keyProject: pc.Spec.ProjectID,
+			keyProject: pcSpec.ProjectID,
 		}
 		// TODO: this will have a performance impact. We need to quantify this.
 		p, err := fieldpath.PaveObject(mg, fieldpath.WithMaxFieldPathIndex(1))
@@ -120,30 +112,30 @@ func TerraformSetupBuilder(tfProvider *schema.Provider) terraform.SetupFn { //no
 			ps.Configuration[keyProject] = resourceProject
 		}
 
-		switch pc.Spec.Credentials.Source { //nolint:exhaustive
+		switch pcSpec.Credentials.Source { //nolint:exhaustive
 		case xpv1.CredentialsSourceInjectedIdentity:
 			// We don't need to do anything here, as the TF Provider will take care of workloadIdentity etc.
 		case impersonateServiceAccount:
-			if pc.Spec.Credentials.ImpersonateServiceAccountSpec.Name != "" {
-				ps.Configuration[keyImpersonateServiceAccount] = pc.Spec.Credentials.ImpersonateServiceAccountSpec.Name
+			if pcSpec.Credentials.ImpersonateServiceAccountSpec.Name != "" {
+				ps.Configuration[keyImpersonateServiceAccount] = pcSpec.Credentials.ImpersonateServiceAccountSpec.Name
 			}
 		case credentialsSourceAccessToken:
-			data, err := resource.CommonCredentialExtractor(ctx, xpv1.CredentialsSourceSecret, client, pc.Spec.Credentials.CommonCredentialSelectors)
+			data, err := resource.CommonCredentialExtractor(ctx, xpv1.CredentialsSourceSecret, client, pcSpec.Credentials.CommonCredentialSelectors)
 			if err != nil {
 				return ps, errors.Wrap(err, errExtractTokenCredentials)
 			}
 			ps.Configuration[keyAccessToken] = string(data)
 		case credentialsSourceUpbound:
-			if pc.Spec.Credentials.Upbound == nil || pc.Spec.Credentials.Upbound.Federation == nil {
+			if pcSpec.Credentials.Upbound == nil || pcSpec.Credentials.Upbound.Federation == nil {
 				return ps, errors.Wrap(errors.New(errMissingFederatedConfiguration), errConstructFederatedCredentials)
 			}
-			data, err := constructFederatedCredentials(pc.Spec.Credentials.Upbound.Federation.ProviderID, pc.Spec.Credentials.Upbound.Federation.ServiceAccount)
+			data, err := constructFederatedCredentials(pcSpec.Credentials.Upbound.Federation.ProviderID, pcSpec.Credentials.Upbound.Federation.ServiceAccount)
 			if err != nil {
 				return ps, errors.Wrap(err, errConstructFederatedCredentials)
 			}
 			ps.Configuration[keyCredentials] = string(data)
 		default:
-			data, err := resource.CommonCredentialExtractor(ctx, pc.Spec.Credentials.Source, client, pc.Spec.Credentials.CommonCredentialSelectors)
+			data, err := resource.CommonCredentialExtractor(ctx, pcSpec.Credentials.Source, client, pcSpec.Credentials.CommonCredentialSelectors)
 			if err != nil {
 				return ps, errors.Wrap(err, errExtractKeyCredentials)
 			}
@@ -169,4 +161,89 @@ func configureNoForkGCPClient(ctx context.Context, ps *terraform.Setup, p schema
 	}
 	ps.Meta = p.Meta()
 	return nil
+}
+
+func toSharedPCSpec(pc *clusterv1beta1.ProviderConfig) (*namespacedv1beta1.ProviderConfigSpec, error) {
+	if pc == nil {
+		return nil, nil
+	}
+	data, err := json.Marshal(pc.Spec)
+	if err != nil {
+		return nil, err
+	}
+
+	var mSpec namespacedv1beta1.ProviderConfigSpec
+	err = json.Unmarshal(data, &mSpec)
+	return &mSpec, err
+}
+
+func resolveProviderConfig(ctx context.Context, crClient client.Client, mg resource.Managed) (*namespacedv1beta1.ProviderConfigSpec, error) {
+	switch managed := mg.(type) {
+	case resource.LegacyManaged:
+		return resolveLegacy(ctx, crClient, managed)
+	case resource.ModernManaged:
+		return resolveV2(ctx, crClient, managed)
+	default:
+		return nil, errors.New("resource is not a managed")
+	}
+}
+
+func resolveLegacy(ctx context.Context, client client.Client, mg resource.LegacyManaged) (*namespacedv1beta1.ProviderConfigSpec, error) {
+	configRef := mg.GetProviderConfigReference()
+	if configRef == nil {
+		return nil, errors.New(errNoProviderConfig)
+	}
+	pc := &clusterv1beta1.ProviderConfig{}
+	if err := client.Get(ctx, types.NamespacedName{Name: configRef.Name}, pc); err != nil {
+		return nil, errors.Wrap(err, errGetProviderConfig)
+	}
+
+	t := resource.NewLegacyProviderConfigUsageTracker(client, &clusterv1beta1.ProviderConfigUsage{})
+	if err := t.Track(ctx, mg); err != nil {
+		return nil, errors.Wrap(err, errTrackUsage)
+	}
+
+	return toSharedPCSpec(pc)
+}
+
+func resolveV2(ctx context.Context, crClient client.Client, mg resource.ModernManaged) (*namespacedv1beta1.ProviderConfigSpec, error) {
+	configRef := mg.GetProviderConfigReference()
+	if configRef == nil {
+		return nil, errors.New(errNoProviderConfig)
+	}
+
+	pcRuntimeObj, err := crClient.Scheme().New(namespacedv1beta1.SchemeGroupVersion.WithKind(configRef.Kind))
+	if err != nil {
+		return nil, errors.Wrap(err, "unknown GVK for ProviderConfig")
+	}
+	pcObj, ok := pcRuntimeObj.(client.Object)
+	if !ok {
+		// This indicates a programming error, types are not properly generated
+		return nil, errors.New("pc is not an Object")
+	}
+
+	// Namespace will be ignored if the PC is a cluster-scoped type
+	if err := crClient.Get(ctx, types.NamespacedName{Name: configRef.Name, Namespace: mg.GetNamespace()}, pcObj); err != nil {
+		return nil, errors.Wrap(err, errGetProviderConfig)
+	}
+
+	var pcSpec namespacedv1beta1.ProviderConfigSpec
+	pcu := &namespacedv1beta1.ProviderConfigUsage{}
+	switch pc := pcObj.(type) {
+	case *namespacedv1beta1.ProviderConfig:
+		pcSpec = pc.Spec
+		if pcSpec.Credentials.SecretRef != nil {
+			pcSpec.Credentials.SecretRef.Namespace = mg.GetNamespace()
+		}
+	case *namespacedv1beta1.ClusterProviderConfig:
+		pcSpec = pc.Spec
+	default:
+		// TODO(erhan)
+		return nil, errors.New("unknown")
+	}
+	t := resource.NewProviderConfigUsageTracker(crClient, pcu)
+	if err := t.Track(ctx, mg); err != nil {
+		return nil, errors.Wrap(err, errTrackUsage)
+	}
+	return &pcSpec, nil
 }
