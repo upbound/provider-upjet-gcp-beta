@@ -11,7 +11,7 @@ PROJECT_NAME := provider-$(PROVIDER_NAME)
 PROJECT_REPO := github.com/upbound/$(PROJECT_NAME)
 
 export TERRAFORM_VERSION := 1.5.5
-export TERRAFORM_PROVIDER_VERSION := 6.2.0
+export TERRAFORM_PROVIDER_VERSION := 6.47.0
 export TERRAFORM_PROVIDER_SOURCE := hashicorp/google-beta
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/hashicorp/terraform-provider-google-beta
 export TERRAFORM_DOCS_PATH ?= website/docs/r
@@ -48,10 +48,10 @@ GO_TEST_PARALLEL := $(shell echo $$(( $(NPROCS) / 2 )))
 # correctly.
 export GOPRIVATE = github.com/upbound/*
 
-GO_REQUIRED_VERSION ?= 1.21
+GO_REQUIRED_VERSION ?= 1.24
 # GOLANGCILINT_VERSION is inherited from build submodule by default.
 # Uncomment below if you need to override the version.
-# GOLANGCILINT_VERSION ?= 1.54.0
+GOLANGCILINT_VERSION ?= 1.64.8
 
 # SUBPACKAGES ?= $(shell find cmd/provider -type d -maxdepth 1 -mindepth 1 | cut -d/ -f3)
 SUBPACKAGES ?= monolith
@@ -67,14 +67,14 @@ export SUBPACKAGES := $(SUBPACKAGES)
 # ====================================================================================
 # Setup Kubernetes tools
 
-KIND_VERSION = v0.25.0
+KIND_VERSION = v0.29.0
 # dependency for up
-UP_VERSION = v0.39.0
-UP_CHANNEL = stable
+UP_VERSION = v0.40.0-0.rc.4
+UP_CHANNEL = alpha
 UPTEST_VERSION = v1.1.2
 KUSTOMIZE_VERSION = v5.3.0
 YQ_VERSION = v4.40.5
-CROSSPLANE_VERSION = 1.14.6
+CROSSPLANE_VERSION = 1.20.0
 CRDDIFF_VERSION = v0.12.1
 
 export UP_VERSION := $(UP_VERSION)
@@ -181,7 +181,7 @@ pull-docs:
 	git clone -c advice.detachedHead=false --depth 1 --filter=blob:none --branch "v$(TERRAFORM_PROVIDER_VERSION)" --sparse "$(TERRAFORM_PROVIDER_REPO)" "$(WORK_DIR)/$(notdir $(TERRAFORM_PROVIDER_REPO))";
 	@git -C "$(WORK_DIR)/$(notdir $(TERRAFORM_PROVIDER_REPO))" sparse-checkout set "$(TERRAFORM_DOCS_PATH)"
 	@# workaround for being unable override raw registry data. To be tracked in upjet.
-	@mv .work/terraform-provider-google-beta/website/docs/r/network_management_connectivity_test_resource.html.markdown .work/terraform-provider-google-beta/website/docs/r/network_management_connectivity_test.html.markdown
+	@rm .work/terraform-provider-google-beta/website/docs/r/model_armor_template.html.markdown
 
 generate.init: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
 
