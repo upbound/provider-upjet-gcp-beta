@@ -13,20 +13,16 @@ import (
 	"path/filepath"
 	"time"
 
-	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
-	"github.com/crossplane/crossplane-runtime/pkg/certificates"
+	"github.com/alecthomas/kingpin/v2"
 	xpcontroller "github.com/crossplane/crossplane-runtime/pkg/controller"
 	"github.com/crossplane/crossplane-runtime/pkg/feature"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
-	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	"github.com/crossplane/crossplane-runtime/pkg/statemetrics"
 	tjcontroller "github.com/crossplane/upjet/pkg/controller"
 	"github.com/crossplane/upjet/pkg/controller/conversion"
-	"gopkg.in/alecthomas/kingpin.v2"
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	provider "github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -35,13 +31,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	"github.com/upbound/provider-gcp-beta/apis"
-	"github.com/upbound/provider-gcp-beta/apis/v1alpha1"
+	apisCluster "github.com/upbound/provider-gcp-beta/apis/cluster"
+	apisNamespaced "github.com/upbound/provider-gcp-beta/apis/namespaced"
 	"github.com/upbound/provider-gcp-beta/config"
 	resolverapis "github.com/upbound/provider-gcp-beta/internal/apis"
 	"github.com/upbound/provider-gcp-beta/internal/bootcheck"
 	"github.com/upbound/provider-gcp-beta/internal/clients"
-	"github.com/upbound/provider-gcp-beta/internal/controller"
+	controllerCluster "github.com/upbound/provider-gcp-beta/internal/controller/cluster"
+	controllerNamespaced "github.com/upbound/provider-gcp-beta/internal/controller/namespaced"
 	"github.com/upbound/provider-gcp-beta/internal/features"
 )
 
@@ -77,9 +74,6 @@ func main() {
 		leaderElection          = app.Flag("leader-election", "Use leader election for the controller manager.").Short('l').Default("false").OverrideDefaultFromEnvar("LEADER_ELECTION").Bool()
 		maxReconcileRate        = app.Flag("max-reconcile-rate", "The global maximum rate per second at which resources may checked for drift from the desired state.").Default("100").Int()
 
-		namespace                  = app.Flag("namespace", "Namespace used to set as default scope in default secret store config.").Default("crossplane-system").Envar("POD_NAMESPACE").String()
-		essTLSCertsPath            = app.Flag("ess-tls-cert-dir", "Path of ESS TLS certificates.").Envar("ESS_TLS_CERTS_DIR").String()
-		enableExternalSecretStores = app.Flag("enable-external-secret-stores", "Enable support for ExternalSecretStores.").Default("false").Envar("ENABLE_EXTERNAL_SECRET_STORES").Bool()
 		enableManagementPolicies   = app.Flag("enable-management-policies", "Enable support for Management Policies.").Default("true").Envar("ENABLE_MANAGEMENT_POLICIES").Bool()
 
 		certsDirSet = false
@@ -89,13 +83,6 @@ func main() {
 			certsDirSet = true
 			return nil
 		}).String()
-
-		// now deprecated command-line arguments with the Terraform SDK-based upjet architecture
-		_ = app.Flag("provider-ttl", "[DEPRECATED: This option is no longer used and it will be removed in a future release.] TTL for the native plugin processes before they are replaced. Changing the default may increase memory consumption.").Hidden().Action(deprecationAction("provider-ttl")).Int()
-		_ = app.Flag("terraform-version", "[DEPRECATED: This option is no longer used and it will be removed in a future release.] Terraform version.").Envar("TERRAFORM_VERSION").Hidden().Action(deprecationAction("terraform-version")).String()
-		_ = app.Flag("terraform-provider-version", "[DEPRECATED: This option is no longer used and it will be removed in a future release.] Terraform provider version.").Envar("TERRAFORM_PROVIDER_VERSION").Hidden().Action(deprecationAction("terraform-provider-version")).String()
-		_ = app.Flag("terraform-native-provider-path", "[DEPRECATED: This option is no longer used and it will be removed in a future release.] Terraform native provider path for shared execution.").Envar("TERRAFORM_NATIVE_PROVIDER_PATH").Hidden().Action(deprecationAction("terraform-native-provider-path")).String()
-		_ = app.Flag("terraform-provider-source", "[DEPRECATED: This option is no longer used and it will be removed in a future release.] Terraform provider source.").Envar("TERRAFORM_PROVIDER_SOURCE").Hidden().Action(deprecationAction("terraform-provider-source")).String()
 	)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -161,8 +148,10 @@ func main() {
 		RenewDeadline:              func() *time.Duration { d := 50 * time.Second; return &d }(),
 	})
 	kingpin.FatalIfError(err, "Cannot create controller manager")
-	kingpin.FatalIfError(apis.AddToScheme(mgr.GetScheme()), "Cannot add GCP APIs to scheme")
-	kingpin.FatalIfError(resolverapis.BuildScheme(apis.AddToSchemes), "Cannot register the GCP APIs with the API resolver's runtime scheme")
+	kingpin.FatalIfError(apisCluster.AddToScheme(mgr.GetScheme()), "Cannot add cluster-scoped GCP APIs to scheme")
+	kingpin.FatalIfError(resolverapis.BuildScheme(apisCluster.AddToSchemes), "Cannot register the GCP APIs with the API resolver's runtime scheme")
+	kingpin.FatalIfError(apisNamespaced.AddToScheme(mgr.GetScheme()), "Cannot add namespace-scoped GCP APIs to scheme")
+	kingpin.FatalIfError(resolverapis.BuildScheme(apisNamespaced.AddToSchemes), "Cannot register the GCP APIs with the API resolver's runtime scheme")
 
 	metricRecorder := managed.NewMRMetricRecorder()
 	stateMetrics := statemetrics.NewMRStateMetrics()
@@ -171,9 +160,12 @@ func main() {
 	metrics.Registry.MustRegister(stateMetrics)
 
 	ctx := context.Background()
-	provider, err := config.GetProvider(ctx, false)
+	sdkProvider := provider.Provider()
+	pc, err := config.GetProvider(ctx, sdkProvider, false)
 	kingpin.FatalIfError(err, "Cannot initialize the provider configuration")
-	o := tjcontroller.Options{
+	pns, err := config.GetProviderNamespaced(ctx, sdkProvider, false)
+	kingpin.FatalIfError(err, "Cannot initialize the provider configuration")
+	optCluster := tjcontroller.Options{
 		Options: xpcontroller.Options{
 			Logger:                  logr,
 			GlobalRateLimiter:       ratelimiter.NewGlobal(*maxReconcileRate),
@@ -186,49 +178,40 @@ func main() {
 				MRStateMetrics:          stateMetrics,
 			},
 		},
-		Provider:              provider,
-		SetupFn:               clients.TerraformSetupBuilder(provider.TerraformProvider),
+		Provider:              pc,
+		SetupFn:               clients.TerraformSetupBuilder(pc.TerraformProvider),
+		PollJitter:            pollJitter,
+		OperationTrackerStore: tjcontroller.NewOperationStore(logr),
+		StartWebhooks:         *certsDir != "",
+	}
+	optNamespaced := tjcontroller.Options{
+		Options: xpcontroller.Options{
+			Logger:                  logr,
+			GlobalRateLimiter:       ratelimiter.NewGlobal(*maxReconcileRate),
+			PollInterval:            *pollInterval,
+			MaxConcurrentReconciles: *maxReconcileRate,
+			Features:                &feature.Flags{},
+			MetricOptions: &xpcontroller.MetricOptions{
+				PollStateMetricInterval: *pollStateMetricInterval,
+				MRMetrics:               metricRecorder,
+				MRStateMetrics:          stateMetrics,
+			},
+		},
+		Provider:              pns,
+		SetupFn:               clients.TerraformSetupBuilder(pns.TerraformProvider),
 		PollJitter:            pollJitter,
 		OperationTrackerStore: tjcontroller.NewOperationStore(logr),
 		StartWebhooks:         *certsDir != "",
 	}
 
 	if *enableManagementPolicies {
-		o.Features.Enable(features.EnableBetaManagementPolicies)
+		optCluster.Features.Enable(features.EnableBetaManagementPolicies)
+		optNamespaced.Features.Enable(features.EnableBetaManagementPolicies)
 		logr.Info("Beta feature enabled", "flag", features.EnableBetaManagementPolicies)
 	}
 
-	if *enableExternalSecretStores {
-		o.SecretStoreConfigGVK = &v1alpha1.StoreConfigGroupVersionKind
-		logr.Info("Alpha feature enabled", "flag", features.EnableAlphaExternalSecretStores)
-
-		o.ESSOptions = &tjcontroller.ESSOptions{}
-		if *essTLSCertsPath != "" {
-			logr.Info("ESS TLS certificates path is set. Loading mTLS configuration.")
-			tCfg, err := certificates.LoadMTLSConfig(filepath.Join(*essTLSCertsPath, "ca.crt"), filepath.Join(*essTLSCertsPath, "tls.crt"), filepath.Join(*essTLSCertsPath, "tls.key"), false)
-			kingpin.FatalIfError(err, "Cannot load ESS TLS config.")
-
-			o.ESSOptions.TLSConfig = tCfg
-		}
-
-		// Ensure default store config exists.
-		kingpin.FatalIfError(resource.Ignore(kerrors.IsAlreadyExists, mgr.GetClient().Create(ctx, &v1alpha1.StoreConfig{
-			TypeMeta: metav1.TypeMeta{},
-			ObjectMeta: metav1.ObjectMeta{
-				Name: "default",
-			},
-			Spec: v1alpha1.StoreConfigSpec{
-				// NOTE(turkenh): We only set required spec and expect optional
-				// ones to properly be initialized with CRD level default values.
-				SecretStoreConfig: xpv1.SecretStoreConfig{
-					DefaultScope: *namespace,
-				},
-			},
-			Status: v1alpha1.StoreConfigStatus{},
-		})), "cannot create default store config")
-	}
-
-	kingpin.FatalIfError(conversion.RegisterConversions(o.Provider), "Cannot initialize the webhook conversion registry")
-	kingpin.FatalIfError(controller.Setup_{{ .Group }}(mgr, o), "Cannot setup GCP controllers")
+	kingpin.FatalIfError(conversion.RegisterConversions(optCluster.Provider, optNamespaced.Provider, mgr.GetScheme()), "Cannot initialize the webhook conversion registry")
+	kingpin.FatalIfError(controllerCluster.Setup_{{ .Group }}(mgr, optCluster), "Cannot setup GCP controllers")
+	kingpin.FatalIfError(controllerNamespaced.Setup_{{ .Group }}(mgr, optNamespaced), "Cannot setup GCP controllers")
 	kingpin.FatalIfError(mgr.Start(ctrl.SetupSignalHandler()), "Cannot start controller manager")
 }
