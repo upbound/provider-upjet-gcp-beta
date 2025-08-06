@@ -13,6 +13,38 @@ import (
 	v1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 )
 
+type AdditionalIPRangesConfigInitParameters struct {
+
+	// List of secondary ranges names within this subnetwork that can be used for pod IPs.
+	PodIPv4RangeNames []*string `json:"podIpv4RangeNames,omitempty" tf:"pod_ipv4_range_names,omitempty"`
+
+	// The name or self_link of the Google Compute Engine
+	// subnetwork in which the cluster's instances are launched.
+	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
+}
+
+type AdditionalIPRangesConfigObservation struct {
+
+	// List of secondary ranges names within this subnetwork that can be used for pod IPs.
+	PodIPv4RangeNames []*string `json:"podIpv4RangeNames,omitempty" tf:"pod_ipv4_range_names,omitempty"`
+
+	// The name or self_link of the Google Compute Engine
+	// subnetwork in which the cluster's instances are launched.
+	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
+}
+
+type AdditionalIPRangesConfigParameters struct {
+
+	// List of secondary ranges names within this subnetwork that can be used for pod IPs.
+	// +kubebuilder:validation:Optional
+	PodIPv4RangeNames []*string `json:"podIpv4RangeNames,omitempty" tf:"pod_ipv4_range_names,omitempty"`
+
+	// The name or self_link of the Google Compute Engine
+	// subnetwork in which the cluster's instances are launched.
+	// +kubebuilder:validation:Optional
+	Subnetwork *string `json:"subnetwork" tf:"subnetwork,omitempty"`
+}
+
 type AdditionalNodeNetworkConfigsInitParameters struct {
 }
 
@@ -123,6 +155,16 @@ type AddonsConfigInitParameters struct {
 	// Configuration for the KALM addon, which manages the lifecycle of k8s. It is disabled by default; Set enabled = true to enable.
 	KalmConfig *KalmConfigInitParameters `json:"kalmConfig,omitempty" tf:"kalm_config,omitempty"`
 
+	// The status of the Lustre CSI driver addon,
+	// which allows the usage of a Lustre instances as volumes.
+	// It is disabled by default for Standard clusters; set enabled = true to enable.
+	// It is disabled by default for Autopilot clusters; set enabled = true to enable.
+	// Lustre CSI Driver Config has optional subfield
+	// enable_legacy_lustre_port which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988.
+	// This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
+	// See Enable Lustre CSI driver for more information.
+	LustreCsiDriverConfig *LustreCsiDriverConfigInitParameters `json:"lustreCsiDriverConfig,omitempty" tf:"lustre_csi_driver_config,omitempty"`
+
 	// Whether we should enable the network policy addon
 	// for the master.  This must be enabled in order to enable network policy for the nodes.
 	// To enable this, you must also define a network_policy block,
@@ -130,6 +172,13 @@ type AddonsConfigInitParameters struct {
 	// It can only be disabled if the nodes already do not have network policies enabled.
 	// Defaults to disabled; set disabled = false to enable.
 	NetworkPolicyConfig *NetworkPolicyConfigInitParameters `json:"networkPolicyConfig,omitempty" tf:"network_policy_config,omitempty"`
+
+	// The status of the Parallelstore CSI driver addon,
+	// which allows the usage of a Parallelstore instances as volumes.
+	// It is disabled by default for Standard clusters; set enabled = true to enable.
+	// It is enabled by default for Autopilot clusters with version 1.29 or later; set enabled = true to enable it explicitly.
+	// See Enable the Parallelstore CSI driver for more information.
+	ParallelstoreCsiDriverConfig *ParallelstoreCsiDriverConfigInitParameters `json:"parallelstoreCsiDriverConfig,omitempty" tf:"parallelstore_csi_driver_config,omitempty"`
 
 	// . The status of the Ray Operator
 	// addon.
@@ -197,6 +246,16 @@ type AddonsConfigObservation struct {
 	// Configuration for the KALM addon, which manages the lifecycle of k8s. It is disabled by default; Set enabled = true to enable.
 	KalmConfig *KalmConfigObservation `json:"kalmConfig,omitempty" tf:"kalm_config,omitempty"`
 
+	// The status of the Lustre CSI driver addon,
+	// which allows the usage of a Lustre instances as volumes.
+	// It is disabled by default for Standard clusters; set enabled = true to enable.
+	// It is disabled by default for Autopilot clusters; set enabled = true to enable.
+	// Lustre CSI Driver Config has optional subfield
+	// enable_legacy_lustre_port which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988.
+	// This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
+	// See Enable Lustre CSI driver for more information.
+	LustreCsiDriverConfig *LustreCsiDriverConfigObservation `json:"lustreCsiDriverConfig,omitempty" tf:"lustre_csi_driver_config,omitempty"`
+
 	// Whether we should enable the network policy addon
 	// for the master.  This must be enabled in order to enable network policy for the nodes.
 	// To enable this, you must also define a network_policy block,
@@ -204,6 +263,13 @@ type AddonsConfigObservation struct {
 	// It can only be disabled if the nodes already do not have network policies enabled.
 	// Defaults to disabled; set disabled = false to enable.
 	NetworkPolicyConfig *NetworkPolicyConfigObservation `json:"networkPolicyConfig,omitempty" tf:"network_policy_config,omitempty"`
+
+	// The status of the Parallelstore CSI driver addon,
+	// which allows the usage of a Parallelstore instances as volumes.
+	// It is disabled by default for Standard clusters; set enabled = true to enable.
+	// It is enabled by default for Autopilot clusters with version 1.29 or later; set enabled = true to enable it explicitly.
+	// See Enable the Parallelstore CSI driver for more information.
+	ParallelstoreCsiDriverConfig *ParallelstoreCsiDriverConfigObservation `json:"parallelstoreCsiDriverConfig,omitempty" tf:"parallelstore_csi_driver_config,omitempty"`
 
 	// . The status of the Ray Operator
 	// addon.
@@ -282,6 +348,17 @@ type AddonsConfigParameters struct {
 	// +kubebuilder:validation:Optional
 	KalmConfig *KalmConfigParameters `json:"kalmConfig,omitempty" tf:"kalm_config,omitempty"`
 
+	// The status of the Lustre CSI driver addon,
+	// which allows the usage of a Lustre instances as volumes.
+	// It is disabled by default for Standard clusters; set enabled = true to enable.
+	// It is disabled by default for Autopilot clusters; set enabled = true to enable.
+	// Lustre CSI Driver Config has optional subfield
+	// enable_legacy_lustre_port which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988.
+	// This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
+	// See Enable Lustre CSI driver for more information.
+	// +kubebuilder:validation:Optional
+	LustreCsiDriverConfig *LustreCsiDriverConfigParameters `json:"lustreCsiDriverConfig,omitempty" tf:"lustre_csi_driver_config,omitempty"`
+
 	// Whether we should enable the network policy addon
 	// for the master.  This must be enabled in order to enable network policy for the nodes.
 	// To enable this, you must also define a network_policy block,
@@ -290,6 +367,14 @@ type AddonsConfigParameters struct {
 	// Defaults to disabled; set disabled = false to enable.
 	// +kubebuilder:validation:Optional
 	NetworkPolicyConfig *NetworkPolicyConfigParameters `json:"networkPolicyConfig,omitempty" tf:"network_policy_config,omitempty"`
+
+	// The status of the Parallelstore CSI driver addon,
+	// which allows the usage of a Parallelstore instances as volumes.
+	// It is disabled by default for Standard clusters; set enabled = true to enable.
+	// It is enabled by default for Autopilot clusters with version 1.29 or later; set enabled = true to enable it explicitly.
+	// See Enable the Parallelstore CSI driver for more information.
+	// +kubebuilder:validation:Optional
+	ParallelstoreCsiDriverConfig *ParallelstoreCsiDriverConfigParameters `json:"parallelstoreCsiDriverConfig,omitempty" tf:"parallelstore_csi_driver_config,omitempty"`
 
 	// . The status of the Ray Operator
 	// addon.
@@ -339,6 +424,9 @@ type AdvancedMachineFeaturesInitParameters struct {
 	// Defines whether the instance should have nested virtualization enabled. Defaults to false.
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
 
+	// Defines the performance monitoring unit PMU level. Valid values are ARCHITECTURAL, STANDARD, or ENHANCED. Defaults to off.
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
+
 	// The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.
 	ThreadsPerCore *float64 `json:"threadsPerCore,omitempty" tf:"threads_per_core,omitempty"`
 }
@@ -347,6 +435,9 @@ type AdvancedMachineFeaturesObservation struct {
 
 	// Defines whether the instance should have nested virtualization enabled. Defaults to false.
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
+
+	// Defines the performance monitoring unit PMU level. Valid values are ARCHITECTURAL, STANDARD, or ENHANCED. Defaults to off.
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
 
 	// The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.
 	ThreadsPerCore *float64 `json:"threadsPerCore,omitempty" tf:"threads_per_core,omitempty"`
@@ -358,9 +449,32 @@ type AdvancedMachineFeaturesParameters struct {
 	// +kubebuilder:validation:Optional
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
 
+	// Defines the performance monitoring unit PMU level. Valid values are ARCHITECTURAL, STANDARD, or ENHANCED. Defaults to off.
+	// +kubebuilder:validation:Optional
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
+
 	// The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.
 	// +kubebuilder:validation:Optional
 	ThreadsPerCore *float64 `json:"threadsPerCore" tf:"threads_per_core,omitempty"`
+}
+
+type AnonymousAuthenticationConfigInitParameters struct {
+
+	// Sets or removes authentication restrictions. Available options include LIMITED and ENABLED.
+	Mode *string `json:"mode,omitempty" tf:"mode,omitempty"`
+}
+
+type AnonymousAuthenticationConfigObservation struct {
+
+	// Sets or removes authentication restrictions. Available options include LIMITED and ENABLED.
+	Mode *string `json:"mode,omitempty" tf:"mode,omitempty"`
+}
+
+type AnonymousAuthenticationConfigParameters struct {
+
+	// Sets or removes authentication restrictions. Available options include LIMITED and ENABLED.
+	// +kubebuilder:validation:Optional
+	Mode *string `json:"mode" tf:"mode,omitempty"`
 }
 
 type AuthenticatorGroupsConfigInitParameters struct {
@@ -382,6 +496,25 @@ type AuthenticatorGroupsConfigParameters struct {
 	SecurityGroup *string `json:"securityGroup" tf:"security_group,omitempty"`
 }
 
+type AutoMonitoringConfigInitParameters struct {
+
+	// Whether or not to enable GKE Auto-Monitoring. Supported values include: ALL, NONE.
+	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
+}
+
+type AutoMonitoringConfigObservation struct {
+
+	// Whether or not to enable GKE Auto-Monitoring. Supported values include: ALL, NONE.
+	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
+}
+
+type AutoMonitoringConfigParameters struct {
+
+	// Whether or not to enable GKE Auto-Monitoring. Supported values include: ALL, NONE.
+	// +kubebuilder:validation:Optional
+	Scope *string `json:"scope" tf:"scope,omitempty"`
+}
+
 type AutoProvisioningDefaultsInitParameters struct {
 
 	// The Customer Managed Encryption Key used to encrypt the boot disk attached to each node in the node pool. This should be of the form projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME]. For more information about protecting resources with Cloud KMS Keys please see: https://cloud.google.com/compute/docs/disks/customer-managed-encryption
@@ -391,7 +524,7 @@ type AutoProvisioningDefaultsInitParameters struct {
 	DiskSize *float64 `json:"diskSize,omitempty" tf:"disk_size,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
 	// The image type to use for this node. Note that changing the image type
@@ -433,7 +566,7 @@ type AutoProvisioningDefaultsObservation struct {
 	DiskSize *float64 `json:"diskSize,omitempty" tf:"disk_size,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
 	// The image type to use for this node. Note that changing the image type
@@ -477,7 +610,7 @@ type AutoProvisioningDefaultsParameters struct {
 	DiskSize *float64 `json:"diskSize,omitempty" tf:"disk_size,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	// +kubebuilder:validation:Optional
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
@@ -849,6 +982,9 @@ type ClusterInitParameters struct {
 	// set to true).
 	AllowNetAdmin *bool `json:"allowNetAdmin,omitempty" tf:"allow_net_admin,omitempty"`
 
+	// Configuration for anonymous authentication restrictions. Structure is documented below.
+	AnonymousAuthenticationConfig *AnonymousAuthenticationConfigInitParameters `json:"anonymousAuthenticationConfig,omitempty" tf:"anonymous_authentication_config,omitempty"`
+
 	// Configuration for the
 	// Google Groups for GKE feature.
 	// Structure is documented below.
@@ -879,6 +1015,10 @@ type ClusterInitParameters struct {
 	// Configuration for Confidential Nodes feature. Structure is documented below documented below.
 	ConfidentialNodes *ConfidentialNodesInitParameters `json:"confidentialNodes,omitempty" tf:"confidential_nodes,omitempty"`
 
+	// Configuration for all of the cluster's control plane endpoints.
+	// Structure is documented below.
+	ControlPlaneEndpointsConfig *ControlPlaneEndpointsConfigInitParameters `json:"controlPlaneEndpointsConfig,omitempty" tf:"control_plane_endpoints_config,omitempty"`
+
 	// Configuration for the
 	// Cost Allocation feature.
 	// Structure is documented below.
@@ -906,6 +1046,9 @@ type ClusterInitParameters struct {
 
 	// Description of the cluster.
 	Description *string `json:"description,omitempty" tf:"description,omitempty"`
+
+	// Disable L4 load balancer VPC firewalls to enable firewall policies.
+	DisableL4LBFirewallReconciliation *bool `json:"disableL4LbFirewallReconciliation,omitempty" tf:"disable_l4_lb_firewall_reconciliation,omitempty"`
 
 	// Enable Autopilot for this cluster. Defaults to false.
 	// Note that when this option is enabled, certain features of Standard GKE are not available.
@@ -950,11 +1093,18 @@ type ClusterInitParameters struct {
 	// See the official documentation.
 	EnableTpu *bool `json:"enableTpu,omitempty" tf:"enable_tpu,omitempty"`
 
+	// Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is documented below.
+	EnterpriseConfig *EnterpriseConfigInitParameters `json:"enterpriseConfig,omitempty" tf:"enterprise_config,omitempty"`
+
 	// Fleet configuration for the cluster. Structure is documented below.
 	Fleet *FleetInitParameters `json:"fleet,omitempty" tf:"fleet,omitempty"`
 
 	// Configuration for GKE Gateway API controller. Structure is documented below.
 	GatewayAPIConfig *GatewayAPIConfigInitParameters `json:"gatewayApiConfig,omitempty" tf:"gateway_api_config,omitempty"`
+
+	// Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
+	// Structure is documented below.
+	GkeAutoUpgradeConfig *GkeAutoUpgradeConfigInitParameters `json:"gkeAutoUpgradeConfig,omitempty" tf:"gke_auto_upgrade_config,omitempty"`
 
 	// Configuration of cluster IP allocation for
 	// VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend.
@@ -963,6 +1113,9 @@ type ClusterInitParameters struct {
 
 	// . Structure is documented below.
 	IdentityServiceConfig *IdentityServiceConfigInitParameters `json:"identityServiceConfig,omitempty" tf:"identity_service_config,omitempty"`
+
+	// Defines the config of in-transit encryption. Valid values are IN_TRANSIT_ENCRYPTION_DISABLED and IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT.
+	InTransitEncryptionConfig *string `json:"inTransitEncryptionConfig,omitempty" tf:"in_transit_encryption_config,omitempty"`
 
 	// The number of nodes to create in this
 	// cluster's default node pool. In regional or multi-zonal clusters, this is the
@@ -1030,6 +1183,9 @@ type ClusterInitParameters struct {
 	// shared network.
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
 
+	// Network bandwidth tier configuration. Structure is documented below.
+	NetworkPerformanceConfig *NetworkPerformanceConfigInitParameters `json:"networkPerformanceConfig,omitempty" tf:"network_performance_config,omitempty"`
+
 	// Configuration options for the
 	// NetworkPolicy
 	// feature. Structure is documented below.
@@ -1068,6 +1224,10 @@ type ClusterInitParameters struct {
 	NotificationConfig *NotificationConfigInitParameters `json:"notificationConfig,omitempty" tf:"notification_config,omitempty"`
 
 	// Configuration for the
+	// Structure is documented below.
+	PodAutoscaling *PodAutoscalingInitParameters `json:"podAutoscaling,omitempty" tf:"pod_autoscaling,omitempty"`
+
+	// Configuration for the
 	// PodSecurityPolicy feature.
 	// Structure is documented below.
 	PodSecurityPolicyConfig *PodSecurityPolicyConfigInitParameters `json:"podSecurityPolicyConfig,omitempty" tf:"pod_security_policy_config,omitempty"`
@@ -1085,6 +1245,9 @@ type ClusterInitParameters struct {
 
 	// Enable/Disable Protect API features for the cluster. Structure is documented below.
 	ProtectConfig *ProtectConfigInitParameters `json:"protectConfig,omitempty" tf:"protect_config,omitempty"`
+
+	// RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created. Structure is documented below.
+	RbacBindingConfig *RbacBindingConfigInitParameters `json:"rbacBindingConfig,omitempty" tf:"rbac_binding_config,omitempty"`
 
 	// Configuration options for the Release channel
 	// feature, which provide more control over automatic upgrades of your GKE clusters.
@@ -1127,6 +1290,9 @@ type ClusterInitParameters struct {
 
 	TpuConfig *TpuConfigInitParameters `json:"tpuConfig,omitempty" tf:"tpu_config,omitempty"`
 
+	// The custom keys configuration of the cluster Structure is documented below.
+	UserManagedKeysConfig *UserManagedKeysConfigInitParameters `json:"userManagedKeysConfig,omitempty" tf:"user_managed_keys_config,omitempty"`
+
 	// Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
 	// Structure is documented below.
 	VerticalPodAutoscaling *VerticalPodAutoscalingInitParameters `json:"verticalPodAutoscaling,omitempty" tf:"vertical_pod_autoscaling,omitempty"`
@@ -1150,6 +1316,9 @@ type ClusterObservation struct {
 	// false. This field should only be enabled for Autopilot clusters (enable_autopilot
 	// set to true).
 	AllowNetAdmin *bool `json:"allowNetAdmin,omitempty" tf:"allow_net_admin,omitempty"`
+
+	// Configuration for anonymous authentication restrictions. Structure is documented below.
+	AnonymousAuthenticationConfig *AnonymousAuthenticationConfigObservation `json:"anonymousAuthenticationConfig,omitempty" tf:"anonymous_authentication_config,omitempty"`
 
 	// Configuration for the
 	// Google Groups for GKE feature.
@@ -1181,6 +1350,10 @@ type ClusterObservation struct {
 	// Configuration for Confidential Nodes feature. Structure is documented below documented below.
 	ConfidentialNodes *ConfidentialNodesObservation `json:"confidentialNodes,omitempty" tf:"confidential_nodes,omitempty"`
 
+	// Configuration for all of the cluster's control plane endpoints.
+	// Structure is documented below.
+	ControlPlaneEndpointsConfig *ControlPlaneEndpointsConfigObservation `json:"controlPlaneEndpointsConfig,omitempty" tf:"control_plane_endpoints_config,omitempty"`
+
 	// Configuration for the
 	// Cost Allocation feature.
 	// Structure is documented below.
@@ -1208,6 +1381,9 @@ type ClusterObservation struct {
 
 	// Description of the cluster.
 	Description *string `json:"description,omitempty" tf:"description,omitempty"`
+
+	// Disable L4 load balancer VPC firewalls to enable firewall policies.
+	DisableL4LBFirewallReconciliation *bool `json:"disableL4LbFirewallReconciliation,omitempty" tf:"disable_l4_lb_firewall_reconciliation,omitempty"`
 
 	// +mapType=granular
 	EffectiveLabels map[string]*string `json:"effectiveLabels,omitempty" tf:"effective_labels,omitempty"`
@@ -1258,11 +1434,18 @@ type ClusterObservation struct {
 	// The IP address of this cluster's Kubernetes master.
 	Endpoint *string `json:"endpoint,omitempty" tf:"endpoint,omitempty"`
 
+	// Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is documented below.
+	EnterpriseConfig *EnterpriseConfigObservation `json:"enterpriseConfig,omitempty" tf:"enterprise_config,omitempty"`
+
 	// Fleet configuration for the cluster. Structure is documented below.
 	Fleet *FleetObservation `json:"fleet,omitempty" tf:"fleet,omitempty"`
 
 	// Configuration for GKE Gateway API controller. Structure is documented below.
 	GatewayAPIConfig *GatewayAPIConfigObservation `json:"gatewayApiConfig,omitempty" tf:"gateway_api_config,omitempty"`
+
+	// Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
+	// Structure is documented below.
+	GkeAutoUpgradeConfig *GkeAutoUpgradeConfigObservation `json:"gkeAutoUpgradeConfig,omitempty" tf:"gke_auto_upgrade_config,omitempty"`
 
 	// an identifier for the resource with format projects/{{project}}/locations/{{zone}}/clusters/{{name}}
 	ID *string `json:"id,omitempty" tf:"id,omitempty"`
@@ -1274,6 +1457,9 @@ type ClusterObservation struct {
 
 	// . Structure is documented below.
 	IdentityServiceConfig *IdentityServiceConfigObservation `json:"identityServiceConfig,omitempty" tf:"identity_service_config,omitempty"`
+
+	// Defines the config of in-transit encryption. Valid values are IN_TRANSIT_ENCRYPTION_DISABLED and IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT.
+	InTransitEncryptionConfig *string `json:"inTransitEncryptionConfig,omitempty" tf:"in_transit_encryption_config,omitempty"`
 
 	// The number of nodes to create in this
 	// cluster's default node pool. In regional or multi-zonal clusters, this is the
@@ -1357,6 +1543,9 @@ type ClusterObservation struct {
 	// shared network.
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
 
+	// Network bandwidth tier configuration. Structure is documented below.
+	NetworkPerformanceConfig *NetworkPerformanceConfigObservation `json:"networkPerformanceConfig,omitempty" tf:"network_performance_config,omitempty"`
+
 	// Configuration options for the
 	// NetworkPolicy
 	// feature. Structure is documented below.
@@ -1405,6 +1594,10 @@ type ClusterObservation struct {
 	Operation *string `json:"operation,omitempty" tf:"operation,omitempty"`
 
 	// Configuration for the
+	// Structure is documented below.
+	PodAutoscaling *PodAutoscalingObservation `json:"podAutoscaling,omitempty" tf:"pod_autoscaling,omitempty"`
+
+	// Configuration for the
 	// PodSecurityPolicy feature.
 	// Structure is documented below.
 	PodSecurityPolicyConfig *PodSecurityPolicyConfigObservation `json:"podSecurityPolicyConfig,omitempty" tf:"pod_security_policy_config,omitempty"`
@@ -1422,6 +1615,9 @@ type ClusterObservation struct {
 
 	// Enable/Disable Protect API features for the cluster. Structure is documented below.
 	ProtectConfig *ProtectConfigObservation `json:"protectConfig,omitempty" tf:"protect_config,omitempty"`
+
+	// RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created. Structure is documented below.
+	RbacBindingConfig *RbacBindingConfigObservation `json:"rbacBindingConfig,omitempty" tf:"rbac_binding_config,omitempty"`
 
 	// Configuration options for the Release channel
 	// feature, which provide more control over automatic upgrades of your GKE clusters.
@@ -1482,6 +1678,9 @@ type ClusterObservation struct {
 	// notation (e.g. 1.2.3.4/29).
 	TpuIPv4CidrBlock *string `json:"tpuIpv4CidrBlock,omitempty" tf:"tpu_ipv4_cidr_block,omitempty"`
 
+	// The custom keys configuration of the cluster Structure is documented below.
+	UserManagedKeysConfig *UserManagedKeysConfigObservation `json:"userManagedKeysConfig,omitempty" tf:"user_managed_keys_config,omitempty"`
+
 	// Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
 	// Structure is documented below.
 	VerticalPodAutoscaling *VerticalPodAutoscalingObservation `json:"verticalPodAutoscaling,omitempty" tf:"vertical_pod_autoscaling,omitempty"`
@@ -1507,6 +1706,10 @@ type ClusterParameters struct {
 	// set to true).
 	// +kubebuilder:validation:Optional
 	AllowNetAdmin *bool `json:"allowNetAdmin,omitempty" tf:"allow_net_admin,omitempty"`
+
+	// Configuration for anonymous authentication restrictions. Structure is documented below.
+	// +kubebuilder:validation:Optional
+	AnonymousAuthenticationConfig *AnonymousAuthenticationConfigParameters `json:"anonymousAuthenticationConfig,omitempty" tf:"anonymous_authentication_config,omitempty"`
 
 	// Configuration for the
 	// Google Groups for GKE feature.
@@ -1544,6 +1747,11 @@ type ClusterParameters struct {
 	// +kubebuilder:validation:Optional
 	ConfidentialNodes *ConfidentialNodesParameters `json:"confidentialNodes,omitempty" tf:"confidential_nodes,omitempty"`
 
+	// Configuration for all of the cluster's control plane endpoints.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	ControlPlaneEndpointsConfig *ControlPlaneEndpointsConfigParameters `json:"controlPlaneEndpointsConfig,omitempty" tf:"control_plane_endpoints_config,omitempty"`
+
 	// Configuration for the
 	// Cost Allocation feature.
 	// Structure is documented below.
@@ -1579,6 +1787,10 @@ type ClusterParameters struct {
 	// Description of the cluster.
 	// +kubebuilder:validation:Optional
 	Description *string `json:"description,omitempty" tf:"description,omitempty"`
+
+	// Disable L4 load balancer VPC firewalls to enable firewall policies.
+	// +kubebuilder:validation:Optional
+	DisableL4LBFirewallReconciliation *bool `json:"disableL4LbFirewallReconciliation,omitempty" tf:"disable_l4_lb_firewall_reconciliation,omitempty"`
 
 	// Enable Autopilot for this cluster. Defaults to false.
 	// Note that when this option is enabled, certain features of Standard GKE are not available.
@@ -1634,6 +1846,10 @@ type ClusterParameters struct {
 	// +kubebuilder:validation:Optional
 	EnableTpu *bool `json:"enableTpu,omitempty" tf:"enable_tpu,omitempty"`
 
+	// Configuration for [Enterprise edition].(https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/gke-editions). Structure is documented below.
+	// +kubebuilder:validation:Optional
+	EnterpriseConfig *EnterpriseConfigParameters `json:"enterpriseConfig,omitempty" tf:"enterprise_config,omitempty"`
+
 	// Fleet configuration for the cluster. Structure is documented below.
 	// +kubebuilder:validation:Optional
 	Fleet *FleetParameters `json:"fleet,omitempty" tf:"fleet,omitempty"`
@@ -1641,6 +1857,11 @@ type ClusterParameters struct {
 	// Configuration for GKE Gateway API controller. Structure is documented below.
 	// +kubebuilder:validation:Optional
 	GatewayAPIConfig *GatewayAPIConfigParameters `json:"gatewayApiConfig,omitempty" tf:"gateway_api_config,omitempty"`
+
+	// Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	GkeAutoUpgradeConfig *GkeAutoUpgradeConfigParameters `json:"gkeAutoUpgradeConfig,omitempty" tf:"gke_auto_upgrade_config,omitempty"`
 
 	// Configuration of cluster IP allocation for
 	// VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend.
@@ -1651,6 +1872,10 @@ type ClusterParameters struct {
 	// . Structure is documented below.
 	// +kubebuilder:validation:Optional
 	IdentityServiceConfig *IdentityServiceConfigParameters `json:"identityServiceConfig,omitempty" tf:"identity_service_config,omitempty"`
+
+	// Defines the config of in-transit encryption. Valid values are IN_TRANSIT_ENCRYPTION_DISABLED and IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT.
+	// +kubebuilder:validation:Optional
+	InTransitEncryptionConfig *string `json:"inTransitEncryptionConfig,omitempty" tf:"in_transit_encryption_config,omitempty"`
 
 	// The number of nodes to create in this
 	// cluster's default node pool. In regional or multi-zonal clusters, this is the
@@ -1738,6 +1963,10 @@ type ClusterParameters struct {
 	// +kubebuilder:validation:Optional
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
 
+	// Network bandwidth tier configuration. Structure is documented below.
+	// +kubebuilder:validation:Optional
+	NetworkPerformanceConfig *NetworkPerformanceConfigParameters `json:"networkPerformanceConfig,omitempty" tf:"network_performance_config,omitempty"`
+
 	// Configuration options for the
 	// NetworkPolicy
 	// feature. Structure is documented below.
@@ -1784,6 +2013,11 @@ type ClusterParameters struct {
 	NotificationConfig *NotificationConfigParameters `json:"notificationConfig,omitempty" tf:"notification_config,omitempty"`
 
 	// Configuration for the
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	PodAutoscaling *PodAutoscalingParameters `json:"podAutoscaling,omitempty" tf:"pod_autoscaling,omitempty"`
+
+	// Configuration for the
 	// PodSecurityPolicy feature.
 	// Structure is documented below.
 	// +kubebuilder:validation:Optional
@@ -1806,6 +2040,10 @@ type ClusterParameters struct {
 	// Enable/Disable Protect API features for the cluster. Structure is documented below.
 	// +kubebuilder:validation:Optional
 	ProtectConfig *ProtectConfigParameters `json:"protectConfig,omitempty" tf:"protect_config,omitempty"`
+
+	// RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created. Structure is documented below.
+	// +kubebuilder:validation:Optional
+	RbacBindingConfig *RbacBindingConfigParameters `json:"rbacBindingConfig,omitempty" tf:"rbac_binding_config,omitempty"`
 
 	// Configuration options for the Release channel
 	// feature, which provide more control over automatic upgrades of your GKE clusters.
@@ -1857,6 +2095,10 @@ type ClusterParameters struct {
 	// +kubebuilder:validation:Optional
 	TpuConfig *TpuConfigParameters `json:"tpuConfig,omitempty" tf:"tpu_config,omitempty"`
 
+	// The custom keys configuration of the cluster Structure is documented below.
+	// +kubebuilder:validation:Optional
+	UserManagedKeysConfig *UserManagedKeysConfigParameters `json:"userManagedKeysConfig,omitempty" tf:"user_managed_keys_config,omitempty"`
+
 	// Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it.
 	// Structure is documented below.
 	// +kubebuilder:validation:Optional
@@ -1897,6 +2139,10 @@ type ClusterTelemetryParameters struct {
 
 type ConfidentialNodesInitParameters struct {
 
+	// Defines the type of technology used
+	// by the confidential node.
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
+
 	// Enable Confidential GKE Nodes for this node pool, to
 	// enforce encryption of data in-use.
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
@@ -1904,12 +2150,21 @@ type ConfidentialNodesInitParameters struct {
 
 type ConfidentialNodesObservation struct {
 
+	// Defines the type of technology used
+	// by the confidential node.
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
+
 	// Enable Confidential GKE Nodes for this node pool, to
 	// enforce encryption of data in-use.
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type ConfidentialNodesParameters struct {
+
+	// Defines the type of technology used
+	// by the confidential node.
+	// +kubebuilder:validation:Optional
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
 
 	// Enable Confidential GKE Nodes for this node pool, to
 	// enforce encryption of data in-use.
@@ -1991,6 +2246,35 @@ type ContainerdConfigPrivateRegistryAccessConfigObservation struct {
 type ContainerdConfigPrivateRegistryAccessConfigParameters struct {
 }
 
+type ControlPlaneEndpointsConfigInitParameters struct {
+
+	// DNS endpoint configuration.
+	DNSEndpointConfig *DNSEndpointConfigInitParameters `json:"dnsEndpointConfig,omitempty" tf:"dns_endpoint_config,omitempty"`
+
+	// IP endpoint configuration.
+	IPEndpointsConfig *IPEndpointsConfigInitParameters `json:"ipEndpointsConfig,omitempty" tf:"ip_endpoints_config,omitempty"`
+}
+
+type ControlPlaneEndpointsConfigObservation struct {
+
+	// DNS endpoint configuration.
+	DNSEndpointConfig *DNSEndpointConfigObservation `json:"dnsEndpointConfig,omitempty" tf:"dns_endpoint_config,omitempty"`
+
+	// IP endpoint configuration.
+	IPEndpointsConfig *IPEndpointsConfigObservation `json:"ipEndpointsConfig,omitempty" tf:"ip_endpoints_config,omitempty"`
+}
+
+type ControlPlaneEndpointsConfigParameters struct {
+
+	// DNS endpoint configuration.
+	// +kubebuilder:validation:Optional
+	DNSEndpointConfig *DNSEndpointConfigParameters `json:"dnsEndpointConfig,omitempty" tf:"dns_endpoint_config,omitempty"`
+
+	// IP endpoint configuration.
+	// +kubebuilder:validation:Optional
+	IPEndpointsConfig *IPEndpointsConfigParameters `json:"ipEndpointsConfig,omitempty" tf:"ip_endpoints_config,omitempty"`
+}
+
 type CostManagementConfigInitParameters struct {
 
 	// Whether to enable the cost allocation feature.
@@ -2040,7 +2324,7 @@ type DNSConfigInitParameters struct {
 	// The suffix used for all cluster service records.
 	ClusterDNSDomain *string `json:"clusterDnsDomain,omitempty" tf:"cluster_dns_domain,omitempty"`
 
-	// The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED (default) or CLUSTER_SCOPE or VPC_SCOPE.
+	// The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED or CLUSTER_SCOPE or VPC_SCOPE. If the cluster_dns field is set to CLOUD_DNS, DNS_SCOPE_UNSPECIFIED and empty/null behave like CLUSTER_SCOPE.
 	ClusterDNSScope *string `json:"clusterDnsScope,omitempty" tf:"cluster_dns_scope,omitempty"`
 }
 
@@ -2055,7 +2339,7 @@ type DNSConfigObservation struct {
 	// The suffix used for all cluster service records.
 	ClusterDNSDomain *string `json:"clusterDnsDomain,omitempty" tf:"cluster_dns_domain,omitempty"`
 
-	// The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED (default) or CLUSTER_SCOPE or VPC_SCOPE.
+	// The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED or CLUSTER_SCOPE or VPC_SCOPE. If the cluster_dns field is set to CLOUD_DNS, DNS_SCOPE_UNSPECIFIED and empty/null behave like CLUSTER_SCOPE.
 	ClusterDNSScope *string `json:"clusterDnsScope,omitempty" tf:"cluster_dns_scope,omitempty"`
 }
 
@@ -2073,9 +2357,38 @@ type DNSConfigParameters struct {
 	// +kubebuilder:validation:Optional
 	ClusterDNSDomain *string `json:"clusterDnsDomain,omitempty" tf:"cluster_dns_domain,omitempty"`
 
-	// The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED (default) or CLUSTER_SCOPE or VPC_SCOPE.
+	// The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED or CLUSTER_SCOPE or VPC_SCOPE. If the cluster_dns field is set to CLOUD_DNS, DNS_SCOPE_UNSPECIFIED and empty/null behave like CLUSTER_SCOPE.
 	// +kubebuilder:validation:Optional
 	ClusterDNSScope *string `json:"clusterDnsScope,omitempty" tf:"cluster_dns_scope,omitempty"`
+}
+
+type DNSEndpointConfigInitParameters struct {
+
+	// Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
+	AllowExternalTraffic *bool `json:"allowExternalTraffic,omitempty" tf:"allow_external_traffic,omitempty"`
+
+	// (Output) The cluster's DNS endpoint.
+	Endpoint *string `json:"endpoint,omitempty" tf:"endpoint,omitempty"`
+}
+
+type DNSEndpointConfigObservation struct {
+
+	// Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
+	AllowExternalTraffic *bool `json:"allowExternalTraffic,omitempty" tf:"allow_external_traffic,omitempty"`
+
+	// (Output) The cluster's DNS endpoint.
+	Endpoint *string `json:"endpoint,omitempty" tf:"endpoint,omitempty"`
+}
+
+type DNSEndpointConfigParameters struct {
+
+	// Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
+	// +kubebuilder:validation:Optional
+	AllowExternalTraffic *bool `json:"allowExternalTraffic,omitempty" tf:"allow_external_traffic,omitempty"`
+
+	// (Output) The cluster's DNS endpoint.
+	// +kubebuilder:validation:Optional
+	Endpoint *string `json:"endpoint,omitempty" tf:"endpoint,omitempty"`
 }
 
 type DailyMaintenanceWindowInitParameters struct {
@@ -2186,6 +2499,28 @@ type EnableK8SBetaApisParameters struct {
 	EnabledApis []*string `json:"enabledApis" tf:"enabled_apis,omitempty"`
 }
 
+type EnterpriseConfigInitParameters struct {
+
+	// Sets the tier of the cluster. Available options include STANDARD and ENTERPRISE.
+	DesiredTier *string `json:"desiredTier,omitempty" tf:"desired_tier,omitempty"`
+}
+
+type EnterpriseConfigObservation struct {
+
+	// The effective tier of the cluster.
+	ClusterTier *string `json:"clusterTier,omitempty" tf:"cluster_tier,omitempty"`
+
+	// Sets the tier of the cluster. Available options include STANDARD and ENTERPRISE.
+	DesiredTier *string `json:"desiredTier,omitempty" tf:"desired_tier,omitempty"`
+}
+
+type EnterpriseConfigParameters struct {
+
+	// Sets the tier of the cluster. Available options include STANDARD and ENTERPRISE.
+	// +kubebuilder:validation:Optional
+	DesiredTier *string `json:"desiredTier,omitempty" tf:"desired_tier,omitempty"`
+}
+
 type EphemeralStorageConfigInitParameters struct {
 
 	// The amount of local SSD disks that will be
@@ -2210,6 +2545,9 @@ type EphemeralStorageConfigParameters struct {
 
 type EphemeralStorageLocalSsdConfigInitParameters struct {
 
+	// Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
+	DataCacheCount *float64 `json:"dataCacheCount,omitempty" tf:"data_cache_count,omitempty"`
+
 	// The amount of local SSD disks that will be
 	// attached to each cluster node. Defaults to 0.
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
@@ -2217,12 +2555,19 @@ type EphemeralStorageLocalSsdConfigInitParameters struct {
 
 type EphemeralStorageLocalSsdConfigObservation struct {
 
+	// Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
+	DataCacheCount *float64 `json:"dataCacheCount,omitempty" tf:"data_cache_count,omitempty"`
+
 	// The amount of local SSD disks that will be
 	// attached to each cluster node. Defaults to 0.
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 }
 
 type EphemeralStorageLocalSsdConfigParameters struct {
+
+	// Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
+	// +kubebuilder:validation:Optional
+	DataCacheCount *float64 `json:"dataCacheCount,omitempty" tf:"data_cache_count,omitempty"`
 
 	// The amount of local SSD disks that will be
 	// attached to each cluster node. Defaults to 0.
@@ -2232,19 +2577,19 @@ type EphemeralStorageLocalSsdConfigParameters struct {
 
 type ExclusionOptionsInitParameters struct {
 
-	// The scope of automatic upgrades to restrict in the exclusion window. One of: NO_UPGRADES | NO_MINOR_UPGRADES | NO_MINOR_OR_NODE_UPGRADES
+	// Whether or not to enable GKE Auto-Monitoring. Supported values include: ALL, NONE.
 	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
 }
 
 type ExclusionOptionsObservation struct {
 
-	// The scope of automatic upgrades to restrict in the exclusion window. One of: NO_UPGRADES | NO_MINOR_UPGRADES | NO_MINOR_OR_NODE_UPGRADES
+	// Whether or not to enable GKE Auto-Monitoring. Supported values include: ALL, NONE.
 	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
 }
 
 type ExclusionOptionsParameters struct {
 
-	// The scope of automatic upgrades to restrict in the exclusion window. One of: NO_UPGRADES | NO_MINOR_UPGRADES | NO_MINOR_OR_NODE_UPGRADES
+	// Whether or not to enable GKE Auto-Monitoring. Supported values include: ALL, NONE.
 	// +kubebuilder:validation:Optional
 	Scope *string `json:"scope" tf:"scope,omitempty"`
 }
@@ -2270,19 +2615,19 @@ type FastSocketParameters struct {
 
 type FilterInitParameters struct {
 
-	// Can be used to filter what notifications are sent. Accepted values are UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT and SECURITY_BULLETIN_EVENT. See Filtering notifications for more details.
+	// Can be used to filter what notifications are sent. Accepted values are UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT, SECURITY_BULLETIN_EVENT and UPGRADE_INFO_EVENT. See Filtering notifications for more details.
 	EventType []*string `json:"eventType,omitempty" tf:"event_type,omitempty"`
 }
 
 type FilterObservation struct {
 
-	// Can be used to filter what notifications are sent. Accepted values are UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT and SECURITY_BULLETIN_EVENT. See Filtering notifications for more details.
+	// Can be used to filter what notifications are sent. Accepted values are UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT, SECURITY_BULLETIN_EVENT and UPGRADE_INFO_EVENT. See Filtering notifications for more details.
 	EventType []*string `json:"eventType,omitempty" tf:"event_type,omitempty"`
 }
 
 type FilterParameters struct {
 
-	// Can be used to filter what notifications are sent. Accepted values are UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT and SECURITY_BULLETIN_EVENT. See Filtering notifications for more details.
+	// Can be used to filter what notifications are sent. Accepted values are UPGRADE_AVAILABLE_EVENT, UPGRADE_EVENT, SECURITY_BULLETIN_EVENT and UPGRADE_INFO_EVENT. See Filtering notifications for more details.
 	// +kubebuilder:validation:Optional
 	EventType []*string `json:"eventType" tf:"event_type,omitempty"`
 }
@@ -2424,6 +2769,28 @@ type GcsFuseCsiDriverConfigParameters struct {
 	// Enables vertical pod autoscaling
 	// +kubebuilder:validation:Optional
 	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
+}
+
+type GkeAutoUpgradeConfigInitParameters struct {
+
+	// The selected patch mode.
+	// Accepted values are:
+	PatchMode *string `json:"patchMode,omitempty" tf:"patch_mode,omitempty"`
+}
+
+type GkeAutoUpgradeConfigObservation struct {
+
+	// The selected patch mode.
+	// Accepted values are:
+	PatchMode *string `json:"patchMode,omitempty" tf:"patch_mode,omitempty"`
+}
+
+type GkeAutoUpgradeConfigParameters struct {
+
+	// The selected patch mode.
+	// Accepted values are:
+	// +kubebuilder:validation:Optional
+	PatchMode *string `json:"patchMode" tf:"patch_mode,omitempty"`
 }
 
 type GkeBackupAgentConfigInitParameters struct {
@@ -2664,7 +3031,40 @@ type HostMaintenancePolicyParameters struct {
 	MaintenanceInterval *string `json:"maintenanceInterval" tf:"maintenance_interval,omitempty"`
 }
 
+type HugepagesConfigInitParameters struct {
+
+	// Amount of 1G hugepages.
+	HugepageSize1G *float64 `json:"hugepageSize1G,omitempty" tf:"hugepage_size_1g,omitempty"`
+
+	// Amount of 2M hugepages.
+	HugepageSize2M *float64 `json:"hugepageSize2M,omitempty" tf:"hugepage_size_2m,omitempty"`
+}
+
+type HugepagesConfigObservation struct {
+
+	// Amount of 1G hugepages.
+	HugepageSize1G *float64 `json:"hugepageSize1G,omitempty" tf:"hugepage_size_1g,omitempty"`
+
+	// Amount of 2M hugepages.
+	HugepageSize2M *float64 `json:"hugepageSize2M,omitempty" tf:"hugepage_size_2m,omitempty"`
+}
+
+type HugepagesConfigParameters struct {
+
+	// Amount of 1G hugepages.
+	// +kubebuilder:validation:Optional
+	HugepageSize1G *float64 `json:"hugepageSize1G,omitempty" tf:"hugepage_size_1g,omitempty"`
+
+	// Amount of 2M hugepages.
+	// +kubebuilder:validation:Optional
+	HugepageSize2M *float64 `json:"hugepageSize2M,omitempty" tf:"hugepage_size_2m,omitempty"`
+}
+
 type IPAllocationPolicyInitParameters struct {
+
+	// The configuration for individual additional subnetworks attached to the cluster.
+	// Structure is documented below.
+	AdditionalIPRangesConfig []AdditionalIPRangesConfigInitParameters `json:"additionalIpRangesConfig,omitempty" tf:"additional_ip_ranges_config,omitempty"`
 
 	// The configuration for additional pod secondary ranges at
 	// the cluster level. Used for Autopilot clusters and Standard clusters with which control of the
@@ -2706,6 +3106,10 @@ type IPAllocationPolicyInitParameters struct {
 
 type IPAllocationPolicyObservation struct {
 
+	// The configuration for individual additional subnetworks attached to the cluster.
+	// Structure is documented below.
+	AdditionalIPRangesConfig []AdditionalIPRangesConfigObservation `json:"additionalIpRangesConfig,omitempty" tf:"additional_ip_ranges_config,omitempty"`
+
 	// The configuration for additional pod secondary ranges at
 	// the cluster level. Used for Autopilot clusters and Standard clusters with which control of the
 	// secondary Pod IP address assignment to node pools isn't needed. Structure is documented below.
@@ -2745,6 +3149,11 @@ type IPAllocationPolicyObservation struct {
 }
 
 type IPAllocationPolicyParameters struct {
+
+	// The configuration for individual additional subnetworks attached to the cluster.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	AdditionalIPRangesConfig []AdditionalIPRangesConfigParameters `json:"additionalIpRangesConfig,omitempty" tf:"additional_ip_ranges_config,omitempty"`
 
 	// The configuration for additional pod secondary ranges at
 	// the cluster level. Used for Autopilot clusters and Standard clusters with which control of the
@@ -2789,6 +3198,25 @@ type IPAllocationPolicyParameters struct {
 	// Possible values are IPV4 and IPV4_IPV6.
 	// +kubebuilder:validation:Optional
 	StackType *string `json:"stackType,omitempty" tf:"stack_type,omitempty"`
+}
+
+type IPEndpointsConfigInitParameters struct {
+
+	// Controls whether to allow direct IP access. Defaults to true.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type IPEndpointsConfigObservation struct {
+
+	// Controls whether to allow direct IP access. Defaults to true.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type IPEndpointsConfigParameters struct {
+
+	// Controls whether to allow direct IP access. Defaults to true.
+	// +kubebuilder:validation:Optional
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type IdentityServiceConfigInitParameters struct {
@@ -2863,6 +3291,9 @@ type KalmConfigParameters struct {
 
 type KubeletConfigInitParameters struct {
 
+	// Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods. The allowed sysctl groups are kernel.shm*, kernel.msg*, kernel.sem, fs.mqueue.*, and net.*.
+	AllowedUnsafeSysctls []*string `json:"allowedUnsafeSysctls,omitempty" tf:"allowed_unsafe_sysctls,omitempty"`
+
 	// If true, enables CPU CFS quota enforcement for
 	// containers that specify CPU limits.
 	CPUCfsQuota *bool `json:"cpuCfsQuota,omitempty" tf:"cpu_cfs_quota,omitempty"`
@@ -2875,10 +3306,34 @@ type KubeletConfigInitParameters struct {
 
 	// The CPU management policy on the node. See
 	// K8S CPU Management Policies.
-	// One of "none" or "static". Defaults to none when kubelet_config is unset.
+	// One of "none" or "static". If unset (or set to the empty string ""), the API will treat the field as if set to "none".
+	// Prior to the 6.4.0 this field was marked as required. The workaround for the required field
+	// is setting the empty string "", which will function identically to not setting this field.
 	CPUManagerPolicy *string `json:"cpuManagerPolicy,omitempty" tf:"cpu_manager_policy,omitempty"`
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// Defines the maximum number of container log files that can be present for a container. The integer must be between 2 and 10, inclusive.
+	ContainerLogMaxFiles *float64 `json:"containerLogMaxFiles,omitempty" tf:"container_log_max_files,omitempty"`
+
+	// Defines the maximum size of the
+	// container log file before it is rotated. Specified as a positive number and a
+	// unit suffix, such as "100Ki", "10Mi". Valid units are "Ki", "Mi", "Gi".
+	// The value must be between "10Mi" and "500Mi", inclusive. And the total container log size
+	// (container_log_max_size * container_log_max_files) cannot exceed 1% of the total storage of the node.
+	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
+
+	// Defines the percent of disk usage after which image garbage collection is always run. The integer must be between 10 and 85, inclusive.
+	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
+
+	// Defines the percent of disk usage before which image garbage collection is never run. Lowest disk usage to garbage collect to. The integer must be between 10 and 85, inclusive.
+	ImageGcLowThresholdPercent *float64 `json:"imageGcLowThresholdPercent,omitempty" tf:"image_gc_low_threshold_percent,omitempty"`
+
+	// Defines the maximum age an image can be unused before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m", and "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". The value must be a positive duration.
+	ImageMaximumGcAge *string `json:"imageMaximumGcAge,omitempty" tf:"image_maximum_gc_age,omitempty"`
+
+	// Defines the minimum age for an unused image before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m". The value cannot be greater than "2m".
+	ImageMinimumGcAge *string `json:"imageMinimumGcAge,omitempty" tf:"image_minimum_gc_age,omitempty"`
+
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
 	// Controls the maximum number of processes allowed to run in a pod. The value must be greater than or equal to 1024 and less than 4194304.
@@ -2887,6 +3342,9 @@ type KubeletConfigInitParameters struct {
 
 type KubeletConfigObservation struct {
 
+	// Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods. The allowed sysctl groups are kernel.shm*, kernel.msg*, kernel.sem, fs.mqueue.*, and net.*.
+	AllowedUnsafeSysctls []*string `json:"allowedUnsafeSysctls,omitempty" tf:"allowed_unsafe_sysctls,omitempty"`
+
 	// If true, enables CPU CFS quota enforcement for
 	// containers that specify CPU limits.
 	CPUCfsQuota *bool `json:"cpuCfsQuota,omitempty" tf:"cpu_cfs_quota,omitempty"`
@@ -2899,10 +3357,34 @@ type KubeletConfigObservation struct {
 
 	// The CPU management policy on the node. See
 	// K8S CPU Management Policies.
-	// One of "none" or "static". Defaults to none when kubelet_config is unset.
+	// One of "none" or "static". If unset (or set to the empty string ""), the API will treat the field as if set to "none".
+	// Prior to the 6.4.0 this field was marked as required. The workaround for the required field
+	// is setting the empty string "", which will function identically to not setting this field.
 	CPUManagerPolicy *string `json:"cpuManagerPolicy,omitempty" tf:"cpu_manager_policy,omitempty"`
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// Defines the maximum number of container log files that can be present for a container. The integer must be between 2 and 10, inclusive.
+	ContainerLogMaxFiles *float64 `json:"containerLogMaxFiles,omitempty" tf:"container_log_max_files,omitempty"`
+
+	// Defines the maximum size of the
+	// container log file before it is rotated. Specified as a positive number and a
+	// unit suffix, such as "100Ki", "10Mi". Valid units are "Ki", "Mi", "Gi".
+	// The value must be between "10Mi" and "500Mi", inclusive. And the total container log size
+	// (container_log_max_size * container_log_max_files) cannot exceed 1% of the total storage of the node.
+	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
+
+	// Defines the percent of disk usage after which image garbage collection is always run. The integer must be between 10 and 85, inclusive.
+	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
+
+	// Defines the percent of disk usage before which image garbage collection is never run. Lowest disk usage to garbage collect to. The integer must be between 10 and 85, inclusive.
+	ImageGcLowThresholdPercent *float64 `json:"imageGcLowThresholdPercent,omitempty" tf:"image_gc_low_threshold_percent,omitempty"`
+
+	// Defines the maximum age an image can be unused before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m", and "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". The value must be a positive duration.
+	ImageMaximumGcAge *string `json:"imageMaximumGcAge,omitempty" tf:"image_maximum_gc_age,omitempty"`
+
+	// Defines the minimum age for an unused image before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m". The value cannot be greater than "2m".
+	ImageMinimumGcAge *string `json:"imageMinimumGcAge,omitempty" tf:"image_minimum_gc_age,omitempty"`
+
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
 	// Controls the maximum number of processes allowed to run in a pod. The value must be greater than or equal to 1024 and less than 4194304.
@@ -2911,6 +3393,10 @@ type KubeletConfigObservation struct {
 
 type KubeletConfigParameters struct {
 
+	// Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods. The allowed sysctl groups are kernel.shm*, kernel.msg*, kernel.sem, fs.mqueue.*, and net.*.
+	// +kubebuilder:validation:Optional
+	AllowedUnsafeSysctls []*string `json:"allowedUnsafeSysctls,omitempty" tf:"allowed_unsafe_sysctls,omitempty"`
+
 	// If true, enables CPU CFS quota enforcement for
 	// containers that specify CPU limits.
 	// +kubebuilder:validation:Optional
@@ -2925,11 +3411,41 @@ type KubeletConfigParameters struct {
 
 	// The CPU management policy on the node. See
 	// K8S CPU Management Policies.
-	// One of "none" or "static". Defaults to none when kubelet_config is unset.
+	// One of "none" or "static". If unset (or set to the empty string ""), the API will treat the field as if set to "none".
+	// Prior to the 6.4.0 this field was marked as required. The workaround for the required field
+	// is setting the empty string "", which will function identically to not setting this field.
 	// +kubebuilder:validation:Optional
-	CPUManagerPolicy *string `json:"cpuManagerPolicy" tf:"cpu_manager_policy,omitempty"`
+	CPUManagerPolicy *string `json:"cpuManagerPolicy,omitempty" tf:"cpu_manager_policy,omitempty"`
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// Defines the maximum number of container log files that can be present for a container. The integer must be between 2 and 10, inclusive.
+	// +kubebuilder:validation:Optional
+	ContainerLogMaxFiles *float64 `json:"containerLogMaxFiles,omitempty" tf:"container_log_max_files,omitempty"`
+
+	// Defines the maximum size of the
+	// container log file before it is rotated. Specified as a positive number and a
+	// unit suffix, such as "100Ki", "10Mi". Valid units are "Ki", "Mi", "Gi".
+	// The value must be between "10Mi" and "500Mi", inclusive. And the total container log size
+	// (container_log_max_size * container_log_max_files) cannot exceed 1% of the total storage of the node.
+	// +kubebuilder:validation:Optional
+	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
+
+	// Defines the percent of disk usage after which image garbage collection is always run. The integer must be between 10 and 85, inclusive.
+	// +kubebuilder:validation:Optional
+	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
+
+	// Defines the percent of disk usage before which image garbage collection is never run. Lowest disk usage to garbage collect to. The integer must be between 10 and 85, inclusive.
+	// +kubebuilder:validation:Optional
+	ImageGcLowThresholdPercent *float64 `json:"imageGcLowThresholdPercent,omitempty" tf:"image_gc_low_threshold_percent,omitempty"`
+
+	// Defines the maximum age an image can be unused before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m", and "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". The value must be a positive duration.
+	// +kubebuilder:validation:Optional
+	ImageMaximumGcAge *string `json:"imageMaximumGcAge,omitempty" tf:"image_maximum_gc_age,omitempty"`
+
+	// Defines the minimum age for an unused image before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m". The value cannot be greater than "2m".
+	// +kubebuilder:validation:Optional
+	ImageMinimumGcAge *string `json:"imageMinimumGcAge,omitempty" tf:"image_minimum_gc_age,omitempty"`
+
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	// +kubebuilder:validation:Optional
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
@@ -2938,11 +3454,29 @@ type KubeletConfigParameters struct {
 	PodPidsLimit *float64 `json:"podPidsLimit,omitempty" tf:"pod_pids_limit,omitempty"`
 }
 
+type LinuxNodeConfigHugepagesConfigInitParameters struct {
+}
+
+type LinuxNodeConfigHugepagesConfigObservation struct {
+
+	// Amount of 1G hugepages.
+	HugepageSize1G *float64 `json:"hugepageSize1G,omitempty" tf:"hugepage_size_1g,omitempty"`
+
+	// Amount of 2M hugepages.
+	HugepageSize2M *float64 `json:"hugepageSize2M,omitempty" tf:"hugepage_size_2m,omitempty"`
+}
+
+type LinuxNodeConfigHugepagesConfigParameters struct {
+}
+
 type LinuxNodeConfigInitParameters struct {
 
 	// Possible cgroup modes that can be used.
 	// Accepted values are:
 	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
+
+	// Amounts for 2M and 1G hugepages. Structure is documented below.
+	HugepagesConfig *HugepagesConfigInitParameters `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
 
 	// The Linux kernel parameters to be applied to the nodes
 	// and all pods running on the nodes. Specified as a map from the key, such as
@@ -2958,6 +3492,9 @@ type LinuxNodeConfigObservation struct {
 	// Accepted values are:
 	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
 
+	// Amounts for 2M and 1G hugepages. Structure is documented below.
+	HugepagesConfig *HugepagesConfigObservation `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
+
 	// The Linux kernel parameters to be applied to the nodes
 	// and all pods running on the nodes. Specified as a map from the key, such as
 	// net.core.wmem_max, to a string value. Currently supported attributes can be found here.
@@ -2972,6 +3509,10 @@ type LinuxNodeConfigParameters struct {
 	// Accepted values are:
 	// +kubebuilder:validation:Optional
 	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
+
+	// Amounts for 2M and 1G hugepages. Structure is documented below.
+	// +kubebuilder:validation:Optional
+	HugepagesConfig *HugepagesConfigParameters `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
 
 	// The Linux kernel parameters to be applied to the nodes
 	// and all pods running on the nodes. Specified as a map from the key, such as
@@ -3024,6 +3565,30 @@ type LoggingConfigParameters struct {
 	// SYSTEM_COMPONENTS, APISERVER, CONTROLLER_MANAGER, SCHEDULER, and WORKLOADS.
 	// +kubebuilder:validation:Optional
 	EnableComponents []*string `json:"enableComponents" tf:"enable_components,omitempty"`
+}
+
+type LustreCsiDriverConfigInitParameters struct {
+	EnableLegacyLustrePort *bool `json:"enableLegacyLustrePort,omitempty" tf:"enable_legacy_lustre_port,omitempty"`
+
+	// Enables vertical pod autoscaling
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type LustreCsiDriverConfigObservation struct {
+	EnableLegacyLustrePort *bool `json:"enableLegacyLustrePort,omitempty" tf:"enable_legacy_lustre_port,omitempty"`
+
+	// Enables vertical pod autoscaling
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type LustreCsiDriverConfigParameters struct {
+
+	// +kubebuilder:validation:Optional
+	EnableLegacyLustrePort *bool `json:"enableLegacyLustrePort,omitempty" tf:"enable_legacy_lustre_port,omitempty"`
+
+	// Enables vertical pod autoscaling
+	// +kubebuilder:validation:Optional
+	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
 }
 
 type MaintenanceExclusionInitParameters struct {
@@ -3111,17 +3676,27 @@ type MaintenancePolicyParameters struct {
 
 type ManagedPrometheusInitParameters struct {
 
+	// Configuration options for GKE Auto-Monitoring.
+	AutoMonitoringConfig *AutoMonitoringConfigInitParameters `json:"autoMonitoringConfig,omitempty" tf:"auto_monitoring_config,omitempty"`
+
 	// Enables vertical pod autoscaling
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type ManagedPrometheusObservation struct {
 
+	// Configuration options for GKE Auto-Monitoring.
+	AutoMonitoringConfig *AutoMonitoringConfigObservation `json:"autoMonitoringConfig,omitempty" tf:"auto_monitoring_config,omitempty"`
+
 	// Enables vertical pod autoscaling
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type ManagedPrometheusParameters struct {
+
+	// Configuration options for GKE Auto-Monitoring.
+	// +kubebuilder:validation:Optional
+	AutoMonitoringConfig *AutoMonitoringConfigParameters `json:"autoMonitoringConfig,omitempty" tf:"auto_monitoring_config,omitempty"`
 
 	// Enables vertical pod autoscaling
 	// +kubebuilder:validation:Optional
@@ -3196,6 +3771,9 @@ type MasterAuthorizedNetworksConfigInitParameters struct {
 	// Whether Kubernetes master is
 	// accessible via Google Compute Engine Public IPs.
 	GCPPublicCidrsAccessEnabled *bool `json:"gcpPublicCidrsAccessEnabled,omitempty" tf:"gcp_public_cidrs_access_enabled,omitempty"`
+
+	// Whether authorized networks is enforced on the private endpoint or not.
+	PrivateEndpointEnforcementEnabled *bool `json:"privateEndpointEnforcementEnabled,omitempty" tf:"private_endpoint_enforcement_enabled,omitempty"`
 }
 
 type MasterAuthorizedNetworksConfigObservation struct {
@@ -3207,6 +3785,9 @@ type MasterAuthorizedNetworksConfigObservation struct {
 	// Whether Kubernetes master is
 	// accessible via Google Compute Engine Public IPs.
 	GCPPublicCidrsAccessEnabled *bool `json:"gcpPublicCidrsAccessEnabled,omitempty" tf:"gcp_public_cidrs_access_enabled,omitempty"`
+
+	// Whether authorized networks is enforced on the private endpoint or not.
+	PrivateEndpointEnforcementEnabled *bool `json:"privateEndpointEnforcementEnabled,omitempty" tf:"private_endpoint_enforcement_enabled,omitempty"`
 }
 
 type MasterAuthorizedNetworksConfigParameters struct {
@@ -3220,6 +3801,10 @@ type MasterAuthorizedNetworksConfigParameters struct {
 	// accessible via Google Compute Engine Public IPs.
 	// +kubebuilder:validation:Optional
 	GCPPublicCidrsAccessEnabled *bool `json:"gcpPublicCidrsAccessEnabled,omitempty" tf:"gcp_public_cidrs_access_enabled,omitempty"`
+
+	// Whether authorized networks is enforced on the private endpoint or not.
+	// +kubebuilder:validation:Optional
+	PrivateEndpointEnforcementEnabled *bool `json:"privateEndpointEnforcementEnabled,omitempty" tf:"private_endpoint_enforcement_enabled,omitempty"`
 }
 
 type MasterGlobalAccessConfigInitParameters struct {
@@ -3268,7 +3853,7 @@ type MonitoringConfigInitParameters struct {
 	// Configuration for Advanced Datapath Monitoring. Structure is documented below.
 	AdvancedDatapathObservabilityConfig *AdvancedDatapathObservabilityConfigInitParameters `json:"advancedDatapathObservabilityConfig,omitempty" tf:"advanced_datapath_observability_config,omitempty"`
 
-	// The GKE components exposing metrics. Supported values include: SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR and DCGM. In beta provider, WORKLOADS is supported on top of those 12 values. (WORKLOADS is deprecated and removed in GKE 1.24.) KUBELET and CADVISOR are only supported in GKE 1.29.3-gke.1093000 and above.
+	// The GKE components exposing metrics. Supported values include: SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR, DCGM and JOBSET. In beta provider, WORKLOADS is supported on top of those 12 values. (WORKLOADS is deprecated and removed in GKE 1.24.) KUBELET and CADVISOR are only supported in GKE 1.29.3-gke.1093000 and above. JOBSET is only supported in GKE 1.32.1-gke.1357001 and above.
 	EnableComponents []*string `json:"enableComponents,omitempty" tf:"enable_components,omitempty"`
 
 	// Configuration for Managed Service for Prometheus. Structure is documented below.
@@ -3280,7 +3865,7 @@ type MonitoringConfigObservation struct {
 	// Configuration for Advanced Datapath Monitoring. Structure is documented below.
 	AdvancedDatapathObservabilityConfig *AdvancedDatapathObservabilityConfigObservation `json:"advancedDatapathObservabilityConfig,omitempty" tf:"advanced_datapath_observability_config,omitempty"`
 
-	// The GKE components exposing metrics. Supported values include: SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR and DCGM. In beta provider, WORKLOADS is supported on top of those 12 values. (WORKLOADS is deprecated and removed in GKE 1.24.) KUBELET and CADVISOR are only supported in GKE 1.29.3-gke.1093000 and above.
+	// The GKE components exposing metrics. Supported values include: SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR, DCGM and JOBSET. In beta provider, WORKLOADS is supported on top of those 12 values. (WORKLOADS is deprecated and removed in GKE 1.24.) KUBELET and CADVISOR are only supported in GKE 1.29.3-gke.1093000 and above. JOBSET is only supported in GKE 1.32.1-gke.1357001 and above.
 	EnableComponents []*string `json:"enableComponents,omitempty" tf:"enable_components,omitempty"`
 
 	// Configuration for Managed Service for Prometheus. Structure is documented below.
@@ -3293,7 +3878,7 @@ type MonitoringConfigParameters struct {
 	// +kubebuilder:validation:Optional
 	AdvancedDatapathObservabilityConfig *AdvancedDatapathObservabilityConfigParameters `json:"advancedDatapathObservabilityConfig,omitempty" tf:"advanced_datapath_observability_config,omitempty"`
 
-	// The GKE components exposing metrics. Supported values include: SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR and DCGM. In beta provider, WORKLOADS is supported on top of those 12 values. (WORKLOADS is deprecated and removed in GKE 1.24.) KUBELET and CADVISOR are only supported in GKE 1.29.3-gke.1093000 and above.
+	// The GKE components exposing metrics. Supported values include: SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR, DCGM and JOBSET. In beta provider, WORKLOADS is supported on top of those 12 values. (WORKLOADS is deprecated and removed in GKE 1.24.) KUBELET and CADVISOR are only supported in GKE 1.29.3-gke.1093000 and above. JOBSET is only supported in GKE 1.32.1-gke.1357001 and above.
 	// +kubebuilder:validation:Optional
 	EnableComponents []*string `json:"enableComponents,omitempty" tf:"enable_components,omitempty"`
 
@@ -3303,6 +3888,18 @@ type MonitoringConfigParameters struct {
 }
 
 type NetworkConfigInitParameters struct {
+}
+
+type NetworkConfigNetworkPerformanceConfigInitParameters struct {
+}
+
+type NetworkConfigNetworkPerformanceConfigObservation struct {
+
+	// Specifies the total network bandwidth tier for NodePools in the cluster.
+	TotalEgressBandwidthTier *string `json:"totalEgressBandwidthTier,omitempty" tf:"total_egress_bandwidth_tier,omitempty"`
+}
+
+type NetworkConfigNetworkPerformanceConfigParameters struct {
 }
 
 type NetworkConfigObservation struct {
@@ -3318,13 +3915,18 @@ type NetworkConfigObservation struct {
 	// endpoint via private networking.
 	EnablePrivateNodes *bool `json:"enablePrivateNodes,omitempty" tf:"enable_private_nodes,omitempty"`
 
-	NetworkPerformanceConfig *NetworkPerformanceConfigObservation `json:"networkPerformanceConfig,omitempty" tf:"network_performance_config,omitempty"`
+	// Network bandwidth tier configuration. Structure is documented below.
+	NetworkPerformanceConfig *NetworkConfigNetworkPerformanceConfigObservation `json:"networkPerformanceConfig,omitempty" tf:"network_performance_config,omitempty"`
 
 	PodCidrOverprovisionConfig *NetworkConfigPodCidrOverprovisionConfigObservation `json:"podCidrOverprovisionConfig,omitempty" tf:"pod_cidr_overprovision_config,omitempty"`
 
 	PodIPv4CidrBlock *string `json:"podIpv4CidrBlock,omitempty" tf:"pod_ipv4_cidr_block,omitempty"`
 
 	PodRange *string `json:"podRange,omitempty" tf:"pod_range,omitempty"`
+
+	// The name or self_link of the Google Compute Engine
+	// subnetwork in which the cluster's instances are launched.
+	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
 
 type NetworkConfigParameters struct {
@@ -3344,13 +3946,22 @@ type NetworkConfigPodCidrOverprovisionConfigParameters struct {
 }
 
 type NetworkPerformanceConfigInitParameters struct {
+
+	// Specifies the total network bandwidth tier for NodePools in the cluster.
+	TotalEgressBandwidthTier *string `json:"totalEgressBandwidthTier,omitempty" tf:"total_egress_bandwidth_tier,omitempty"`
 }
 
 type NetworkPerformanceConfigObservation struct {
+
+	// Specifies the total network bandwidth tier for NodePools in the cluster.
 	TotalEgressBandwidthTier *string `json:"totalEgressBandwidthTier,omitempty" tf:"total_egress_bandwidth_tier,omitempty"`
 }
 
 type NetworkPerformanceConfigParameters struct {
+
+	// Specifies the total network bandwidth tier for NodePools in the cluster.
+	// +kubebuilder:validation:Optional
+	TotalEgressBandwidthTier *string `json:"totalEgressBandwidthTier" tf:"total_egress_bandwidth_tier,omitempty"`
 }
 
 type NetworkPolicyConfigInitParameters struct {
@@ -3473,6 +4084,9 @@ type NodeConfigAdvancedMachineFeaturesObservation struct {
 	// Defines whether the instance should have nested virtualization enabled. Defaults to false.
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
 
+	// Defines the performance monitoring unit PMU level. Valid values are ARCHITECTURAL, STANDARD, or ENHANCED. Defaults to off.
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
+
 	// The number of threads per physical core. To disable simultaneous multithreading (SMT) set this to 1. If unset, the maximum number of threads supported per core by the underlying processor is assumed.
 	ThreadsPerCore *float64 `json:"threadsPerCore,omitempty" tf:"threads_per_core,omitempty"`
 }
@@ -3482,17 +4096,30 @@ type NodeConfigAdvancedMachineFeaturesParameters struct {
 
 type NodeConfigConfidentialNodesInitParameters struct {
 
+	// Defines the type of technology used
+	// by the confidential node.
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
+
 	// Enables vertical pod autoscaling
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type NodeConfigConfidentialNodesObservation struct {
 
+	// Defines the type of technology used
+	// by the confidential node.
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
+
 	// Enables vertical pod autoscaling
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type NodeConfigConfidentialNodesParameters struct {
+
+	// Defines the type of technology used
+	// by the confidential node.
+	// +kubebuilder:validation:Optional
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
 
 	// Enables vertical pod autoscaling
 	// +kubebuilder:validation:Optional
@@ -3663,6 +4290,9 @@ type NodeConfigEphemeralStorageLocalSsdConfigInitParameters struct {
 
 type NodeConfigEphemeralStorageLocalSsdConfigObservation struct {
 
+	// Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
+	DataCacheCount *float64 `json:"dataCacheCount,omitempty" tf:"data_cache_count,omitempty"`
+
 	// The amount of local SSD disks that will be
 	// attached to each cluster node. Defaults to 0.
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
@@ -3761,7 +4391,7 @@ type NodeConfigInitParameters struct {
 	DiskSizeGb *float64 `json:"diskSizeGb,omitempty" tf:"disk_size_gb,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
 	// Enabling Confidential Storage will create boot disk with confidential mode. It is disabled by default.
@@ -3779,6 +4409,9 @@ type NodeConfigInitParameters struct {
 	// Structure is documented below.
 	FastSocket *FastSocketInitParameters `json:"fastSocket,omitempty" tf:"fast_socket,omitempty"`
 
+	// Enables Flex Start provisioning model for the node pool.
+	FlexStart *bool `json:"flexStart,omitempty" tf:"flex_start,omitempty"`
+
 	// Parameters for the Google Container Filesystem (GCFS).
 	// If unspecified, GCFS will not be enabled on the node pool. When enabling this feature you must specify image_type = "COS_CONTAINERD" and node_version from GKE versions 1.19 or later to use it.
 	// For GKE versions 1.19, 1.20, and 1.21, the recommended minimum node_version would be 1.19.15-gke.1300, 1.20.11-gke.1300, and 1.21.5-gke.1300 respectively.
@@ -3788,8 +4421,11 @@ type NodeConfigInitParameters struct {
 	GcfsConfig *GcfsConfigInitParameters `json:"gcfsConfig,omitempty" tf:"gcfs_config,omitempty"`
 
 	// List of the type and count of accelerator cards attached to the instance.
-	// Structure documented below.12 this field is an
-	// Attribute as Block
+	// Structure documented below.
+	// Note: As of 6.0.0, argument syntax
+	// is no longer supported for this field in favor of block syntax.
+	// To dynamically set a list of guest accelerators, use dynamic blocks.
+	// To set an empty list, use a single guest_accelerator block with count = 0.
 	GuestAccelerator []GuestAcceleratorInitParameters `json:"guestAccelerator,omitempty" tf:"guest_accelerator,omitempty"`
 
 	// Google Virtual NIC (gVNIC) is a virtual network interface.
@@ -3826,6 +4462,10 @@ type NodeConfigInitParameters struct {
 	// attached to each cluster node. Defaults to 0.
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
+	// Possible Local SSD encryption modes:
+	// Accepted values are:
+	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
+
 	// wide default value. Valid values include DEFAULT and MAX_THROUGHPUT. See Increasing logging agent throughput for more information.
 	LoggingVariant *string `json:"loggingVariant,omitempty" tf:"logging_variant,omitempty"`
 
@@ -3833,6 +4473,9 @@ type NodeConfigInitParameters struct {
 	// Defaults to e2-medium. To create a custom machine type, value should be set as specified
 	// here.
 	MachineType *string `json:"machineType,omitempty" tf:"machine_type,omitempty"`
+
+	// The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
+	MaxRunDuration *string `json:"maxRunDuration,omitempty" tf:"max_run_duration,omitempty"`
 
 	// The metadata key/value pairs assigned to instances in
 	// the cluster. From GKE 1. To avoid this, set the
@@ -3905,6 +4548,9 @@ type NodeConfigInitParameters struct {
 	// for more information. Defaults to false.
 	Spot *bool `json:"spot,omitempty" tf:"spot,omitempty"`
 
+	// The list of Storage Pools where boot disks are provisioned.
+	StoragePools []*string `json:"storagePools,omitempty" tf:"storage_pools,omitempty"`
+
 	// The list of instance tags applied to all nodes. Tags are used to identify
 	// valid sources or targets for network firewalls.
 	Tags []*string `json:"tags,omitempty" tf:"tags,omitempty"`
@@ -3913,6 +4559,9 @@ type NodeConfigInitParameters struct {
 	// Kubernetes taints
 	// to apply to nodes. Structure is documented below.
 	Taint []TaintInitParameters `json:"taint,omitempty" tf:"taint,omitempty"`
+
+	// Windows node configuration, currently supporting OSVersion attribute. The value must be one of [OS_VERSION_UNSPECIFIED, OS_VERSION_LTSC2019, OS_VERSION_LTSC2022]. For example:
+	WindowsNodeConfig *WindowsNodeConfigInitParameters `json:"windowsNodeConfig,omitempty" tf:"windows_node_config,omitempty"`
 
 	// Metadata configuration to expose to workloads on the node pool.
 	// Structure is documented below.
@@ -3923,6 +4572,9 @@ type NodeConfigKubeletConfigInitParameters struct {
 }
 
 type NodeConfigKubeletConfigObservation struct {
+
+	// Defines a comma-separated allowlist of unsafe sysctls or sysctl patterns which can be set on the Pods. The allowed sysctl groups are kernel.shm*, kernel.msg*, kernel.sem, fs.mqueue.*, and net.*.
+	AllowedUnsafeSysctls []*string `json:"allowedUnsafeSysctls,omitempty" tf:"allowed_unsafe_sysctls,omitempty"`
 
 	// If true, enables CPU CFS quota enforcement for
 	// containers that specify CPU limits.
@@ -3936,10 +4588,34 @@ type NodeConfigKubeletConfigObservation struct {
 
 	// The CPU management policy on the node. See
 	// K8S CPU Management Policies.
-	// One of "none" or "static". Defaults to none when kubelet_config is unset.
+	// One of "none" or "static". If unset (or set to the empty string ""), the API will treat the field as if set to "none".
+	// Prior to the 6.4.0 this field was marked as required. The workaround for the required field
+	// is setting the empty string "", which will function identically to not setting this field.
 	CPUManagerPolicy *string `json:"cpuManagerPolicy,omitempty" tf:"cpu_manager_policy,omitempty"`
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// Defines the maximum number of container log files that can be present for a container. The integer must be between 2 and 10, inclusive.
+	ContainerLogMaxFiles *float64 `json:"containerLogMaxFiles,omitempty" tf:"container_log_max_files,omitempty"`
+
+	// Defines the maximum size of the
+	// container log file before it is rotated. Specified as a positive number and a
+	// unit suffix, such as "100Ki", "10Mi". Valid units are "Ki", "Mi", "Gi".
+	// The value must be between "10Mi" and "500Mi", inclusive. And the total container log size
+	// (container_log_max_size * container_log_max_files) cannot exceed 1% of the total storage of the node.
+	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
+
+	// Defines the percent of disk usage after which image garbage collection is always run. The integer must be between 10 and 85, inclusive.
+	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
+
+	// Defines the percent of disk usage before which image garbage collection is never run. Lowest disk usage to garbage collect to. The integer must be between 10 and 85, inclusive.
+	ImageGcLowThresholdPercent *float64 `json:"imageGcLowThresholdPercent,omitempty" tf:"image_gc_low_threshold_percent,omitempty"`
+
+	// Defines the maximum age an image can be unused before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m", and "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". The value must be a positive duration.
+	ImageMaximumGcAge *string `json:"imageMaximumGcAge,omitempty" tf:"image_maximum_gc_age,omitempty"`
+
+	// Defines the minimum age for an unused image before it is garbage collected. Specified as a sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300s", "1.5m". The value cannot be greater than "2m".
+	ImageMinimumGcAge *string `json:"imageMinimumGcAge,omitempty" tf:"image_minimum_gc_age,omitempty"`
+
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
 	// Controls the maximum number of processes allowed to run in a pod. The value must be greater than or equal to 1024 and less than 4194304.
@@ -3957,6 +4633,9 @@ type NodeConfigLinuxNodeConfigObservation struct {
 	// Possible cgroup modes that can be used.
 	// Accepted values are:
 	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
+
+	// Amounts for 2M and 1G hugepages. Structure is documented below.
+	HugepagesConfig *LinuxNodeConfigHugepagesConfigObservation `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
 
 	// The Linux kernel parameters to be applied to the nodes
 	// and all pods running on the nodes. Specified as a map from the key, such as
@@ -4002,7 +4681,7 @@ type NodeConfigObservation struct {
 	DiskSizeGb *float64 `json:"diskSizeGb,omitempty" tf:"disk_size_gb,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
 	// List of kubernetes taints applied to each node. Structure is documented above.
@@ -4023,6 +4702,9 @@ type NodeConfigObservation struct {
 	// Structure is documented below.
 	FastSocket *FastSocketObservation `json:"fastSocket,omitempty" tf:"fast_socket,omitempty"`
 
+	// Enables Flex Start provisioning model for the node pool.
+	FlexStart *bool `json:"flexStart,omitempty" tf:"flex_start,omitempty"`
+
 	// Parameters for the Google Container Filesystem (GCFS).
 	// If unspecified, GCFS will not be enabled on the node pool. When enabling this feature you must specify image_type = "COS_CONTAINERD" and node_version from GKE versions 1.19 or later to use it.
 	// For GKE versions 1.19, 1.20, and 1.21, the recommended minimum node_version would be 1.19.15-gke.1300, 1.20.11-gke.1300, and 1.21.5-gke.1300 respectively.
@@ -4032,8 +4714,11 @@ type NodeConfigObservation struct {
 	GcfsConfig *GcfsConfigObservation `json:"gcfsConfig,omitempty" tf:"gcfs_config,omitempty"`
 
 	// List of the type and count of accelerator cards attached to the instance.
-	// Structure documented below.12 this field is an
-	// Attribute as Block
+	// Structure documented below.
+	// Note: As of 6.0.0, argument syntax
+	// is no longer supported for this field in favor of block syntax.
+	// To dynamically set a list of guest accelerators, use dynamic blocks.
+	// To set an empty list, use a single guest_accelerator block with count = 0.
 	GuestAccelerator []GuestAcceleratorObservation `json:"guestAccelerator,omitempty" tf:"guest_accelerator,omitempty"`
 
 	// Google Virtual NIC (gVNIC) is a virtual network interface.
@@ -4070,6 +4755,10 @@ type NodeConfigObservation struct {
 	// attached to each cluster node. Defaults to 0.
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
+	// Possible Local SSD encryption modes:
+	// Accepted values are:
+	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
+
 	// wide default value. Valid values include DEFAULT and MAX_THROUGHPUT. See Increasing logging agent throughput for more information.
 	LoggingVariant *string `json:"loggingVariant,omitempty" tf:"logging_variant,omitempty"`
 
@@ -4077,6 +4766,9 @@ type NodeConfigObservation struct {
 	// Defaults to e2-medium. To create a custom machine type, value should be set as specified
 	// here.
 	MachineType *string `json:"machineType,omitempty" tf:"machine_type,omitempty"`
+
+	// The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
+	MaxRunDuration *string `json:"maxRunDuration,omitempty" tf:"max_run_duration,omitempty"`
 
 	// The metadata key/value pairs assigned to instances in
 	// the cluster. From GKE 1. To avoid this, set the
@@ -4139,6 +4831,9 @@ type NodeConfigObservation struct {
 	// for more information. Defaults to false.
 	Spot *bool `json:"spot,omitempty" tf:"spot,omitempty"`
 
+	// The list of Storage Pools where boot disks are provisioned.
+	StoragePools []*string `json:"storagePools,omitempty" tf:"storage_pools,omitempty"`
+
 	// The list of instance tags applied to all nodes. Tags are used to identify
 	// valid sources or targets for network firewalls.
 	Tags []*string `json:"tags,omitempty" tf:"tags,omitempty"`
@@ -4147,6 +4842,9 @@ type NodeConfigObservation struct {
 	// Kubernetes taints
 	// to apply to nodes. Structure is documented below.
 	Taint []TaintObservation `json:"taint,omitempty" tf:"taint,omitempty"`
+
+	// Windows node configuration, currently supporting OSVersion attribute. The value must be one of [OS_VERSION_UNSPECIFIED, OS_VERSION_LTSC2019, OS_VERSION_LTSC2022]. For example:
+	WindowsNodeConfig *WindowsNodeConfigObservation `json:"windowsNodeConfig,omitempty" tf:"windows_node_config,omitempty"`
 
 	// Metadata configuration to expose to workloads on the node pool.
 	// Structure is documented below.
@@ -4178,7 +4876,7 @@ type NodeConfigParameters struct {
 	DiskSizeGb *float64 `json:"diskSizeGb,omitempty" tf:"disk_size_gb,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	// +kubebuilder:validation:Optional
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
@@ -4201,6 +4899,10 @@ type NodeConfigParameters struct {
 	// +kubebuilder:validation:Optional
 	FastSocket *FastSocketParameters `json:"fastSocket,omitempty" tf:"fast_socket,omitempty"`
 
+	// Enables Flex Start provisioning model for the node pool.
+	// +kubebuilder:validation:Optional
+	FlexStart *bool `json:"flexStart,omitempty" tf:"flex_start,omitempty"`
+
 	// Parameters for the Google Container Filesystem (GCFS).
 	// If unspecified, GCFS will not be enabled on the node pool. When enabling this feature you must specify image_type = "COS_CONTAINERD" and node_version from GKE versions 1.19 or later to use it.
 	// For GKE versions 1.19, 1.20, and 1.21, the recommended minimum node_version would be 1.19.15-gke.1300, 1.20.11-gke.1300, and 1.21.5-gke.1300 respectively.
@@ -4211,8 +4913,11 @@ type NodeConfigParameters struct {
 	GcfsConfig *GcfsConfigParameters `json:"gcfsConfig,omitempty" tf:"gcfs_config,omitempty"`
 
 	// List of the type and count of accelerator cards attached to the instance.
-	// Structure documented below.12 this field is an
-	// Attribute as Block
+	// Structure documented below.
+	// Note: As of 6.0.0, argument syntax
+	// is no longer supported for this field in favor of block syntax.
+	// To dynamically set a list of guest accelerators, use dynamic blocks.
+	// To set an empty list, use a single guest_accelerator block with count = 0.
 	// +kubebuilder:validation:Optional
 	GuestAccelerator []GuestAcceleratorParameters `json:"guestAccelerator,omitempty" tf:"guest_accelerator,omitempty"`
 
@@ -4258,6 +4963,11 @@ type NodeConfigParameters struct {
 	// +kubebuilder:validation:Optional
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
+	// Possible Local SSD encryption modes:
+	// Accepted values are:
+	// +kubebuilder:validation:Optional
+	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
+
 	// wide default value. Valid values include DEFAULT and MAX_THROUGHPUT. See Increasing logging agent throughput for more information.
 	// +kubebuilder:validation:Optional
 	LoggingVariant *string `json:"loggingVariant,omitempty" tf:"logging_variant,omitempty"`
@@ -4267,6 +4977,10 @@ type NodeConfigParameters struct {
 	// here.
 	// +kubebuilder:validation:Optional
 	MachineType *string `json:"machineType,omitempty" tf:"machine_type,omitempty"`
+
+	// The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
+	// +kubebuilder:validation:Optional
+	MaxRunDuration *string `json:"maxRunDuration,omitempty" tf:"max_run_duration,omitempty"`
 
 	// The metadata key/value pairs assigned to instances in
 	// the cluster. From GKE 1. To avoid this, set the
@@ -4353,6 +5067,10 @@ type NodeConfigParameters struct {
 	// +kubebuilder:validation:Optional
 	Spot *bool `json:"spot,omitempty" tf:"spot,omitempty"`
 
+	// The list of Storage Pools where boot disks are provisioned.
+	// +kubebuilder:validation:Optional
+	StoragePools []*string `json:"storagePools,omitempty" tf:"storage_pools,omitempty"`
+
 	// The list of instance tags applied to all nodes. Tags are used to identify
 	// valid sources or targets for network firewalls.
 	// +kubebuilder:validation:Optional
@@ -4363,6 +5081,10 @@ type NodeConfigParameters struct {
 	// to apply to nodes. Structure is documented below.
 	// +kubebuilder:validation:Optional
 	Taint []TaintParameters `json:"taint,omitempty" tf:"taint,omitempty"`
+
+	// Windows node configuration, currently supporting OSVersion attribute. The value must be one of [OS_VERSION_UNSPECIFIED, OS_VERSION_LTSC2019, OS_VERSION_LTSC2022]. For example:
+	// +kubebuilder:validation:Optional
+	WindowsNodeConfig *WindowsNodeConfigParameters `json:"windowsNodeConfig,omitempty" tf:"windows_node_config,omitempty"`
 
 	// Metadata configuration to expose to workloads on the node pool.
 	// Structure is documented below.
@@ -4476,6 +5198,16 @@ type NodeConfigTaintObservation struct {
 type NodeConfigTaintParameters struct {
 }
 
+type NodeConfigWindowsNodeConfigInitParameters struct {
+}
+
+type NodeConfigWindowsNodeConfigObservation struct {
+	Osversion *string `json:"osversion,omitempty" tf:"osversion,omitempty"`
+}
+
+type NodeConfigWindowsNodeConfigParameters struct {
+}
+
 type NodeConfigWorkloadMetadataConfigInitParameters struct {
 }
 
@@ -4491,24 +5223,27 @@ type NodeConfigWorkloadMetadataConfigParameters struct {
 
 type NodeKubeletConfigInitParameters struct {
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 }
 
 type NodeKubeletConfigObservation struct {
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 }
 
 type NodeKubeletConfigParameters struct {
 
-	// Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
+	// only port is enabled for newly created node pools in the cluster. It is strongly recommended to set this to FALSE. Possible values: TRUE, FALSE.
 	// +kubebuilder:validation:Optional
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 }
 
 type NodePoolAutoConfigInitParameters struct {
+
+	// Linux system configuration for the cluster's automatically provisioned node pools. Only cgroup_mode field is supported in node_pool_auto_config. Structure is documented below.
+	LinuxNodeConfig *NodePoolAutoConfigLinuxNodeConfigInitParameters `json:"linuxNodeConfig,omitempty" tf:"linux_node_config,omitempty"`
 
 	// The network tag config for the cluster's automatically provisioned node pools. Structure is documented below.
 	NetworkTags *NetworkTagsInitParameters `json:"networkTags,omitempty" tf:"network_tags,omitempty"`
@@ -4522,7 +5257,32 @@ type NodePoolAutoConfigInitParameters struct {
 	ResourceManagerTags map[string]*string `json:"resourceManagerTags,omitempty" tf:"resource_manager_tags,omitempty"`
 }
 
+type NodePoolAutoConfigLinuxNodeConfigInitParameters struct {
+
+	// Possible cgroup modes that can be used.
+	// Accepted values are:
+	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
+}
+
+type NodePoolAutoConfigLinuxNodeConfigObservation struct {
+
+	// Possible cgroup modes that can be used.
+	// Accepted values are:
+	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
+}
+
+type NodePoolAutoConfigLinuxNodeConfigParameters struct {
+
+	// Possible cgroup modes that can be used.
+	// Accepted values are:
+	// +kubebuilder:validation:Optional
+	CgroupMode *string `json:"cgroupMode,omitempty" tf:"cgroup_mode,omitempty"`
+}
+
 type NodePoolAutoConfigObservation struct {
+
+	// Linux system configuration for the cluster's automatically provisioned node pools. Only cgroup_mode field is supported in node_pool_auto_config. Structure is documented below.
+	LinuxNodeConfig *NodePoolAutoConfigLinuxNodeConfigObservation `json:"linuxNodeConfig,omitempty" tf:"linux_node_config,omitempty"`
 
 	// The network tag config for the cluster's automatically provisioned node pools. Structure is documented below.
 	NetworkTags *NetworkTagsObservation `json:"networkTags,omitempty" tf:"network_tags,omitempty"`
@@ -4537,6 +5297,10 @@ type NodePoolAutoConfigObservation struct {
 }
 
 type NodePoolAutoConfigParameters struct {
+
+	// Linux system configuration for the cluster's automatically provisioned node pools. Only cgroup_mode field is supported in node_pool_auto_config. Structure is documented below.
+	// +kubebuilder:validation:Optional
+	LinuxNodeConfig *NodePoolAutoConfigLinuxNodeConfigParameters `json:"linuxNodeConfig,omitempty" tf:"linux_node_config,omitempty"`
 
 	// The network tag config for the cluster's automatically provisioned node pools. Structure is documented below.
 	// +kubebuilder:validation:Optional
@@ -4595,6 +5359,10 @@ type NodePoolNodeConfigConfidentialNodesInitParameters struct {
 
 type NodePoolNodeConfigConfidentialNodesObservation struct {
 
+	// Defines the type of technology used
+	// by the confidential node.
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
+
 	// Enables vertical pod autoscaling
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
@@ -4625,7 +5393,7 @@ type NodePoolNodeConfigObservation struct {
 	DiskSizeGb *float64 `json:"diskSizeGb,omitempty" tf:"disk_size_gb,omitempty"`
 
 	// Type of the disk attached to each node
-	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-standard'
+	// (e.g. 'pd-standard', 'pd-balanced' or 'pd-ssd'). If unspecified, the default disk type is 'pd-balanced'
 	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
 
 	// List of kubernetes taints applied to each node. Structure is documented above.
@@ -4646,12 +5414,18 @@ type NodePoolNodeConfigObservation struct {
 	// Structure is documented below.
 	FastSocket *NodeConfigFastSocketObservation `json:"fastSocket,omitempty" tf:"fast_socket,omitempty"`
 
+	// Enables Flex Start provisioning model for the node pool.
+	FlexStart *bool `json:"flexStart,omitempty" tf:"flex_start,omitempty"`
+
 	// The default Google Container Filesystem (GCFS) configuration at the cluster level. e.g. enable image streaming across all the node pools within the cluster. Structure is documented below.
 	GcfsConfig *NodeConfigGcfsConfigObservation `json:"gcfsConfig,omitempty" tf:"gcfs_config,omitempty"`
 
 	// List of the type and count of accelerator cards attached to the instance.
-	// Structure documented below.12 this field is an
-	// Attribute as Block
+	// Structure documented below.
+	// Note: As of 6.0.0, argument syntax
+	// is no longer supported for this field in favor of block syntax.
+	// To dynamically set a list of guest accelerators, use dynamic blocks.
+	// To set an empty list, use a single guest_accelerator block with count = 0.
 	GuestAccelerator []NodeConfigGuestAcceleratorObservation `json:"guestAccelerator,omitempty" tf:"guest_accelerator,omitempty"`
 
 	// Google Virtual NIC (gVNIC) is a virtual network interface.
@@ -4678,7 +5452,7 @@ type NodePoolNodeConfigObservation struct {
 	// +mapType=granular
 	Labels map[string]*string `json:"labels,omitempty" tf:"labels,omitempty"`
 
-	// Parameters that can be configured on Linux nodes. Structure is documented below.
+	// Linux system configuration for the cluster's automatically provisioned node pools. Only cgroup_mode field is supported in node_pool_auto_config. Structure is documented below.
 	LinuxNodeConfig *NodeConfigLinuxNodeConfigObservation `json:"linuxNodeConfig,omitempty" tf:"linux_node_config,omitempty"`
 
 	// Parameters for the local NVMe SSDs. Structure is documented below.
@@ -4688,6 +5462,10 @@ type NodePoolNodeConfigObservation struct {
 	// attached to each cluster node. Defaults to 0.
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
+	// Possible Local SSD encryption modes:
+	// Accepted values are:
+	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
+
 	// The type of logging agent that is deployed by default for newly created node pools in the cluster. Valid values include DEFAULT and MAX_THROUGHPUT. See Increasing logging agent throughput for more information.
 	LoggingVariant *string `json:"loggingVariant,omitempty" tf:"logging_variant,omitempty"`
 
@@ -4695,6 +5473,9 @@ type NodePoolNodeConfigObservation struct {
 	// Defaults to e2-medium. To create a custom machine type, value should be set as specified
 	// here.
 	MachineType *string `json:"machineType,omitempty" tf:"machine_type,omitempty"`
+
+	// The runtime of each node in the node pool in seconds, terminated by 's'. Example: "3600s".
+	MaxRunDuration *string `json:"maxRunDuration,omitempty" tf:"max_run_duration,omitempty"`
 
 	// The metadata key/value pairs assigned to instances in
 	// the cluster. From GKE 1. To avoid this, set the
@@ -4756,6 +5537,9 @@ type NodePoolNodeConfigObservation struct {
 	// for more information. Defaults to false.
 	Spot *bool `json:"spot,omitempty" tf:"spot,omitempty"`
 
+	// The list of Storage Pools where boot disks are provisioned.
+	StoragePools []*string `json:"storagePools,omitempty" tf:"storage_pools,omitempty"`
+
 	// The list of instance tags applied to all nodes. Tags are used to identify
 	// valid sources or targets for network firewalls.
 	Tags []*string `json:"tags,omitempty" tf:"tags,omitempty"`
@@ -4764,6 +5548,9 @@ type NodePoolNodeConfigObservation struct {
 	// Kubernetes taints
 	// to apply to nodes. Structure is documented below.
 	Taint []NodeConfigTaintObservation `json:"taint,omitempty" tf:"taint,omitempty"`
+
+	// Windows node configuration, currently supporting OSVersion attribute. The value must be one of [OS_VERSION_UNSPECIFIED, OS_VERSION_LTSC2019, OS_VERSION_LTSC2022]. For example:
+	WindowsNodeConfig *NodeConfigWindowsNodeConfigObservation `json:"windowsNodeConfig,omitempty" tf:"windows_node_config,omitempty"`
 
 	// Metadata configuration to expose to workloads on the node pool.
 	// Structure is documented below.
@@ -4881,6 +5668,25 @@ type NotificationConfigParameters struct {
 	Pubsub *PubsubParameters `json:"pubsub" tf:"pubsub,omitempty"`
 }
 
+type ParallelstoreCsiDriverConfigInitParameters struct {
+
+	// Enables vertical pod autoscaling
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type ParallelstoreCsiDriverConfigObservation struct {
+
+	// Enables vertical pod autoscaling
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type ParallelstoreCsiDriverConfigParameters struct {
+
+	// Enables vertical pod autoscaling
+	// +kubebuilder:validation:Optional
+	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
+}
+
 type PlacementPolicyInitParameters struct {
 }
 
@@ -4897,6 +5703,28 @@ type PlacementPolicyObservation struct {
 }
 
 type PlacementPolicyParameters struct {
+}
+
+type PodAutoscalingInitParameters struct {
+
+	// Enable the Horizontal Pod Autoscaling profile for this cluster.
+	// Acceptable values are:
+	HpaProfile *string `json:"hpaProfile,omitempty" tf:"hpa_profile,omitempty"`
+}
+
+type PodAutoscalingObservation struct {
+
+	// Enable the Horizontal Pod Autoscaling profile for this cluster.
+	// Acceptable values are:
+	HpaProfile *string `json:"hpaProfile,omitempty" tf:"hpa_profile,omitempty"`
+}
+
+type PodAutoscalingParameters struct {
+
+	// Enable the Horizontal Pod Autoscaling profile for this cluster.
+	// Acceptable values are:
+	// +kubebuilder:validation:Optional
+	HpaProfile *string `json:"hpaProfile" tf:"hpa_profile,omitempty"`
 }
 
 type PodCidrOverprovisionConfigInitParameters struct {
@@ -5268,6 +6096,35 @@ type RayOperatorConfigParameters struct {
 	RayClusterMonitoringConfig *RayClusterMonitoringConfigParameters `json:"rayClusterMonitoringConfig,omitempty" tf:"ray_cluster_monitoring_config,omitempty"`
 }
 
+type RbacBindingConfigInitParameters struct {
+
+	// Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.
+	EnableInsecureBindingSystemAuthenticated *bool `json:"enableInsecureBindingSystemAuthenticated,omitempty" tf:"enable_insecure_binding_system_authenticated,omitempty"`
+
+	// Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.
+	EnableInsecureBindingSystemUnauthenticated *bool `json:"enableInsecureBindingSystemUnauthenticated,omitempty" tf:"enable_insecure_binding_system_unauthenticated,omitempty"`
+}
+
+type RbacBindingConfigObservation struct {
+
+	// Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.
+	EnableInsecureBindingSystemAuthenticated *bool `json:"enableInsecureBindingSystemAuthenticated,omitempty" tf:"enable_insecure_binding_system_authenticated,omitempty"`
+
+	// Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.
+	EnableInsecureBindingSystemUnauthenticated *bool `json:"enableInsecureBindingSystemUnauthenticated,omitempty" tf:"enable_insecure_binding_system_unauthenticated,omitempty"`
+}
+
+type RbacBindingConfigParameters struct {
+
+	// Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:authenticated.
+	// +kubebuilder:validation:Optional
+	EnableInsecureBindingSystemAuthenticated *bool `json:"enableInsecureBindingSystemAuthenticated,omitempty" tf:"enable_insecure_binding_system_authenticated,omitempty"`
+
+	// Setting this to true will allow any ClusterRoleBinding and RoleBinding with subjects system:anonymous or system:unauthenticated.
+	// +kubebuilder:validation:Optional
+	EnableInsecureBindingSystemUnauthenticated *bool `json:"enableInsecureBindingSystemUnauthenticated,omitempty" tf:"enable_insecure_binding_system_unauthenticated,omitempty"`
+}
+
 type RecurringWindowInitParameters struct {
 	EndTime *string `json:"endTime,omitempty" tf:"end_time,omitempty"`
 
@@ -5395,7 +6252,7 @@ type ResourceLimitsParameters struct {
 
 	// Maximum amount of the resource in the cluster.
 	// +kubebuilder:validation:Optional
-	Maximum *float64 `json:"maximum,omitempty" tf:"maximum,omitempty"`
+	Maximum *float64 `json:"maximum" tf:"maximum,omitempty"`
 
 	// Minimum amount of the resource in the cluster.
 	// +kubebuilder:validation:Optional
@@ -5462,6 +6319,35 @@ type ResourceUsageExportConfigParameters struct {
 	EnableResourceConsumptionMetering *bool `json:"enableResourceConsumptionMetering,omitempty" tf:"enable_resource_consumption_metering,omitempty"`
 }
 
+type RotationConfigInitParameters struct {
+
+	// Enable the roation in Secret Manager add-on for this cluster.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+
+	// The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+	RotationInterval *string `json:"rotationInterval,omitempty" tf:"rotation_interval,omitempty"`
+}
+
+type RotationConfigObservation struct {
+
+	// Enable the roation in Secret Manager add-on for this cluster.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+
+	// The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+	RotationInterval *string `json:"rotationInterval,omitempty" tf:"rotation_interval,omitempty"`
+}
+
+type RotationConfigParameters struct {
+
+	// Enable the roation in Secret Manager add-on for this cluster.
+	// +kubebuilder:validation:Optional
+	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
+
+	// The interval between two consecutive rotations. Default rotation interval is 2 minutes.
+	// +kubebuilder:validation:Optional
+	RotationInterval *string `json:"rotationInterval,omitempty" tf:"rotation_interval,omitempty"`
+}
+
 type SandboxConfigInitParameters struct {
 
 	// Which sandbox to use for pods in the node pool.
@@ -5520,12 +6406,18 @@ type SecretManagerConfigInitParameters struct {
 
 	// Enable the Secret Manager add-on for this cluster.
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+
+	// config for secret manager auto rotation. Structure is docuemented below
+	RotationConfig *RotationConfigInitParameters `json:"rotationConfig,omitempty" tf:"rotation_config,omitempty"`
 }
 
 type SecretManagerConfigObservation struct {
 
 	// Enable the Secret Manager add-on for this cluster.
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+
+	// config for secret manager auto rotation. Structure is docuemented below
+	RotationConfig *RotationConfigObservation `json:"rotationConfig,omitempty" tf:"rotation_config,omitempty"`
 }
 
 type SecretManagerConfigParameters struct {
@@ -5533,6 +6425,10 @@ type SecretManagerConfigParameters struct {
 	// Enable the Secret Manager add-on for this cluster.
 	// +kubebuilder:validation:Optional
 	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
+
+	// config for secret manager auto rotation. Structure is docuemented below
+	// +kubebuilder:validation:Optional
+	RotationConfig *RotationConfigParameters `json:"rotationConfig,omitempty" tf:"rotation_config,omitempty"`
 }
 
 type SecurityPostureConfigInitParameters struct {
@@ -5846,6 +6742,101 @@ type UpgradeSettingsParameters struct {
 	Strategy *string `json:"strategy,omitempty" tf:"strategy,omitempty"`
 }
 
+type UserManagedKeysConfigInitParameters struct {
+
+	// The Certificate Authority Service caPool to use for the aggreation CA in this cluster.
+	AggregationCA *string `json:"aggregationCa,omitempty" tf:"aggregation_ca,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the cluster CA in this cluster.
+	ClusterCA *string `json:"clusterCa,omitempty" tf:"cluster_ca,omitempty"`
+
+	// The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.
+	ControlPlaneDiskEncryptionKey *string `json:"controlPlaneDiskEncryptionKey,omitempty" tf:"control_plane_disk_encryption_key,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the etcd API CA in this cluster.
+	EtcdAPICA *string `json:"etcdApiCa,omitempty" tf:"etcd_api_ca,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.
+	EtcdPeerCA *string `json:"etcdPeerCa,omitempty" tf:"etcd_peer_ca,omitempty"`
+
+	// Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.
+	GkeopsEtcdBackupEncryptionKey *string `json:"gkeopsEtcdBackupEncryptionKey,omitempty" tf:"gkeops_etcd_backup_encryption_key,omitempty"`
+
+	// The Cloud KMS cryptoKeyVersions to use for signing service account JWTs issued by this cluster.
+	// +listType=set
+	ServiceAccountSigningKeys []*string `json:"serviceAccountSigningKeys,omitempty" tf:"service_account_signing_keys,omitempty"`
+
+	// The Cloud KMS cryptoKeyVersions to use for verifying service account JWTs issued by this cluster.
+	// +listType=set
+	ServiceAccountVerificationKeys []*string `json:"serviceAccountVerificationKeys,omitempty" tf:"service_account_verification_keys,omitempty"`
+}
+
+type UserManagedKeysConfigObservation struct {
+
+	// The Certificate Authority Service caPool to use for the aggreation CA in this cluster.
+	AggregationCA *string `json:"aggregationCa,omitempty" tf:"aggregation_ca,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the cluster CA in this cluster.
+	ClusterCA *string `json:"clusterCa,omitempty" tf:"cluster_ca,omitempty"`
+
+	// The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.
+	ControlPlaneDiskEncryptionKey *string `json:"controlPlaneDiskEncryptionKey,omitempty" tf:"control_plane_disk_encryption_key,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the etcd API CA in this cluster.
+	EtcdAPICA *string `json:"etcdApiCa,omitempty" tf:"etcd_api_ca,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.
+	EtcdPeerCA *string `json:"etcdPeerCa,omitempty" tf:"etcd_peer_ca,omitempty"`
+
+	// Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.
+	GkeopsEtcdBackupEncryptionKey *string `json:"gkeopsEtcdBackupEncryptionKey,omitempty" tf:"gkeops_etcd_backup_encryption_key,omitempty"`
+
+	// The Cloud KMS cryptoKeyVersions to use for signing service account JWTs issued by this cluster.
+	// +listType=set
+	ServiceAccountSigningKeys []*string `json:"serviceAccountSigningKeys,omitempty" tf:"service_account_signing_keys,omitempty"`
+
+	// The Cloud KMS cryptoKeyVersions to use for verifying service account JWTs issued by this cluster.
+	// +listType=set
+	ServiceAccountVerificationKeys []*string `json:"serviceAccountVerificationKeys,omitempty" tf:"service_account_verification_keys,omitempty"`
+}
+
+type UserManagedKeysConfigParameters struct {
+
+	// The Certificate Authority Service caPool to use for the aggreation CA in this cluster.
+	// +kubebuilder:validation:Optional
+	AggregationCA *string `json:"aggregationCa,omitempty" tf:"aggregation_ca,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the cluster CA in this cluster.
+	// +kubebuilder:validation:Optional
+	ClusterCA *string `json:"clusterCa,omitempty" tf:"cluster_ca,omitempty"`
+
+	// The Cloud KMS cryptoKey to use for Confidential Hyperdisk on the control plane nodes.
+	// +kubebuilder:validation:Optional
+	ControlPlaneDiskEncryptionKey *string `json:"controlPlaneDiskEncryptionKey,omitempty" tf:"control_plane_disk_encryption_key,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the etcd API CA in this cluster.
+	// +kubebuilder:validation:Optional
+	EtcdAPICA *string `json:"etcdApiCa,omitempty" tf:"etcd_api_ca,omitempty"`
+
+	// The Certificate Authority Service caPool to use for the etcd peer CA in this cluster.
+	// +kubebuilder:validation:Optional
+	EtcdPeerCA *string `json:"etcdPeerCa,omitempty" tf:"etcd_peer_ca,omitempty"`
+
+	// Resource path of the Cloud KMS cryptoKey to use for encryption of internal etcd backups.
+	// +kubebuilder:validation:Optional
+	GkeopsEtcdBackupEncryptionKey *string `json:"gkeopsEtcdBackupEncryptionKey,omitempty" tf:"gkeops_etcd_backup_encryption_key,omitempty"`
+
+	// The Cloud KMS cryptoKeyVersions to use for signing service account JWTs issued by this cluster.
+	// +kubebuilder:validation:Optional
+	// +listType=set
+	ServiceAccountSigningKeys []*string `json:"serviceAccountSigningKeys,omitempty" tf:"service_account_signing_keys,omitempty"`
+
+	// The Cloud KMS cryptoKeyVersions to use for verifying service account JWTs issued by this cluster.
+	// +kubebuilder:validation:Optional
+	// +listType=set
+	ServiceAccountVerificationKeys []*string `json:"serviceAccountVerificationKeys,omitempty" tf:"service_account_verification_keys,omitempty"`
+}
+
 type VerticalPodAutoscalingInitParameters struct {
 
 	// Enables vertical pod autoscaling
@@ -5863,6 +6854,20 @@ type VerticalPodAutoscalingParameters struct {
 	// Enables vertical pod autoscaling
 	// +kubebuilder:validation:Optional
 	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
+}
+
+type WindowsNodeConfigInitParameters struct {
+	Osversion *string `json:"osversion,omitempty" tf:"osversion,omitempty"`
+}
+
+type WindowsNodeConfigObservation struct {
+	Osversion *string `json:"osversion,omitempty" tf:"osversion,omitempty"`
+}
+
+type WindowsNodeConfigParameters struct {
+
+	// +kubebuilder:validation:Optional
+	Osversion *string `json:"osversion,omitempty" tf:"osversion,omitempty"`
 }
 
 type WorkloadAltsConfigInitParameters struct {

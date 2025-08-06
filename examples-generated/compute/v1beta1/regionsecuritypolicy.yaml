@@ -9,5 +9,4 @@ metadata:
 spec:
   forProvider:
     description: basic region security policy
-    provider: ${google-beta}
     type: CLOUD_ARMOR

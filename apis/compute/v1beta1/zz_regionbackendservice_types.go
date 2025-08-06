@@ -19,7 +19,7 @@ type BackendInitParameters struct {
 	// See the Backend Services Overview
 	// for an explanation of load balancing modes.
 	// Default value is UTILIZATION.
-	// Possible values are: UTILIZATION, RATE, CONNECTION.
+	// Possible values are: UTILIZATION, RATE, CONNECTION, CUSTOM_METRICS.
 	BalancingMode *string `json:"balancingMode,omitempty" tf:"balancing_mode,omitempty"`
 
 	// A multiplier applied to the group's maximum servicing capacity
@@ -31,6 +31,10 @@ type BackendInitParameters struct {
 	// A setting of 0 means the group is completely drained, offering
 	// 0% of its available Capacity. Valid range is [0.0,1.0].
 	CapacityScaler *float64 `json:"capacityScaler,omitempty" tf:"capacity_scaler,omitempty"`
+
+	// The set of custom metrics that are used for CUSTOM_METRICS BalancingMode.
+	// Structure is documented below.
+	CustomMetrics []CustomMetricsInitParameters `json:"customMetrics,omitempty" tf:"custom_metrics,omitempty"`
 
 	// An optional description of this resource.
 	// Provide this property when you create the resource.
@@ -118,7 +122,7 @@ type BackendObservation struct {
 	// See the Backend Services Overview
 	// for an explanation of load balancing modes.
 	// Default value is UTILIZATION.
-	// Possible values are: UTILIZATION, RATE, CONNECTION.
+	// Possible values are: UTILIZATION, RATE, CONNECTION, CUSTOM_METRICS.
 	BalancingMode *string `json:"balancingMode,omitempty" tf:"balancing_mode,omitempty"`
 
 	// A multiplier applied to the group's maximum servicing capacity
@@ -130,6 +134,10 @@ type BackendObservation struct {
 	// A setting of 0 means the group is completely drained, offering
 	// 0% of its available Capacity. Valid range is [0.0,1.0].
 	CapacityScaler *float64 `json:"capacityScaler,omitempty" tf:"capacity_scaler,omitempty"`
+
+	// The set of custom metrics that are used for CUSTOM_METRICS BalancingMode.
+	// Structure is documented below.
+	CustomMetrics []CustomMetricsObservation `json:"customMetrics,omitempty" tf:"custom_metrics,omitempty"`
 
 	// An optional description of this resource.
 	// Provide this property when you create the resource.
@@ -217,7 +225,7 @@ type BackendParameters struct {
 	// See the Backend Services Overview
 	// for an explanation of load balancing modes.
 	// Default value is UTILIZATION.
-	// Possible values are: UTILIZATION, RATE, CONNECTION.
+	// Possible values are: UTILIZATION, RATE, CONNECTION, CUSTOM_METRICS.
 	// +kubebuilder:validation:Optional
 	BalancingMode *string `json:"balancingMode,omitempty" tf:"balancing_mode,omitempty"`
 
@@ -231,6 +239,11 @@ type BackendParameters struct {
 	// 0% of its available Capacity. Valid range is [0.0,1.0].
 	// +kubebuilder:validation:Optional
 	CapacityScaler *float64 `json:"capacityScaler,omitempty" tf:"capacity_scaler,omitempty"`
+
+	// The set of custom metrics that are used for CUSTOM_METRICS BalancingMode.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	CustomMetrics []CustomMetricsParameters `json:"customMetrics,omitempty" tf:"custom_metrics,omitempty"`
 
 	// An optional description of this resource.
 	// Provide this property when you create the resource.
@@ -939,6 +952,73 @@ type ConsistentHashParameters struct {
 	MinimumRingSize *float64 `json:"minimumRingSize,omitempty" tf:"minimum_ring_size,omitempty"`
 }
 
+type CustomMetricsInitParameters struct {
+
+	// If true, the metric data is collected and reported to Cloud
+	// Monitoring, but is not used for load balancing.
+	DryRun *bool `json:"dryRun,omitempty" tf:"dry_run,omitempty"`
+
+	// Optional parameter to define a target utilization for the Custom Metrics
+	// balancing mode. The valid range is [0.0, 1.0].
+	MaxUtilization *float64 `json:"maxUtilization,omitempty" tf:"max_utilization,omitempty"`
+
+	// Name of the cookie.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+}
+
+type CustomMetricsObservation struct {
+
+	// If true, the metric data is collected and reported to Cloud
+	// Monitoring, but is not used for load balancing.
+	DryRun *bool `json:"dryRun,omitempty" tf:"dry_run,omitempty"`
+
+	// Optional parameter to define a target utilization for the Custom Metrics
+	// balancing mode. The valid range is [0.0, 1.0].
+	MaxUtilization *float64 `json:"maxUtilization,omitempty" tf:"max_utilization,omitempty"`
+
+	// Name of the cookie.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+}
+
+type CustomMetricsParameters struct {
+
+	// If true, the metric data is collected and reported to Cloud
+	// Monitoring, but is not used for load balancing.
+	// +kubebuilder:validation:Optional
+	DryRun *bool `json:"dryRun" tf:"dry_run,omitempty"`
+
+	// Optional parameter to define a target utilization for the Custom Metrics
+	// balancing mode. The valid range is [0.0, 1.0].
+	// +kubebuilder:validation:Optional
+	MaxUtilization *float64 `json:"maxUtilization,omitempty" tf:"max_utilization,omitempty"`
+
+	// Name of the cookie.
+	// +kubebuilder:validation:Optional
+	Name *string `json:"name" tf:"name,omitempty"`
+}
+
+type DynamicForwardingInitParameters struct {
+
+	// IP:PORT based dynamic forwarding configuration.
+	// Structure is documented below.
+	IPPortSelection *IPPortSelectionInitParameters `json:"ipPortSelection,omitempty" tf:"ip_port_selection,omitempty"`
+}
+
+type DynamicForwardingObservation struct {
+
+	// IP:PORT based dynamic forwarding configuration.
+	// Structure is documented below.
+	IPPortSelection *IPPortSelectionObservation `json:"ipPortSelection,omitempty" tf:"ip_port_selection,omitempty"`
+}
+
+type DynamicForwardingParameters struct {
+
+	// IP:PORT based dynamic forwarding configuration.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	IPPortSelection *IPPortSelectionParameters `json:"ipPortSelection,omitempty" tf:"ip_port_selection,omitempty"`
+}
+
 type FailoverPolicyInitParameters struct {
 
 	// On failover or failback, this field indicates whether connection drain
@@ -1031,51 +1111,33 @@ type FailoverPolicyParameters struct {
 
 type HTTPCookieInitParameters struct {
 
-	// Name of the resource. Provided by the client when the resource is
-	// created. The name must be 1-63 characters long, and comply with
-	// RFC1035. Specifically, the name must be 1-63 characters long and match
-	// the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the
-	// first character must be a lowercase letter, and all following
-	// characters must be a dash, lowercase letter, or digit, except the last
-	// character, which cannot be a dash.
+	// Name of the cookie.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
 	// Path to set for the cookie.
 	Path *string `json:"path,omitempty" tf:"path,omitempty"`
 
-	// The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-	// (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+	// Lifetime of the cookie.
+	// Structure is documented below.
 	TTL *TTLInitParameters `json:"ttl,omitempty" tf:"ttl,omitempty"`
 }
 
 type HTTPCookieObservation struct {
 
-	// Name of the resource. Provided by the client when the resource is
-	// created. The name must be 1-63 characters long, and comply with
-	// RFC1035. Specifically, the name must be 1-63 characters long and match
-	// the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the
-	// first character must be a lowercase letter, and all following
-	// characters must be a dash, lowercase letter, or digit, except the last
-	// character, which cannot be a dash.
+	// Name of the cookie.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
 	// Path to set for the cookie.
 	Path *string `json:"path,omitempty" tf:"path,omitempty"`
 
-	// The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-	// (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+	// Lifetime of the cookie.
+	// Structure is documented below.
 	TTL *TTLObservation `json:"ttl,omitempty" tf:"ttl,omitempty"`
 }
 
 type HTTPCookieParameters struct {
 
-	// Name of the resource. Provided by the client when the resource is
-	// created. The name must be 1-63 characters long, and comply with
-	// RFC1035. Specifically, the name must be 1-63 characters long and match
-	// the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the
-	// first character must be a lowercase letter, and all following
-	// characters must be a dash, lowercase letter, or digit, except the last
-	// character, which cannot be a dash.
+	// Name of the cookie.
 	// +kubebuilder:validation:Optional
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
@@ -1083,10 +1145,29 @@ type HTTPCookieParameters struct {
 	// +kubebuilder:validation:Optional
 	Path *string `json:"path,omitempty" tf:"path,omitempty"`
 
-	// The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-	// (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+	// Lifetime of the cookie.
+	// Structure is documented below.
 	// +kubebuilder:validation:Optional
 	TTL *TTLParameters `json:"ttl,omitempty" tf:"ttl,omitempty"`
+}
+
+type IPPortSelectionInitParameters struct {
+
+	// A boolean flag enabling IP:PORT based dynamic forwarding.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type IPPortSelectionObservation struct {
+
+	// A boolean flag enabling IP:PORT based dynamic forwarding.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type IPPortSelectionParameters struct {
+
+	// A boolean flag enabling IP:PORT based dynamic forwarding.
+	// +kubebuilder:validation:Optional
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type IapInitParameters struct {
@@ -1174,8 +1255,8 @@ type NegativeCachingPolicyInitParameters struct {
 	// can be specified as values, and you cannot specify a status code more than once.
 	Code *float64 `json:"code,omitempty" tf:"code,omitempty"`
 
-	// The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-	// (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+	// Lifetime of the cookie.
+	// Structure is documented below.
 	TTL *float64 `json:"ttl,omitempty" tf:"ttl,omitempty"`
 }
 
@@ -1185,8 +1266,8 @@ type NegativeCachingPolicyObservation struct {
 	// can be specified as values, and you cannot specify a status code more than once.
 	Code *float64 `json:"code,omitempty" tf:"code,omitempty"`
 
-	// The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-	// (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+	// Lifetime of the cookie.
+	// Structure is documented below.
 	TTL *float64 `json:"ttl,omitempty" tf:"ttl,omitempty"`
 }
 
@@ -1197,8 +1278,8 @@ type NegativeCachingPolicyParameters struct {
 	// +kubebuilder:validation:Optional
 	Code *float64 `json:"code,omitempty" tf:"code,omitempty"`
 
-	// The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-	// (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+	// Lifetime of the cookie.
+	// Structure is documented below.
 	// +kubebuilder:validation:Optional
 	TTL *float64 `json:"ttl,omitempty" tf:"ttl,omitempty"`
 }
@@ -1406,6 +1487,62 @@ type OutlierDetectionParameters struct {
 	SuccessRateStdevFactor *float64 `json:"successRateStdevFactor,omitempty" tf:"success_rate_stdev_factor,omitempty"`
 }
 
+type RegionBackendServiceCustomMetricsInitParameters struct {
+
+	// If true, the metric data is collected and reported to Cloud
+	// Monitoring, but is not used for load balancing.
+	DryRun *bool `json:"dryRun,omitempty" tf:"dry_run,omitempty"`
+
+	// Name of a custom utilization signal. The name must be 1-64 characters
+	// long and match the regular expression a-z? which
+	// means the first character must be a lowercase letter, and all following
+	// characters must be a dash, period, underscore, lowercase letter, or
+	// digit, except the last character, which cannot be a dash, period, or
+	// underscore. For usage guidelines, see Custom Metrics balancing mode. This
+	// field can only be used for a global or regional backend service with the
+	// loadBalancingScheme set to EXTERNAL_MANAGED,
+	// INTERNAL_MANAGED INTERNAL_SELF_MANAGED.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+}
+
+type RegionBackendServiceCustomMetricsObservation struct {
+
+	// If true, the metric data is collected and reported to Cloud
+	// Monitoring, but is not used for load balancing.
+	DryRun *bool `json:"dryRun,omitempty" tf:"dry_run,omitempty"`
+
+	// Name of a custom utilization signal. The name must be 1-64 characters
+	// long and match the regular expression a-z? which
+	// means the first character must be a lowercase letter, and all following
+	// characters must be a dash, period, underscore, lowercase letter, or
+	// digit, except the last character, which cannot be a dash, period, or
+	// underscore. For usage guidelines, see Custom Metrics balancing mode. This
+	// field can only be used for a global or regional backend service with the
+	// loadBalancingScheme set to EXTERNAL_MANAGED,
+	// INTERNAL_MANAGED INTERNAL_SELF_MANAGED.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+}
+
+type RegionBackendServiceCustomMetricsParameters struct {
+
+	// If true, the metric data is collected and reported to Cloud
+	// Monitoring, but is not used for load balancing.
+	// +kubebuilder:validation:Optional
+	DryRun *bool `json:"dryRun" tf:"dry_run,omitempty"`
+
+	// Name of a custom utilization signal. The name must be 1-64 characters
+	// long and match the regular expression a-z? which
+	// means the first character must be a lowercase letter, and all following
+	// characters must be a dash, period, underscore, lowercase letter, or
+	// digit, except the last character, which cannot be a dash, period, or
+	// underscore. For usage guidelines, see Custom Metrics balancing mode. This
+	// field can only be used for a global or regional backend service with the
+	// loadBalancingScheme set to EXTERNAL_MANAGED,
+	// INTERNAL_MANAGED INTERNAL_SELF_MANAGED.
+	// +kubebuilder:validation:Optional
+	Name *string `json:"name" tf:"name,omitempty"`
+}
+
 type RegionBackendServiceInitParameters struct {
 
 	// Lifetime of cookies in seconds if session_affinity is
@@ -1425,7 +1562,7 @@ type RegionBackendServiceInitParameters struct {
 
 	// Settings controlling the volume of connections to a backend service. This field
 	// is applicable only when the load_balancing_scheme is set to INTERNAL_MANAGED
-	// and the protocol is set to HTTP, HTTPS, or HTTP2.
+	// and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
 	// Structure is documented below.
 	CircuitBreakers *CircuitBreakersInitParameters `json:"circuitBreakers,omitempty" tf:"circuit_breakers,omitempty"`
 
@@ -1448,8 +1585,17 @@ type RegionBackendServiceInitParameters struct {
 	// This field only applies when all of the following are true -
 	ConsistentHash *ConsistentHashInitParameters `json:"consistentHash,omitempty" tf:"consistent_hash,omitempty"`
 
+	// List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+	// Structure is documented below.
+	CustomMetrics []RegionBackendServiceCustomMetricsInitParameters `json:"customMetrics,omitempty" tf:"custom_metrics,omitempty"`
+
 	// An optional description of this resource.
 	Description *string `json:"description,omitempty" tf:"description,omitempty"`
+
+	// Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+	// feature which together with Service Extension allows customized and complex routing logic.
+	// Structure is documented below.
+	DynamicForwarding *DynamicForwardingInitParameters `json:"dynamicForwarding,omitempty" tf:"dynamic_forwarding,omitempty"`
 
 	// If true, enable Cloud CDN for this RegionBackendService.
 	EnableCdn *bool `json:"enableCdn,omitempty" tf:"enable_cdn,omitempty"`
@@ -1476,7 +1622,12 @@ type RegionBackendServiceInitParameters struct {
 	// +kubebuilder:validation:Optional
 	HealthChecksSelector *v1.Selector `json:"healthChecksSelector,omitempty" tf:"-"`
 
-	// Settings for enabling Cloud Identity Aware Proxy
+	// Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+	// Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
+	IPAddressSelectionPolicy *string `json:"ipAddressSelectionPolicy,omitempty" tf:"ip_address_selection_policy,omitempty"`
+
+	// Settings for enabling Cloud Identity Aware Proxy.
+	// If OAuth client is not set, Google-managed OAuth client is used.
 	// Structure is documented below.
 	Iap *IapInitParameters `json:"iap,omitempty" tf:"iap,omitempty"`
 
@@ -1498,7 +1649,7 @@ type RegionBackendServiceInitParameters struct {
 
 	// Settings controlling eviction of unhealthy hosts from the load balancing pool.
 	// This field is applicable only when the load_balancing_scheme is set
-	// to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, or HTTP2.
+	// to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
 	// Structure is documented below.
 	OutlierDetection *OutlierDetectionInitParameters `json:"outlierDetection,omitempty" tf:"outlier_detection,omitempty"`
 
@@ -1515,7 +1666,7 @@ type RegionBackendServiceInitParameters struct {
 	// If it is not provided, the provider project is used.
 	Project *string `json:"project,omitempty" tf:"project,omitempty"`
 
-	// is set to HTTP, HTTPS, or HTTP2
+	// is set to HTTP, HTTPS, HTTP2 or H2C
 	Protocol *string `json:"protocol,omitempty" tf:"protocol,omitempty"`
 
 	// The security policy associated with this backend service.
@@ -1523,8 +1674,12 @@ type RegionBackendServiceInitParameters struct {
 
 	// Type of session affinity to use. The default is NONE. Session affinity is
 	// not applicable if the protocol is UDP.
-	// Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION.
+	// Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION, STRONG_COOKIE_AFFINITY.
 	SessionAffinity *string `json:"sessionAffinity,omitempty" tf:"session_affinity,omitempty"`
+
+	// Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+	// Structure is documented below.
+	StrongSessionAffinityCookie *StrongSessionAffinityCookieInitParameters `json:"strongSessionAffinityCookie,omitempty" tf:"strong_session_affinity_cookie,omitempty"`
 
 	// Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
 	// Structure is documented below.
@@ -1542,6 +1697,14 @@ type RegionBackendServiceLogConfigInitParameters struct {
 	// Whether to enable logging for the load balancer traffic served by this backend service.
 	Enable *bool `json:"enable,omitempty" tf:"enable,omitempty"`
 
+	// Specifies the fields to include in logging. This field can only be specified if logging is enabled for this backend service.
+	OptionalFields []*string `json:"optionalFields,omitempty" tf:"optional_fields,omitempty"`
+
+	// Specifies the optional logging mode for the load balancer traffic.
+	// Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+	// Possible values are: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+	OptionalMode *string `json:"optionalMode,omitempty" tf:"optional_mode,omitempty"`
+
 	// This field can only be specified if logging is enabled for this backend service. The value of
 	// the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
 	// where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
@@ -1553,6 +1716,14 @@ type RegionBackendServiceLogConfigObservation struct {
 
 	// Whether to enable logging for the load balancer traffic served by this backend service.
 	Enable *bool `json:"enable,omitempty" tf:"enable,omitempty"`
+
+	// Specifies the fields to include in logging. This field can only be specified if logging is enabled for this backend service.
+	OptionalFields []*string `json:"optionalFields,omitempty" tf:"optional_fields,omitempty"`
+
+	// Specifies the optional logging mode for the load balancer traffic.
+	// Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+	// Possible values are: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+	OptionalMode *string `json:"optionalMode,omitempty" tf:"optional_mode,omitempty"`
 
 	// This field can only be specified if logging is enabled for this backend service. The value of
 	// the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
@@ -1566,6 +1737,16 @@ type RegionBackendServiceLogConfigParameters struct {
 	// Whether to enable logging for the load balancer traffic served by this backend service.
 	// +kubebuilder:validation:Optional
 	Enable *bool `json:"enable,omitempty" tf:"enable,omitempty"`
+
+	// Specifies the fields to include in logging. This field can only be specified if logging is enabled for this backend service.
+	// +kubebuilder:validation:Optional
+	OptionalFields []*string `json:"optionalFields,omitempty" tf:"optional_fields,omitempty"`
+
+	// Specifies the optional logging mode for the load balancer traffic.
+	// Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+	// Possible values are: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+	// +kubebuilder:validation:Optional
+	OptionalMode *string `json:"optionalMode,omitempty" tf:"optional_mode,omitempty"`
 
 	// This field can only be specified if logging is enabled for this backend service. The value of
 	// the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
@@ -1594,7 +1775,7 @@ type RegionBackendServiceObservation struct {
 
 	// Settings controlling the volume of connections to a backend service. This field
 	// is applicable only when the load_balancing_scheme is set to INTERNAL_MANAGED
-	// and the protocol is set to HTTP, HTTPS, or HTTP2.
+	// and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
 	// Structure is documented below.
 	CircuitBreakers *CircuitBreakersObservation `json:"circuitBreakers,omitempty" tf:"circuit_breakers,omitempty"`
 
@@ -1620,8 +1801,17 @@ type RegionBackendServiceObservation struct {
 	// Creation timestamp in RFC3339 text format.
 	CreationTimestamp *string `json:"creationTimestamp,omitempty" tf:"creation_timestamp,omitempty"`
 
+	// List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+	// Structure is documented below.
+	CustomMetrics []RegionBackendServiceCustomMetricsObservation `json:"customMetrics,omitempty" tf:"custom_metrics,omitempty"`
+
 	// An optional description of this resource.
 	Description *string `json:"description,omitempty" tf:"description,omitempty"`
+
+	// Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+	// feature which together with Service Extension allows customized and complex routing logic.
+	// Structure is documented below.
+	DynamicForwarding *DynamicForwardingObservation `json:"dynamicForwarding,omitempty" tf:"dynamic_forwarding,omitempty"`
 
 	// If true, enable Cloud CDN for this RegionBackendService.
 	EnableCdn *bool `json:"enableCdn,omitempty" tf:"enable_cdn,omitempty"`
@@ -1648,7 +1838,12 @@ type RegionBackendServiceObservation struct {
 	// an identifier for the resource with format projects/{{project}}/regions/{{region}}/backendServices/{{name}}
 	ID *string `json:"id,omitempty" tf:"id,omitempty"`
 
-	// Settings for enabling Cloud Identity Aware Proxy
+	// Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+	// Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
+	IPAddressSelectionPolicy *string `json:"ipAddressSelectionPolicy,omitempty" tf:"ip_address_selection_policy,omitempty"`
+
+	// Settings for enabling Cloud Identity Aware Proxy.
+	// If OAuth client is not set, Google-managed OAuth client is used.
 	// Structure is documented below.
 	Iap *IapObservation `json:"iap,omitempty" tf:"iap,omitempty"`
 
@@ -1670,7 +1865,7 @@ type RegionBackendServiceObservation struct {
 
 	// Settings controlling eviction of unhealthy hosts from the load balancing pool.
 	// This field is applicable only when the load_balancing_scheme is set
-	// to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, or HTTP2.
+	// to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
 	// Structure is documented below.
 	OutlierDetection *OutlierDetectionObservation `json:"outlierDetection,omitempty" tf:"outlier_detection,omitempty"`
 
@@ -1687,7 +1882,7 @@ type RegionBackendServiceObservation struct {
 	// If it is not provided, the provider project is used.
 	Project *string `json:"project,omitempty" tf:"project,omitempty"`
 
-	// is set to HTTP, HTTPS, or HTTP2
+	// is set to HTTP, HTTPS, HTTP2 or H2C
 	Protocol *string `json:"protocol,omitempty" tf:"protocol,omitempty"`
 
 	// The Region in which the created backend service should reside.
@@ -1702,8 +1897,12 @@ type RegionBackendServiceObservation struct {
 
 	// Type of session affinity to use. The default is NONE. Session affinity is
 	// not applicable if the protocol is UDP.
-	// Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION.
+	// Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION, STRONG_COOKIE_AFFINITY.
 	SessionAffinity *string `json:"sessionAffinity,omitempty" tf:"session_affinity,omitempty"`
+
+	// Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+	// Structure is documented below.
+	StrongSessionAffinityCookie *StrongSessionAffinityCookieObservation `json:"strongSessionAffinityCookie,omitempty" tf:"strong_session_affinity_cookie,omitempty"`
 
 	// Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
 	// Structure is documented below.
@@ -1738,7 +1937,7 @@ type RegionBackendServiceParameters struct {
 
 	// Settings controlling the volume of connections to a backend service. This field
 	// is applicable only when the load_balancing_scheme is set to INTERNAL_MANAGED
-	// and the protocol is set to HTTP, HTTPS, or HTTP2.
+	// and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
 	// Structure is documented below.
 	// +kubebuilder:validation:Optional
 	CircuitBreakers *CircuitBreakersParameters `json:"circuitBreakers,omitempty" tf:"circuit_breakers,omitempty"`
@@ -1765,9 +1964,20 @@ type RegionBackendServiceParameters struct {
 	// +kubebuilder:validation:Optional
 	ConsistentHash *ConsistentHashParameters `json:"consistentHash,omitempty" tf:"consistent_hash,omitempty"`
 
+	// List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	CustomMetrics []RegionBackendServiceCustomMetricsParameters `json:"customMetrics,omitempty" tf:"custom_metrics,omitempty"`
+
 	// An optional description of this resource.
 	// +kubebuilder:validation:Optional
 	Description *string `json:"description,omitempty" tf:"description,omitempty"`
+
+	// Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+	// feature which together with Service Extension allows customized and complex routing logic.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	DynamicForwarding *DynamicForwardingParameters `json:"dynamicForwarding,omitempty" tf:"dynamic_forwarding,omitempty"`
 
 	// If true, enable Cloud CDN for this RegionBackendService.
 	// +kubebuilder:validation:Optional
@@ -1797,7 +2007,13 @@ type RegionBackendServiceParameters struct {
 	// +kubebuilder:validation:Optional
 	HealthChecksSelector *v1.Selector `json:"healthChecksSelector,omitempty" tf:"-"`
 
-	// Settings for enabling Cloud Identity Aware Proxy
+	// Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+	// Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
+	// +kubebuilder:validation:Optional
+	IPAddressSelectionPolicy *string `json:"ipAddressSelectionPolicy,omitempty" tf:"ip_address_selection_policy,omitempty"`
+
+	// Settings for enabling Cloud Identity Aware Proxy.
+	// If OAuth client is not set, Google-managed OAuth client is used.
 	// Structure is documented below.
 	// +kubebuilder:validation:Optional
 	Iap *IapParameters `json:"iap,omitempty" tf:"iap,omitempty"`
@@ -1824,7 +2040,7 @@ type RegionBackendServiceParameters struct {
 
 	// Settings controlling eviction of unhealthy hosts from the load balancing pool.
 	// This field is applicable only when the load_balancing_scheme is set
-	// to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, or HTTP2.
+	// to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
 	// Structure is documented below.
 	// +kubebuilder:validation:Optional
 	OutlierDetection *OutlierDetectionParameters `json:"outlierDetection,omitempty" tf:"outlier_detection,omitempty"`
@@ -1844,7 +2060,7 @@ type RegionBackendServiceParameters struct {
 	// +kubebuilder:validation:Optional
 	Project *string `json:"project,omitempty" tf:"project,omitempty"`
 
-	// is set to HTTP, HTTPS, or HTTP2
+	// is set to HTTP, HTTPS, HTTP2 or H2C
 	// +kubebuilder:validation:Optional
 	Protocol *string `json:"protocol,omitempty" tf:"protocol,omitempty"`
 
@@ -1859,9 +2075,14 @@ type RegionBackendServiceParameters struct {
 
 	// Type of session affinity to use. The default is NONE. Session affinity is
 	// not applicable if the protocol is UDP.
-	// Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION.
+	// Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION, STRONG_COOKIE_AFFINITY.
 	// +kubebuilder:validation:Optional
 	SessionAffinity *string `json:"sessionAffinity,omitempty" tf:"session_affinity,omitempty"`
+
+	// Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	StrongSessionAffinityCookie *StrongSessionAffinityCookieParameters `json:"strongSessionAffinityCookie,omitempty" tf:"strong_session_affinity_cookie,omitempty"`
 
 	// Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
 	// Structure is documented below.
@@ -1876,11 +2097,103 @@ type RegionBackendServiceParameters struct {
 	TimeoutSec *float64 `json:"timeoutSec,omitempty" tf:"timeout_sec,omitempty"`
 }
 
+type StrongSessionAffinityCookieInitParameters struct {
+
+	// Name of the cookie.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
+	// Path to set for the cookie.
+	Path *string `json:"path,omitempty" tf:"path,omitempty"`
+
+	// Lifetime of the cookie.
+	// Structure is documented below.
+	TTL *StrongSessionAffinityCookieTTLInitParameters `json:"ttl,omitempty" tf:"ttl,omitempty"`
+}
+
+type StrongSessionAffinityCookieObservation struct {
+
+	// Name of the cookie.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
+	// Path to set for the cookie.
+	Path *string `json:"path,omitempty" tf:"path,omitempty"`
+
+	// Lifetime of the cookie.
+	// Structure is documented below.
+	TTL *StrongSessionAffinityCookieTTLObservation `json:"ttl,omitempty" tf:"ttl,omitempty"`
+}
+
+type StrongSessionAffinityCookieParameters struct {
+
+	// Name of the cookie.
+	// +kubebuilder:validation:Optional
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
+	// Path to set for the cookie.
+	// +kubebuilder:validation:Optional
+	Path *string `json:"path,omitempty" tf:"path,omitempty"`
+
+	// Lifetime of the cookie.
+	// Structure is documented below.
+	// +kubebuilder:validation:Optional
+	TTL *StrongSessionAffinityCookieTTLParameters `json:"ttl,omitempty" tf:"ttl,omitempty"`
+}
+
+type StrongSessionAffinityCookieTTLInitParameters struct {
+
+	// Span of time that's a fraction of a second at nanosecond
+	// resolution. Durations less than one second are represented
+	// with a 0 seconds field and a positive nanos field. Must
+	// be from 0 to 999,999,999 inclusive.
+	Nanos *float64 `json:"nanos,omitempty" tf:"nanos,omitempty"`
+
+	// Span of time at a resolution of a second.
+	// Must be from 0 to 315,576,000,000 inclusive.
+	Seconds *float64 `json:"seconds,omitempty" tf:"seconds,omitempty"`
+}
+
+type StrongSessionAffinityCookieTTLObservation struct {
+
+	// Span of time that's a fraction of a second at nanosecond
+	// resolution. Durations less than one second are represented
+	// with a 0 seconds field and a positive nanos field. Must
+	// be from 0 to 999,999,999 inclusive.
+	Nanos *float64 `json:"nanos,omitempty" tf:"nanos,omitempty"`
+
+	// Span of time at a resolution of a second.
+	// Must be from 0 to 315,576,000,000 inclusive.
+	Seconds *float64 `json:"seconds,omitempty" tf:"seconds,omitempty"`
+}
+
+type StrongSessionAffinityCookieTTLParameters struct {
+
+	// Span of time that's a fraction of a second at nanosecond
+	// resolution. Durations less than one second are represented
+	// with a 0 seconds field and a positive nanos field. Must
+	// be from 0 to 999,999,999 inclusive.
+	// +kubebuilder:validation:Optional
+	Nanos *float64 `json:"nanos,omitempty" tf:"nanos,omitempty"`
+
+	// Span of time at a resolution of a second.
+	// Must be from 0 to 315,576,000,000 inclusive.
+	// +kubebuilder:validation:Optional
+	Seconds *float64 `json:"seconds" tf:"seconds,omitempty"`
+}
+
 type SubsettingInitParameters struct {
 
 	// The algorithm used for subsetting.
 	// Possible values are: CONSISTENT_HASH_SUBSETTING.
 	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+
+	// The number of backends per backend group assigned to each proxy instance or each service mesh client.
+	// An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+	// CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+	// subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+	// If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+	// of proxies/clients visible to each backend and vice versa.
+	// Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+	SubsetSize *float64 `json:"subsetSize,omitempty" tf:"subset_size,omitempty"`
 }
 
 type SubsettingObservation struct {
@@ -1888,6 +2201,15 @@ type SubsettingObservation struct {
 	// The algorithm used for subsetting.
 	// Possible values are: CONSISTENT_HASH_SUBSETTING.
 	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+
+	// The number of backends per backend group assigned to each proxy instance or each service mesh client.
+	// An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+	// CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+	// subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+	// If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+	// of proxies/clients visible to each backend and vice versa.
+	// Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+	SubsetSize *float64 `json:"subsetSize,omitempty" tf:"subset_size,omitempty"`
 }
 
 type SubsettingParameters struct {
@@ -1896,6 +2218,16 @@ type SubsettingParameters struct {
 	// Possible values are: CONSISTENT_HASH_SUBSETTING.
 	// +kubebuilder:validation:Optional
 	Policy *string `json:"policy" tf:"policy,omitempty"`
+
+	// The number of backends per backend group assigned to each proxy instance or each service mesh client.
+	// An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+	// CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+	// subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+	// If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+	// of proxies/clients visible to each backend and vice versa.
+	// Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+	// +kubebuilder:validation:Optional
+	SubsetSize *float64 `json:"subsetSize,omitempty" tf:"subset_size,omitempty"`
 }
 
 type TTLInitParameters struct {

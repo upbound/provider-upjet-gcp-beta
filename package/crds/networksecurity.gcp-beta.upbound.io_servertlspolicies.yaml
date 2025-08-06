@@ -34,9 +34,8 @@ spec:
     name: v1beta1
     schema:
       openAPIV3Schema:
-        description: ServerTLSPolicy is the Schema for the ServerTLSPolicys API. ClientTlsPolicy
-          is a resource that specifies how a client should authenticate connections
-          to backends of a service.
+        description: ServerTLSPolicy is the Schema for the ServerTLSPolicys API. ServerTlsPolicy
+          is a resource that specifies how a server should authenticate incoming requests.
         properties:
           apiVersion:
             description: |-

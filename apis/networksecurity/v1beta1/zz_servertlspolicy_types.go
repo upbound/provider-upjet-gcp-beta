@@ -371,7 +371,7 @@ type ServerTLSPolicyStatus struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:storageversion
 
-// ServerTLSPolicy is the Schema for the ServerTLSPolicys API. ClientTlsPolicy is a resource that specifies how a client should authenticate connections to backends of a service.
+// ServerTLSPolicy is the Schema for the ServerTLSPolicys API. ServerTlsPolicy is a resource that specifies how a server should authenticate incoming requests.
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
 // +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
