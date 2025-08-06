@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 	"os"
 	"path/filepath"
 	"sort"
@@ -33,11 +34,14 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("cannot calculate the absolute path with %s", *repoRoot))
 	}
-	p, err := config.GetProvider(context.Background(), true)
-	kingpin.FatalIfError(err, "Cannot initialize the provider configuration")
-	dumpGeneratedResourceList(p, generatedResourceList)
-	dumpSkippedResourcesCSV(p, skippedResourcesCSV)
-	pipeline.Run(p, absRootDir)
+	sdkProvider := provider.Provider()
+	pc, err := config.GetProvider(context.Background(), sdkProvider, true)
+	kingpin.FatalIfError(err, "Cannot initialize the cluster-scoped provider configuration")
+	pns, err := config.GetProviderNamespaced(context.Background(), sdkProvider, true)
+	kingpin.FatalIfError(err, "Cannot initialize the namespaced provider configuration")
+	dumpGeneratedResourceList(pc, generatedResourceList)
+	dumpSkippedResourcesCSV(pc, skippedResourcesCSV)
+	pipeline.Run(pc, pns, absRootDir)
 }
 
 func dumpGeneratedResourceList(p *ujconfig.Provider, targetPath *string) {
