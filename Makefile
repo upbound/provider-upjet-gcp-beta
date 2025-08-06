@@ -57,7 +57,7 @@ GOLANGCILINT_VERSION ?= 1.64.8
 SUBPACKAGES ?= monolith
 GO_STATIC_PACKAGES ?= $(GO_PROJECT)/cmd/generator ${SUBPACKAGES:%=$(GO_PROJECT)/cmd/provider/%}
 GO_LDFLAGS += -X $(GO_PROJECT)/internal/version.Version=$(VERSION)
-GO_SUBDIRS += cmd internal apis
+GO_SUBDIRS += cmd internal apis generate
 GO111MODULE = on
 
 export SUBPACKAGES := $(SUBPACKAGES)
