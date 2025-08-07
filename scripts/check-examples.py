@@ -30,7 +30,7 @@ def load_crd_type(t):
 
 exceptions = {
     "provider-gcp-beta": {
-        'StoreConfig.gcp-beta.upbound.io/v1alpha1',
+        'ProviderConfigUsage.gcp-beta.m.upbound.io/v1beta1',
         'ProviderConfigUsage.gcp-beta.upbound.io/v1beta1'
     },
 }
