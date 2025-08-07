@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 	"os"
 	"path/filepath"
 	"sort"
@@ -17,6 +16,7 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	ujconfig "github.com/crossplane/upjet/v2/pkg/config"
 	"github.com/crossplane/upjet/v2/pkg/pipeline"
+	"github.com/hashicorp/terraform-provider-google-beta/google-beta/provider"
 
 	"github.com/upbound/provider-gcp-beta/config"
 )
