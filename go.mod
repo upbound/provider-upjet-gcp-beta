@@ -12,7 +12,7 @@ require (
 	github.com/crossplane/upjet/v2 v2.0.0-20250804114937-4c6bfc216d3b
 	github.com/hashicorp/terraform-json v0.25.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
-	github.com/hashicorp/terraform-provider-google-beta v1.20.1-0.20250805162041-da8381e6555c
+	github.com/hashicorp/terraform-provider-google-beta v1.20.1-0.20250610151054-ddaee814b79f
 	github.com/pkg/errors v0.9.1
 	google.golang.org/grpc v1.73.0
 	k8s.io/api v0.33.0
