@@ -7224,23 +7224,6 @@ spec:
                             description: Enables vertical pod autoscaling
                             type: boolean
                         type: object
-                      lustreCsiDriverConfig:
-                        description: |-
-                          The status of the Lustre CSI driver addon,
-                          which allows the usage of a Lustre instances as volumes.
-                          It is disabled by default for Standard clusters; set enabled = true to enable.
-                          It is disabled by default for Autopilot clusters; set enabled = true to enable.
-                          Lustre CSI Driver Config has optional subfield
-                          enable_legacy_lustre_port which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988.
-                          This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
-                          See Enable Lustre CSI driver for more information.
-                        properties:
-                          enableLegacyLustrePort:
-                            type: boolean
-                          enabled:
-                            description: Enables vertical pod autoscaling
-                            type: boolean
-                        type: object
                       networkPolicyConfig:
                         description: |-
                           Whether we should enable the network policy addon
@@ -7316,15 +7299,6 @@ spec:
                       false. This field should only be enabled for Autopilot clusters (enable_autopilot
                       set to true).
                     type: boolean
-                  anonymousAuthenticationConfig:
-                    description: Configuration for anonymous authentication restrictions.
-                      Structure is documented below.
-                    properties:
-                      mode:
-                        description: Sets or removes authentication restrictions.
-                          Available options include LIMITED and ENABLED.
-                        type: string
-                    type: object
                   authenticatorGroupsConfig:
                     description: |-
                       Configuration for the
@@ -7566,11 +7540,6 @@ spec:
                     description: Configuration for Confidential Nodes feature. Structure
                       is documented below documented below.
                     properties:
-                      confidentialInstanceType:
-                        description: |-
-                          Defines the type of technology used
-                          by the confidential node.
-                        type: string
                       enabled:
                         description: |-
                           Enable Confidential GKE Nodes for this node pool, to
@@ -7778,17 +7747,6 @@ spec:
                           CHANNEL_EXPERIMENTAL or CHANNEL_STANDARD.
                         type: string
                     type: object
-                  gkeAutoUpgradeConfig:
-                    description: |-
-                      Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
-                      Structure is documented below.
-                    properties:
-                      patchMode:
-                        description: |-
-                          The selected patch mode.
-                          Accepted values are:
-                        type: string
-                    type: object
                   identityServiceConfig:
                     description: . Structure is documented below.
                     properties:
@@ -7816,25 +7774,6 @@ spec:
                       VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend.
                       Structure is documented below.
                     properties:
-                      additionalIpRangesConfig:
-                        description: |-
-                          The configuration for individual additional subnetworks attached to the cluster.
-                          Structure is documented below.
-                        items:
-                          properties:
-                            podIpv4RangeNames:
-                              description: List of secondary ranges names within this
-                                subnetwork that can be used for pod IPs.
-                              items:
-                                type: string
-                              type: array
-                            subnetwork:
-                              description: |-
-                                The name or self_link of the Google Compute Engine
-                                subnetwork in which the cluster's instances are launched.
-                              type: string
-                          type: object
-                        type: array
                       additionalPodRangesConfig:
                         description: |-
                           The configuration for additional pod secondary ranges at
@@ -8141,11 +8080,6 @@ spec:
                             description: Defines whether the instance should have
                               nested virtualization enabled. Defaults to false.
                             type: boolean
-                          performanceMonitoringUnit:
-                            description: Defines the performance monitoring unit PMU
-                              level. Valid values are ARCHITECTURAL, STANDARD, or
-                              ENHANCED. Defaults to off.
-                            type: string
                           threadsPerCore:
                             description: The number of threads per physical core.
                               To disable simultaneous multithreading (SMT) set this
@@ -8164,11 +8098,6 @@ spec:
                         description: Configuration for Confidential Nodes feature.
                           Structure is documented below.
                         properties:
-                          confidentialInstanceType:
-                            description: |-
-                              Defines the type of technology used
-                              by the confidential node.
-                            type: string
                           enabled:
                             description: Enables vertical pod autoscaling
                             type: boolean
@@ -9054,20 +8983,6 @@ spec:
                           scanning feature. Accepted values are DISABLED, BASIC.
                         type: string
                     type: object
-                  rbacBindingConfig:
-                    description: RBACBindingConfig allows user to restrict ClusterRoleBindings
-                      an RoleBindings that can be created. Structure is documented
-                      below.
-                    properties:
-                      enableInsecureBindingSystemAuthenticated:
-                        description: Setting this to true will allow any ClusterRoleBinding
-                          and RoleBinding with subjects system:authenticated.
-                        type: boolean
-                      enableInsecureBindingSystemUnauthenticated:
-                        description: Setting this to true will allow any ClusterRoleBinding
-                          and RoleBinding with subjects system:anonymous or system:unauthenticated.
-                        type: boolean
-                    type: object
                   releaseChannel:
                     description: |-
                       Configuration options for the Release channel
@@ -9135,19 +9050,6 @@ spec:
                       enabled:
                         description: Enable the Secret Manager add-on for this cluster.
                         type: boolean
-                      rotationConfig:
-                        description: config for secret manager auto rotation. Structure
-                          is docuemented below
-                        properties:
-                          enabled:
-                            description: Enable the roation in Secret Manager add-on
-                              for this cluster.
-                            type: boolean
-                          rotationInterval:
-                            description: The interval between two consecutive rotations.
-                              Default rotation interval is 2 minutes.
-                            type: string
-                        type: object
                     type: object
                   securityPostureConfig:
                     description: Enable/Disable Security Posture API features for
@@ -9403,23 +9305,6 @@ spec:
                             description: Enables vertical pod autoscaling
                             type: boolean
                         type: object
-                      lustreCsiDriverConfig:
-                        description: |-
-                          The status of the Lustre CSI driver addon,
-                          which allows the usage of a Lustre instances as volumes.
-                          It is disabled by default for Standard clusters; set enabled = true to enable.
-                          It is disabled by default for Autopilot clusters; set enabled = true to enable.
-                          Lustre CSI Driver Config has optional subfield
-                          enable_legacy_lustre_port which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988.
-                          This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
-                          See Enable Lustre CSI driver for more information.
-                        properties:
-                          enableLegacyLustrePort:
-                            type: boolean
-                          enabled:
-                            description: Enables vertical pod autoscaling
-                            type: boolean
-                        type: object
                       networkPolicyConfig:
                         description: |-
                           Whether we should enable the network policy addon
@@ -9495,15 +9380,6 @@ spec:
                       false. This field should only be enabled for Autopilot clusters (enable_autopilot
                       set to true).
                     type: boolean
-                  anonymousAuthenticationConfig:
-                    description: Configuration for anonymous authentication restrictions.
-                      Structure is documented below.
-                    properties:
-                      mode:
-                        description: Sets or removes authentication restrictions.
-                          Available options include LIMITED and ENABLED.
-                        type: string
-                    type: object
                   authenticatorGroupsConfig:
                     description: |-
                       Configuration for the
@@ -9745,11 +9621,6 @@ spec:
                     description: Configuration for Confidential Nodes feature. Structure
                       is documented below documented below.
                     properties:
-                      confidentialInstanceType:
-                        description: |-
-                          Defines the type of technology used
-                          by the confidential node.
-                        type: string
                       enabled:
                         description: |-
                           Enable Confidential GKE Nodes for this node pool, to
@@ -9957,17 +9828,6 @@ spec:
                           CHANNEL_EXPERIMENTAL or CHANNEL_STANDARD.
                         type: string
                     type: object
-                  gkeAutoUpgradeConfig:
-                    description: |-
-                      Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
-                      Structure is documented below.
-                    properties:
-                      patchMode:
-                        description: |-
-                          The selected patch mode.
-                          Accepted values are:
-                        type: string
-                    type: object
                   identityServiceConfig:
                     description: . Structure is documented below.
                     properties:
@@ -9995,25 +9855,6 @@ spec:
                       VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend.
                       Structure is documented below.
                     properties:
-                      additionalIpRangesConfig:
-                        description: |-
-                          The configuration for individual additional subnetworks attached to the cluster.
-                          Structure is documented below.
-                        items:
-                          properties:
-                            podIpv4RangeNames:
-                              description: List of secondary ranges names within this
-                                subnetwork that can be used for pod IPs.
-                              items:
-                                type: string
-                              type: array
-                            subnetwork:
-                              description: |-
-                                The name or self_link of the Google Compute Engine
-                                subnetwork in which the cluster's instances are launched.
-                              type: string
-                          type: object
-                        type: array
                       additionalPodRangesConfig:
                         description: |-
                           The configuration for additional pod secondary ranges at
@@ -10311,11 +10152,6 @@ spec:
                             description: Defines whether the instance should have
                               nested virtualization enabled. Defaults to false.
                             type: boolean
-                          performanceMonitoringUnit:
-                            description: Defines the performance monitoring unit PMU
-                              level. Valid values are ARCHITECTURAL, STANDARD, or
-                              ENHANCED. Defaults to off.
-                            type: string
                           threadsPerCore:
                             description: The number of threads per physical core.
                               To disable simultaneous multithreading (SMT) set this
@@ -10334,11 +10170,6 @@ spec:
                         description: Configuration for Confidential Nodes feature.
                           Structure is documented below.
                         properties:
-                          confidentialInstanceType:
-                            description: |-
-                              Defines the type of technology used
-                              by the confidential node.
-                            type: string
                           enabled:
                             description: Enables vertical pod autoscaling
                             type: boolean
@@ -11224,20 +11055,6 @@ spec:
                           scanning feature. Accepted values are DISABLED, BASIC.
                         type: string
                     type: object
-                  rbacBindingConfig:
-                    description: RBACBindingConfig allows user to restrict ClusterRoleBindings
-                      an RoleBindings that can be created. Structure is documented
-                      below.
-                    properties:
-                      enableInsecureBindingSystemAuthenticated:
-                        description: Setting this to true will allow any ClusterRoleBinding
-                          and RoleBinding with subjects system:authenticated.
-                        type: boolean
-                      enableInsecureBindingSystemUnauthenticated:
-                        description: Setting this to true will allow any ClusterRoleBinding
-                          and RoleBinding with subjects system:anonymous or system:unauthenticated.
-                        type: boolean
-                    type: object
                   releaseChannel:
                     description: |-
                       Configuration options for the Release channel
@@ -11305,19 +11122,6 @@ spec:
                       enabled:
                         description: Enable the Secret Manager add-on for this cluster.
                         type: boolean
-                      rotationConfig:
-                        description: config for secret manager auto rotation. Structure
-                          is docuemented below
-                        properties:
-                          enabled:
-                            description: Enable the roation in Secret Manager add-on
-                              for this cluster.
-                            type: boolean
-                          rotationInterval:
-                            description: The interval between two consecutive rotations.
-                              Default rotation interval is 2 minutes.
-                            type: string
-                        type: object
                     type: object
                   securityPostureConfig:
                     description: Enable/Disable Security Posture API features for
@@ -11649,23 +11453,6 @@ spec:
                             description: Enables vertical pod autoscaling
                             type: boolean
                         type: object
-                      lustreCsiDriverConfig:
-                        description: |-
-                          The status of the Lustre CSI driver addon,
-                          which allows the usage of a Lustre instances as volumes.
-                          It is disabled by default for Standard clusters; set enabled = true to enable.
-                          It is disabled by default for Autopilot clusters; set enabled = true to enable.
-                          Lustre CSI Driver Config has optional subfield
-                          enable_legacy_lustre_port which allows the Lustre CSI driver to initialize LNet (the virtual networklayer for Lustre kernel module) using port 6988.
-                          This flag is required to workaround a port conflict with the gke-metadata-server on GKE nodes.
-                          See Enable Lustre CSI driver for more information.
-                        properties:
-                          enableLegacyLustrePort:
-                            type: boolean
-                          enabled:
-                            description: Enables vertical pod autoscaling
-                            type: boolean
-                        type: object
                       networkPolicyConfig:
                         description: |-
                           Whether we should enable the network policy addon
@@ -11741,15 +11528,6 @@ spec:
                       false. This field should only be enabled for Autopilot clusters (enable_autopilot
                       set to true).
                     type: boolean
-                  anonymousAuthenticationConfig:
-                    description: Configuration for anonymous authentication restrictions.
-                      Structure is documented below.
-                    properties:
-                      mode:
-                        description: Sets or removes authentication restrictions.
-                          Available options include LIMITED and ENABLED.
-                        type: string
-                    type: object
                   authenticatorGroupsConfig:
                     description: |-
                       Configuration for the
@@ -12003,11 +11781,6 @@ spec:
                     description: Configuration for Confidential Nodes feature. Structure
                       is documented below documented below.
                     properties:
-                      confidentialInstanceType:
-                        description: |-
-                          Defines the type of technology used
-                          by the confidential node.
-                        type: string
                       enabled:
                         description: |-
                           Enable Confidential GKE Nodes for this node pool, to
@@ -12243,17 +12016,6 @@ spec:
                           CHANNEL_EXPERIMENTAL or CHANNEL_STANDARD.
                         type: string
                     type: object
-                  gkeAutoUpgradeConfig:
-                    description: |-
-                      Configuration options for the auto-upgrade patch type feature, which provide more control over the speed of automatic upgrades of your GKE clusters.
-                      Structure is documented below.
-                    properties:
-                      patchMode:
-                        description: |-
-                          The selected patch mode.
-                          Accepted values are:
-                        type: string
-                    type: object
                   id:
                     description: an identifier for the resource with format projects/{{project}}/locations/{{zone}}/clusters/{{name}}
                     type: string
@@ -12284,25 +12046,6 @@ spec:
                       VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend.
                       Structure is documented below.
                     properties:
-                      additionalIpRangesConfig:
-                        description: |-
-                          The configuration for individual additional subnetworks attached to the cluster.
-                          Structure is documented below.
-                        items:
-                          properties:
-                            podIpv4RangeNames:
-                              description: List of secondary ranges names within this
-                                subnetwork that can be used for pod IPs.
-                              items:
-                                type: string
-                              type: array
-                            subnetwork:
-                              description: |-
-                                The name or self_link of the Google Compute Engine
-                                subnetwork in which the cluster's instances are launched.
-                              type: string
-                          type: object
-                        type: array
                       additionalPodRangesConfig:
                         description: |-
                           The configuration for additional pod secondary ranges at
@@ -12634,11 +12377,6 @@ spec:
                             description: Defines whether the instance should have
                               nested virtualization enabled. Defaults to false.
                             type: boolean
-                          performanceMonitoringUnit:
-                            description: Defines the performance monitoring unit PMU
-                              level. Valid values are ARCHITECTURAL, STANDARD, or
-                              ENHANCED. Defaults to off.
-                            type: string
                           threadsPerCore:
                             description: The number of threads per physical core.
                               To disable simultaneous multithreading (SMT) set this
@@ -12657,11 +12395,6 @@ spec:
                         description: Configuration for Confidential Nodes feature.
                           Structure is documented below.
                         properties:
-                          confidentialInstanceType:
-                            description: |-
-                              Defines the type of technology used
-                              by the confidential node.
-                            type: string
                           enabled:
                             description: Enables vertical pod autoscaling
                             type: boolean
@@ -13361,11 +13094,6 @@ spec:
                               type: string
                             podRange:
                               type: string
-                            subnetwork:
-                              description: |-
-                                The name or self_link of the Google Compute Engine
-                                subnetwork in which the cluster's instances are launched.
-                              type: string
                           type: object
                         nodeConfig:
                           description: Parameters used in creating the default node
@@ -13381,11 +13109,6 @@ spec:
                                     have nested virtualization enabled. Defaults to
                                     false.
                                   type: boolean
-                                performanceMonitoringUnit:
-                                  description: Defines the performance monitoring
-                                    unit PMU level. Valid values are ARCHITECTURAL,
-                                    STANDARD, or ENHANCED. Defaults to off.
-                                  type: string
                                 threadsPerCore:
                                   description: The number of threads per physical
                                     core. To disable simultaneous multithreading (SMT)
@@ -13405,11 +13128,6 @@ spec:
                               description: Configuration for Confidential Nodes feature.
                                 Structure is documented below.
                               properties:
-                                confidentialInstanceType:
-                                  description: |-
-                                    Defines the type of technology used
-                                    by the confidential node.
-                                  type: string
                                 enabled:
                                   description: Enables vertical pod autoscaling
                                   type: boolean
@@ -14342,20 +14060,6 @@ spec:
                           scanning feature. Accepted values are DISABLED, BASIC.
                         type: string
                     type: object
-                  rbacBindingConfig:
-                    description: RBACBindingConfig allows user to restrict ClusterRoleBindings
-                      an RoleBindings that can be created. Structure is documented
-                      below.
-                    properties:
-                      enableInsecureBindingSystemAuthenticated:
-                        description: Setting this to true will allow any ClusterRoleBinding
-                          and RoleBinding with subjects system:authenticated.
-                        type: boolean
-                      enableInsecureBindingSystemUnauthenticated:
-                        description: Setting this to true will allow any ClusterRoleBinding
-                          and RoleBinding with subjects system:anonymous or system:unauthenticated.
-                        type: boolean
-                    type: object
                   releaseChannel:
                     description: |-
                       Configuration options for the Release channel
@@ -14423,19 +14127,6 @@ spec:
                       enabled:
                         description: Enable the Secret Manager add-on for this cluster.
                         type: boolean
-                      rotationConfig:
-                        description: config for secret manager auto rotation. Structure
-                          is docuemented below
-                        properties:
-                          enabled:
-                            description: Enable the roation in Secret Manager add-on
-                              for this cluster.
-                            type: boolean
-                          rotationInterval:
-                            description: The interval between two consecutive rotations.
-                              Default rotation interval is 2 minutes.
-                            type: string
-                        type: object
                     type: object
                   securityPostureConfig:
                     description: Enable/Disable Security Posture API features for
