@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.14.0
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: regionbackendservices.compute.gcp-beta.upbound.io
 spec:
   group: compute.gcp-beta.upbound.io
@@ -94,7 +94,7 @@ spec:
                             See the Backend Services Overview
                             for an explanation of load balancing modes.
                             Default value is UTILIZATION.
-                            Possible values are: UTILIZATION, RATE, CONNECTION.
+                            Possible values are: UTILIZATION, RATE, CONNECTION, CUSTOM_METRICS.
                           type: string
                         capacityScaler:
                           description: |-
@@ -107,6 +107,27 @@ spec:
                             A setting of 0 means the group is completely drained, offering
                             0% of its available Capacity. Valid range is [0.0,1.0].
                           type: number
+                        customMetrics:
+                          description: |-
+                            The set of custom metrics that are used for CUSTOM_METRICS BalancingMode.
+                            Structure is documented below.
+                          items:
+                            properties:
+                              dryRun:
+                                description: |-
+                                  If true, the metric data is collected and reported to Cloud
+                                  Monitoring, but is not used for load balancing.
+                                type: boolean
+                              maxUtilization:
+                                description: |-
+                                  Optional parameter to define a target utilization for the Custom Metrics
+                                  balancing mode. The valid range is [0.0, 1.0].
+                                type: number
+                              name:
+                                description: Name of the cookie.
+                                type: string
+                            type: object
+                          type: array
                         description:
                           description: |-
                             An optional description of this resource.
@@ -291,8 +312,8 @@ spec:
                               type: number
                             ttl:
                               description: |-
-                                The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-                                (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+                                Lifetime of the cookie.
+                                Structure is documented below.
                               type: number
                           type: object
                         type: array
@@ -318,7 +339,7 @@ spec:
                     description: |-
                       Settings controlling the volume of connections to a backend service. This field
                       is applicable only when the load_balancing_scheme is set to INTERNAL_MANAGED
-                      and the protocol is set to HTTP, HTTPS, or HTTP2.
+                      and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
                       Structure is documented below.
                     properties:
                       connectTimeout:
@@ -438,22 +459,15 @@ spec:
                           Structure is documented below.
                         properties:
                           name:
-                            description: |-
-                              Name of the resource. Provided by the client when the resource is
-                              created. The name must be 1-63 characters long, and comply with
-                              RFC1035. Specifically, the name must be 1-63 characters long and match
-                              the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the
-                              first character must be a lowercase letter, and all following
-                              characters must be a dash, lowercase letter, or digit, except the last
-                              character, which cannot be a dash.
+                            description: Name of the cookie.
                             type: string
                           path:
                             description: Path to set for the cookie.
                             type: string
                           ttl:
                             description: |-
-                              The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-                              (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+                              Lifetime of the cookie.
+                              Structure is documented below.
                             properties:
                               nanos:
                                 description: |-
@@ -484,9 +498,51 @@ spec:
                           Defaults to 1024.
                         type: number
                     type: object
+                  customMetrics:
+                    description: |-
+                      List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+                      Structure is documented below.
+                    items:
+                      properties:
+                        dryRun:
+                          description: |-
+                            If true, the metric data is collected and reported to Cloud
+                            Monitoring, but is not used for load balancing.
+                          type: boolean
+                        name:
+                          description: |-
+                            Name of a custom utilization signal. The name must be 1-64 characters
+                            long and match the regular expression a-z? which
+                            means the first character must be a lowercase letter, and all following
+                            characters must be a dash, period, underscore, lowercase letter, or
+                            digit, except the last character, which cannot be a dash, period, or
+                            underscore. For usage guidelines, see Custom Metrics balancing mode. This
+                            field can only be used for a global or regional backend service with the
+                            loadBalancingScheme set to EXTERNAL_MANAGED,
+                            INTERNAL_MANAGED INTERNAL_SELF_MANAGED.
+                          type: string
+                      type: object
+                    type: array
                   description:
                     description: An optional description of this resource.
                     type: string
+                  dynamicForwarding:
+                    description: |-
+                      Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+                      feature which together with Service Extension allows customized and complex routing logic.
+                      Structure is documented below.
+                    properties:
+                      ipPortSelection:
+                        description: |-
+                          IP:PORT based dynamic forwarding configuration.
+                          Structure is documented below.
+                        properties:
+                          enabled:
+                            description: A boolean flag enabling IP:PORT based dynamic
+                              forwarding.
+                            type: boolean
+                        type: object
+                    type: object
                   enableCdn:
                     description: If true, enable Cloud CDN for this RegionBackendService.
                     type: boolean
@@ -617,7 +673,8 @@ spec:
                     type: object
                   iap:
                     description: |-
-                      Settings for enabling Cloud Identity Aware Proxy
+                      Settings for enabling Cloud Identity Aware Proxy.
+                      If OAuth client is not set, Google-managed OAuth client is used.
                       Structure is documented below.
                     properties:
                       enabled:
@@ -647,6 +704,11 @@ spec:
                         - namespace
                         type: object
                     type: object
+                  ipAddressSelectionPolicy:
+                    description: |-
+                      Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+                      Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
+                    type: string
                   loadBalancingScheme:
                     description: is set to INTERNAL_MANAGED
                     type: string
@@ -665,6 +727,19 @@ spec:
                         description: Whether to enable logging for the load balancer
                           traffic served by this backend service.
                         type: boolean
+                      optionalFields:
+                        description: Specifies the fields to include in logging. This
+                          field can only be specified if logging is enabled for this
+                          backend service.
+                        items:
+                          type: string
+                        type: array
+                      optionalMode:
+                        description: |-
+                          Specifies the optional logging mode for the load balancer traffic.
+                          Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+                          Possible values are: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+                        type: string
                       sampleRate:
                         description: |-
                           This field can only be specified if logging is enabled for this backend service. The value of
@@ -682,7 +757,7 @@ spec:
                     description: |-
                       Settings controlling eviction of unhealthy hosts from the load balancing pool.
                       This field is applicable only when the load_balancing_scheme is set
-                      to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, or HTTP2.
+                      to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
                       Structure is documented below.
                     properties:
                       baseEjectionTime:
@@ -800,7 +875,7 @@ spec:
                       If it is not provided, the provider project is used.
                     type: string
                   protocol:
-                    description: is set to HTTP, HTTPS, or HTTP2
+                    description: is set to HTTP, HTTPS, HTTP2 or H2C
                     type: string
                   region:
                     description: |-
@@ -815,8 +890,38 @@ spec:
                     description: |-
                       Type of session affinity to use. The default is NONE. Session affinity is
                       not applicable if the protocol is UDP.
-                      Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION.
+                      Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION, STRONG_COOKIE_AFFINITY.
                     type: string
+                  strongSessionAffinityCookie:
+                    description: |-
+                      Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+                      Structure is documented below.
+                    properties:
+                      name:
+                        description: Name of the cookie.
+                        type: string
+                      path:
+                        description: Path to set for the cookie.
+                        type: string
+                      ttl:
+                        description: |-
+                          Lifetime of the cookie.
+                          Structure is documented below.
+                        properties:
+                          nanos:
+                            description: |-
+                              Span of time that's a fraction of a second at nanosecond
+                              resolution. Durations less than one second are represented
+                              with a 0 seconds field and a positive nanos field. Must
+                              be from 0 to 999,999,999 inclusive.
+                            type: number
+                          seconds:
+                            description: |-
+                              Span of time at a resolution of a second.
+                              Must be from 0 to 315,576,000,000 inclusive.
+                            type: number
+                        type: object
+                    type: object
                   subsetting:
                     description: |-
                       Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
@@ -827,6 +932,16 @@ spec:
                           The algorithm used for subsetting.
                           Possible values are: CONSISTENT_HASH_SUBSETTING.
                         type: string
+                      subsetSize:
+                        description: |-
+                          The number of backends per backend group assigned to each proxy instance or each service mesh client.
+                          An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+                          CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+                          subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+                          If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+                          of proxies/clients visible to each backend and vice versa.
+                          Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+                        type: number
                     type: object
                   timeoutSec:
                     description: |-
@@ -871,7 +986,7 @@ spec:
                             See the Backend Services Overview
                             for an explanation of load balancing modes.
                             Default value is UTILIZATION.
-                            Possible values are: UTILIZATION, RATE, CONNECTION.
+                            Possible values are: UTILIZATION, RATE, CONNECTION, CUSTOM_METRICS.
                           type: string
                         capacityScaler:
                           description: |-
@@ -884,6 +999,27 @@ spec:
                             A setting of 0 means the group is completely drained, offering
                             0% of its available Capacity. Valid range is [0.0,1.0].
                           type: number
+                        customMetrics:
+                          description: |-
+                            The set of custom metrics that are used for CUSTOM_METRICS BalancingMode.
+                            Structure is documented below.
+                          items:
+                            properties:
+                              dryRun:
+                                description: |-
+                                  If true, the metric data is collected and reported to Cloud
+                                  Monitoring, but is not used for load balancing.
+                                type: boolean
+                              maxUtilization:
+                                description: |-
+                                  Optional parameter to define a target utilization for the Custom Metrics
+                                  balancing mode. The valid range is [0.0, 1.0].
+                                type: number
+                              name:
+                                description: Name of the cookie.
+                                type: string
+                            type: object
+                          type: array
                         description:
                           description: |-
                             An optional description of this resource.
@@ -1068,8 +1204,8 @@ spec:
                               type: number
                             ttl:
                               description: |-
-                                The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-                                (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+                                Lifetime of the cookie.
+                                Structure is documented below.
                               type: number
                           type: object
                         type: array
@@ -1095,7 +1231,7 @@ spec:
                     description: |-
                       Settings controlling the volume of connections to a backend service. This field
                       is applicable only when the load_balancing_scheme is set to INTERNAL_MANAGED
-                      and the protocol is set to HTTP, HTTPS, or HTTP2.
+                      and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
                       Structure is documented below.
                     properties:
                       connectTimeout:
@@ -1215,22 +1351,15 @@ spec:
                           Structure is documented below.
                         properties:
                           name:
-                            description: |-
-                              Name of the resource. Provided by the client when the resource is
-                              created. The name must be 1-63 characters long, and comply with
-                              RFC1035. Specifically, the name must be 1-63 characters long and match
-                              the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the
-                              first character must be a lowercase letter, and all following
-                              characters must be a dash, lowercase letter, or digit, except the last
-                              character, which cannot be a dash.
+                            description: Name of the cookie.
                             type: string
                           path:
                             description: Path to set for the cookie.
                             type: string
                           ttl:
                             description: |-
-                              The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-                              (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+                              Lifetime of the cookie.
+                              Structure is documented below.
                             properties:
                               nanos:
                                 description: |-
@@ -1261,9 +1390,51 @@ spec:
                           Defaults to 1024.
                         type: number
                     type: object
+                  customMetrics:
+                    description: |-
+                      List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+                      Structure is documented below.
+                    items:
+                      properties:
+                        dryRun:
+                          description: |-
+                            If true, the metric data is collected and reported to Cloud
+                            Monitoring, but is not used for load balancing.
+                          type: boolean
+                        name:
+                          description: |-
+                            Name of a custom utilization signal. The name must be 1-64 characters
+                            long and match the regular expression a-z? which
+                            means the first character must be a lowercase letter, and all following
+                            characters must be a dash, period, underscore, lowercase letter, or
+                            digit, except the last character, which cannot be a dash, period, or
+                            underscore. For usage guidelines, see Custom Metrics balancing mode. This
+                            field can only be used for a global or regional backend service with the
+                            loadBalancingScheme set to EXTERNAL_MANAGED,
+                            INTERNAL_MANAGED INTERNAL_SELF_MANAGED.
+                          type: string
+                      type: object
+                    type: array
                   description:
                     description: An optional description of this resource.
                     type: string
+                  dynamicForwarding:
+                    description: |-
+                      Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+                      feature which together with Service Extension allows customized and complex routing logic.
+                      Structure is documented below.
+                    properties:
+                      ipPortSelection:
+                        description: |-
+                          IP:PORT based dynamic forwarding configuration.
+                          Structure is documented below.
+                        properties:
+                          enabled:
+                            description: A boolean flag enabling IP:PORT based dynamic
+                              forwarding.
+                            type: boolean
+                        type: object
+                    type: object
                   enableCdn:
                     description: If true, enable Cloud CDN for this RegionBackendService.
                     type: boolean
@@ -1394,7 +1565,8 @@ spec:
                     type: object
                   iap:
                     description: |-
-                      Settings for enabling Cloud Identity Aware Proxy
+                      Settings for enabling Cloud Identity Aware Proxy.
+                      If OAuth client is not set, Google-managed OAuth client is used.
                       Structure is documented below.
                     properties:
                       enabled:
@@ -1424,6 +1596,11 @@ spec:
                         - namespace
                         type: object
                     type: object
+                  ipAddressSelectionPolicy:
+                    description: |-
+                      Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+                      Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
+                    type: string
                   loadBalancingScheme:
                     description: is set to INTERNAL_MANAGED
                     type: string
@@ -1442,6 +1619,19 @@ spec:
                         description: Whether to enable logging for the load balancer
                           traffic served by this backend service.
                         type: boolean
+                      optionalFields:
+                        description: Specifies the fields to include in logging. This
+                          field can only be specified if logging is enabled for this
+                          backend service.
+                        items:
+                          type: string
+                        type: array
+                      optionalMode:
+                        description: |-
+                          Specifies the optional logging mode for the load balancer traffic.
+                          Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+                          Possible values are: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+                        type: string
                       sampleRate:
                         description: |-
                           This field can only be specified if logging is enabled for this backend service. The value of
@@ -1459,7 +1649,7 @@ spec:
                     description: |-
                       Settings controlling eviction of unhealthy hosts from the load balancing pool.
                       This field is applicable only when the load_balancing_scheme is set
-                      to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, or HTTP2.
+                      to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
                       Structure is documented below.
                     properties:
                       baseEjectionTime:
@@ -1577,7 +1767,7 @@ spec:
                       If it is not provided, the provider project is used.
                     type: string
                   protocol:
-                    description: is set to HTTP, HTTPS, or HTTP2
+                    description: is set to HTTP, HTTPS, HTTP2 or H2C
                     type: string
                   securityPolicy:
                     description: The security policy associated with this backend
@@ -1587,8 +1777,38 @@ spec:
                     description: |-
                       Type of session affinity to use. The default is NONE. Session affinity is
                       not applicable if the protocol is UDP.
-                      Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION.
+                      Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION, STRONG_COOKIE_AFFINITY.
                     type: string
+                  strongSessionAffinityCookie:
+                    description: |-
+                      Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+                      Structure is documented below.
+                    properties:
+                      name:
+                        description: Name of the cookie.
+                        type: string
+                      path:
+                        description: Path to set for the cookie.
+                        type: string
+                      ttl:
+                        description: |-
+                          Lifetime of the cookie.
+                          Structure is documented below.
+                        properties:
+                          nanos:
+                            description: |-
+                              Span of time that's a fraction of a second at nanosecond
+                              resolution. Durations less than one second are represented
+                              with a 0 seconds field and a positive nanos field. Must
+                              be from 0 to 999,999,999 inclusive.
+                            type: number
+                          seconds:
+                            description: |-
+                              Span of time at a resolution of a second.
+                              Must be from 0 to 315,576,000,000 inclusive.
+                            type: number
+                        type: object
+                    type: object
                   subsetting:
                     description: |-
                       Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
@@ -1599,6 +1819,16 @@ spec:
                           The algorithm used for subsetting.
                           Possible values are: CONSISTENT_HASH_SUBSETTING.
                         type: string
+                      subsetSize:
+                        description: |-
+                          The number of backends per backend group assigned to each proxy instance or each service mesh client.
+                          An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+                          CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+                          subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+                          If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+                          of proxies/clients visible to each backend and vice versa.
+                          Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+                        type: number
                     type: object
                   timeoutSec:
                     description: |-
@@ -1674,93 +1904,12 @@ spec:
                 required:
                 - name
                 type: object
-              publishConnectionDetailsTo:
-                description: |-
-                  PublishConnectionDetailsTo specifies the connection secret config which
-                  contains a name, metadata and a reference to secret store config to
-                  which any connection details for this managed resource should be written.
-                  Connection details frequently include the endpoint, username,
-                  and password required to connect to the managed resource.
-                properties:
-                  configRef:
-                    default:
-                      name: default
-                    description: |-
-                      SecretStoreConfigRef specifies which secret store config should be used
-                      for this ConnectionSecret.
-                    properties:
-                      name:
-                        description: Name of the referenced object.
-                        type: string
-                      policy:
-                        description: Policies for referencing.
-                        properties:
-                          resolution:
-                            default: Required
-                            description: |-
-                              Resolution specifies whether resolution of this reference is required.
-                              The default is 'Required', which means the reconcile will fail if the
-                              reference cannot be resolved. 'Optional' means this reference will be
-                              a no-op if it cannot be resolved.
-                            enum:
-                            - Required
-                            - Optional
-                            type: string
-                          resolve:
-                            description: |-
-                              Resolve specifies when this reference should be resolved. The default
-                              is 'IfNotPresent', which will attempt to resolve the reference only when
-                              the corresponding field is not present. Use 'Always' to resolve the
-                              reference on every reconcile.
-                            enum:
-                            - Always
-                            - IfNotPresent
-                            type: string
-                        type: object
-                    required:
-                    - name
-                    type: object
-                  metadata:
-                    description: Metadata is the metadata for connection secret.
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: |-
-                          Annotations are the annotations to be added to connection secret.
-                          - For Kubernetes secrets, this will be used as "metadata.annotations".
-                          - It is up to Secret Store implementation for others store types.
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: |-
-                          Labels are the labels/tags to be added to connection secret.
-                          - For Kubernetes secrets, this will be used as "metadata.labels".
-                          - It is up to Secret Store implementation for others store types.
-                        type: object
-                      type:
-                        description: |-
-                          Type is the SecretType for the connection secret.
-                          - Only valid for Kubernetes Secret Stores.
-                        type: string
-                    type: object
-                  name:
-                    description: Name is the name of the connection secret.
-                    type: string
-                required:
-                - name
-                type: object
               writeConnectionSecretToRef:
                 description: |-
                   WriteConnectionSecretToReference specifies the namespace and name of a
                   Secret to which any connection details for this managed resource should
                   be written. Connection details frequently include the endpoint, username,
                   and password required to connect to the managed resource.
-                  This field is planned to be replaced in a future release in favor of
-                  PublishConnectionDetailsTo. Currently, both could be set independently
-                  and connection details would be published to both without affecting
-                  each other.
                 properties:
                   name:
                     description: Name of the secret.
@@ -1801,7 +1950,7 @@ spec:
                             See the Backend Services Overview
                             for an explanation of load balancing modes.
                             Default value is UTILIZATION.
-                            Possible values are: UTILIZATION, RATE, CONNECTION.
+                            Possible values are: UTILIZATION, RATE, CONNECTION, CUSTOM_METRICS.
                           type: string
                         capacityScaler:
                           description: |-
@@ -1814,6 +1963,27 @@ spec:
                             A setting of 0 means the group is completely drained, offering
                             0% of its available Capacity. Valid range is [0.0,1.0].
                           type: number
+                        customMetrics:
+                          description: |-
+                            The set of custom metrics that are used for CUSTOM_METRICS BalancingMode.
+                            Structure is documented below.
+                          items:
+                            properties:
+                              dryRun:
+                                description: |-
+                                  If true, the metric data is collected and reported to Cloud
+                                  Monitoring, but is not used for load balancing.
+                                type: boolean
+                              maxUtilization:
+                                description: |-
+                                  Optional parameter to define a target utilization for the Custom Metrics
+                                  balancing mode. The valid range is [0.0, 1.0].
+                                type: number
+                              name:
+                                description: Name of the cookie.
+                                type: string
+                            type: object
+                          type: array
                         description:
                           description: |-
                             An optional description of this resource.
@@ -1998,8 +2168,8 @@ spec:
                               type: number
                             ttl:
                               description: |-
-                                The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-                                (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+                                Lifetime of the cookie.
+                                Structure is documented below.
                               type: number
                           type: object
                         type: array
@@ -2025,7 +2195,7 @@ spec:
                     description: |-
                       Settings controlling the volume of connections to a backend service. This field
                       is applicable only when the load_balancing_scheme is set to INTERNAL_MANAGED
-                      and the protocol is set to HTTP, HTTPS, or HTTP2.
+                      and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
                       Structure is documented below.
                     properties:
                       connectTimeout:
@@ -2145,22 +2315,15 @@ spec:
                           Structure is documented below.
                         properties:
                           name:
-                            description: |-
-                              Name of the resource. Provided by the client when the resource is
-                              created. The name must be 1-63 characters long, and comply with
-                              RFC1035. Specifically, the name must be 1-63 characters long and match
-                              the regular expression [a-z]([-a-z0-9]*[a-z0-9])? which means the
-                              first character must be a lowercase letter, and all following
-                              characters must be a dash, lowercase letter, or digit, except the last
-                              character, which cannot be a dash.
+                            description: Name of the cookie.
                             type: string
                           path:
                             description: Path to set for the cookie.
                             type: string
                           ttl:
                             description: |-
-                              The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
-                              (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+                              Lifetime of the cookie.
+                              Structure is documented below.
                             properties:
                               nanos:
                                 description: |-
@@ -2194,9 +2357,51 @@ spec:
                   creationTimestamp:
                     description: Creation timestamp in RFC3339 text format.
                     type: string
+                  customMetrics:
+                    description: |-
+                      List of custom metrics that are used for the WEIGHTED_ROUND_ROBIN locality_lb_policy.
+                      Structure is documented below.
+                    items:
+                      properties:
+                        dryRun:
+                          description: |-
+                            If true, the metric data is collected and reported to Cloud
+                            Monitoring, but is not used for load balancing.
+                          type: boolean
+                        name:
+                          description: |-
+                            Name of a custom utilization signal. The name must be 1-64 characters
+                            long and match the regular expression a-z? which
+                            means the first character must be a lowercase letter, and all following
+                            characters must be a dash, period, underscore, lowercase letter, or
+                            digit, except the last character, which cannot be a dash, period, or
+                            underscore. For usage guidelines, see Custom Metrics balancing mode. This
+                            field can only be used for a global or regional backend service with the
+                            loadBalancingScheme set to EXTERNAL_MANAGED,
+                            INTERNAL_MANAGED INTERNAL_SELF_MANAGED.
+                          type: string
+                      type: object
+                    type: array
                   description:
                     description: An optional description of this resource.
                     type: string
+                  dynamicForwarding:
+                    description: |-
+                      Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+                      feature which together with Service Extension allows customized and complex routing logic.
+                      Structure is documented below.
+                    properties:
+                      ipPortSelection:
+                        description: |-
+                          IP:PORT based dynamic forwarding configuration.
+                          Structure is documented below.
+                        properties:
+                          enabled:
+                            description: A boolean flag enabling IP:PORT based dynamic
+                              forwarding.
+                            type: boolean
+                        type: object
+                    type: object
                   enableCdn:
                     description: If true, enable Cloud CDN for this RegionBackendService.
                     type: boolean
@@ -2257,7 +2462,8 @@ spec:
                     x-kubernetes-list-type: set
                   iap:
                     description: |-
-                      Settings for enabling Cloud Identity Aware Proxy
+                      Settings for enabling Cloud Identity Aware Proxy.
+                      If OAuth client is not set, Google-managed OAuth client is used.
                       Structure is documented below.
                     properties:
                       enabled:
@@ -2270,6 +2476,11 @@ spec:
                     type: object
                   id:
                     description: an identifier for the resource with format projects/{{project}}/regions/{{region}}/backendServices/{{name}}
+                    type: string
+                  ipAddressSelectionPolicy:
+                    description: |-
+                      Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
+                      Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
                     type: string
                   loadBalancingScheme:
                     description: is set to INTERNAL_MANAGED
@@ -2289,6 +2500,19 @@ spec:
                         description: Whether to enable logging for the load balancer
                           traffic served by this backend service.
                         type: boolean
+                      optionalFields:
+                        description: Specifies the fields to include in logging. This
+                          field can only be specified if logging is enabled for this
+                          backend service.
+                        items:
+                          type: string
+                        type: array
+                      optionalMode:
+                        description: |-
+                          Specifies the optional logging mode for the load balancer traffic.
+                          Supported values: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+                          Possible values are: INCLUDE_ALL_OPTIONAL, EXCLUDE_ALL_OPTIONAL, CUSTOM.
+                        type: string
                       sampleRate:
                         description: |-
                           This field can only be specified if logging is enabled for this backend service. The value of
@@ -2306,7 +2530,7 @@ spec:
                     description: |-
                       Settings controlling eviction of unhealthy hosts from the load balancing pool.
                       This field is applicable only when the load_balancing_scheme is set
-                      to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, or HTTP2.
+                      to INTERNAL_MANAGED and the protocol is set to HTTP, HTTPS, HTTP2 or H2C.
                       Structure is documented below.
                     properties:
                       baseEjectionTime:
@@ -2424,7 +2648,7 @@ spec:
                       If it is not provided, the provider project is used.
                     type: string
                   protocol:
-                    description: is set to HTTP, HTTPS, or HTTP2
+                    description: is set to HTTP, HTTPS, HTTP2 or H2C
                     type: string
                   region:
                     description: |-
@@ -2442,8 +2666,38 @@ spec:
                     description: |-
                       Type of session affinity to use. The default is NONE. Session affinity is
                       not applicable if the protocol is UDP.
-                      Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION.
+                      Possible values are: NONE, CLIENT_IP, CLIENT_IP_PORT_PROTO, CLIENT_IP_PROTO, GENERATED_COOKIE, HEADER_FIELD, HTTP_COOKIE, CLIENT_IP_NO_DESTINATION, STRONG_COOKIE_AFFINITY.
                     type: string
+                  strongSessionAffinityCookie:
+                    description: |-
+                      Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.
+                      Structure is documented below.
+                    properties:
+                      name:
+                        description: Name of the cookie.
+                        type: string
+                      path:
+                        description: Path to set for the cookie.
+                        type: string
+                      ttl:
+                        description: |-
+                          Lifetime of the cookie.
+                          Structure is documented below.
+                        properties:
+                          nanos:
+                            description: |-
+                              Span of time that's a fraction of a second at nanosecond
+                              resolution. Durations less than one second are represented
+                              with a 0 seconds field and a positive nanos field. Must
+                              be from 0 to 999,999,999 inclusive.
+                            type: number
+                          seconds:
+                            description: |-
+                              Span of time at a resolution of a second.
+                              Must be from 0 to 315,576,000,000 inclusive.
+                            type: number
+                        type: object
+                    type: object
                   subsetting:
                     description: |-
                       Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
@@ -2454,6 +2708,16 @@ spec:
                           The algorithm used for subsetting.
                           Possible values are: CONSISTENT_HASH_SUBSETTING.
                         type: string
+                      subsetSize:
+                        description: |-
+                          The number of backends per backend group assigned to each proxy instance or each service mesh client.
+                          An input parameter to the CONSISTENT_HASH_SUBSETTING algorithm. Can only be set if policy is set to
+                          CONSISTENT_HASH_SUBSETTING. Can only be set if load balancing scheme is INTERNAL_MANAGED or INTERNAL_SELF_MANAGED.
+                          subsetSize is optional for Internal HTTP(S) load balancing and required for Traffic Director.
+                          If you do not provide this value, Cloud Load Balancing will calculate it dynamically to optimize the number
+                          of proxies/clients visible to each backend and vice versa.
+                          Must be greater than 0. If subsetSize is larger than the number of backends/endpoints, then subsetting is disabled.
+                        type: number
                     type: object
                   timeoutSec:
                     description: |-

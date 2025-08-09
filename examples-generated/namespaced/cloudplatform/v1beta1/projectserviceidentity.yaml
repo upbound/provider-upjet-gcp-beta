@@ -1,0 +1,14 @@
+apiVersion: cloudplatform.gcp-beta.m.upbound.io/v1beta1
+kind: ProjectServiceIdentity
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/projectserviceidentity
+  labels:
+    testing.upbound.io/example-name: hc_sa
+  name: hc-sa
+  namespace: upbound-system
+spec:
+  forProvider:
+    project: ${data.google_project.project.project_id}
+    provider: ${google-beta}
+    service: healthcare.googleapis.com
