@@ -10,7 +10,7 @@ metadata:
   labels:
     testing.upbound.io/example-name: primary2
   name: primary2
-  namespace: crossplane-system
+  namespace: upbound-system
 spec:
   forProvider:
     deletionProtection: false

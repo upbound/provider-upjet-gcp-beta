@@ -10,7 +10,7 @@ metadata:
   labels:
     testing.upbound.io/example-name: hc_sa
   name: hc-sa
-  namespace: crossplane-system
+  namespace: upbound-system
 spec:
   forProvider:
     project: official-provider-testing

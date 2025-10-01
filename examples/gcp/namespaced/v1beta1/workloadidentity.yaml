@@ -6,7 +6,7 @@ apiVersion: gcp-beta.m.upbound.io/v1beta1
 kind: ProviderConfig
 metadata:
   name: default
-  namespace: crossplane-system
+  namespace: upbound-system
 spec:
   projectID: ${PROJECT_ID}
   credentials:
