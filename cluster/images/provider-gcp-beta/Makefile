@@ -56,10 +56,10 @@ ifeq (-,$(findstring -,$(VERSION)))
 endif
 BUILD_ONLY ?= false
 STORE_PACKAGES ?= ""
-batch-process: $(UP)
+batch-process: $(CROSSPLANE_CLI)
 	@$(INFO) Batch processing smaller provider packages for: "$(SUBPACKAGES)"
 	@mkdir -p "$(XPKG_OUTPUT_DIR)/$(PLATFORM)" && \
-	$(UP) xpkg batch --smaller-providers "$$(tr ' ' ',' <<< "$(SUBPACKAGES)")" \
+	$(CROSSPLANE_CLI) xpkg batch --smaller-providers "$$(tr ' ' ',' <<< "$(SUBPACKAGES)")" \
 		--family-base-image $(BUILD_REGISTRY)/$(PROJECT_NAME) \
 		--platform $(BATCH_PLATFORMS) \
 		--provider-name $(PROJECT_NAME) \
@@ -71,7 +71,6 @@ batch-process: $(UP)
 		--build-only=$(BUILD_ONLY) \
 		--examples-root $(ROOT_DIR)/examples \
 		--examples-group-override monolith=* --examples-group-override config=providerconfig \
-		--auth-ext $(XPKG_DIR)/auth.yaml \
 		--crd-root $(XPKG_DIR)/crds \
 		--ignore $(XPKG_IGNORE) \
 		--crd-group-override monolith=* --crd-group-override config=$(CONFIG_CRD_GROUP) \
