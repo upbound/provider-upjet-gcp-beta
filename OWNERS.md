@@ -14,5 +14,7 @@ repository maintainers in their own `OWNERS.md` file.
 
 * Alper Ulucinar <alper@upbound.com> ([ulucinar](https://github.com/ulucinar))
 * Sergen Yalcin <sergen@upbound.com> ([sergenyalcin](https://github.com/sergenyalcin))
+* Fatih Turken <fatih@upbound.io> ([turkenf](https://github.com/turkenf))
+* Erhan Cagirici <erhan@upbound.io> ([erhancagirici](https://github.com/erhancagirici))
 
 See [CODEOWNERS](./CODEOWNERS) for automatic PR assignment.
