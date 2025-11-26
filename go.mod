@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/crossplane/crossplane-runtime/v2 v2.0.0-rc.1
 	github.com/crossplane/crossplane-tools v0.0.0-20250731192036-00d407d8b7ec
-	github.com/crossplane/upjet/v2 v2.0.0-20250804114937-4c6bfc216d3b
+	github.com/crossplane/upjet/v2 v2.0.1-0.20251009193737-0b7f640373c8
 	github.com/hashicorp/terraform-json v0.25.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
 	github.com/hashicorp/terraform-provider-google-beta v1.20.1-0.20250610151054-ddaee814b79f
