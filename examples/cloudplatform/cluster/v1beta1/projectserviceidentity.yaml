@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2025 Upbound Inc. <https://upbound.io>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: cloudplatform.gcp-beta.upbound.io/v1beta1
+kind: ProjectServiceIdentity
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudplatform/v1beta1/projectserviceidentity
+  labels:
+    testing.upbound.io/example-name: hc_sa
+  name: hc-sa
+spec:
+  forProvider:
+    project: official-provider-testing
+    service: healthcare.googleapis.com

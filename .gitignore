@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2025 Upbound Inc. <https://upbound.io>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+/.cache
+/.work
+/_output
+cover.out
+/vendor
+/.vendor-new
+.DS_Store
+.history
+kubeconfig
+
+# ignore IDE folders
+.vscode/
+.idea/
+
+# packages
+*.xpkg

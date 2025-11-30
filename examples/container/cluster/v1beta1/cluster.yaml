@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2025 Upbound Inc. <https://upbound.io>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: container.gcp-beta.upbound.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    meta.upbound.io/example-id: container/v1beta1/cluster
+  labels:
+    testing.upbound.io/example-name: primary
+  name: primary
+spec:
+  forProvider:
+    location: europe-north1
+    ipAllocationPolicy:
+      - {}
+    enableAutopilot: true
+    enableIntranodeVisibility: true
+    deletionProtection: false
