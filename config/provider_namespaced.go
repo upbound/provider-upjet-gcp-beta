@@ -16,6 +16,7 @@ import (
 
 	"github.com/upbound/provider-gcp-beta/config/namespaced/compute"
 	"github.com/upbound/provider-gcp-beta/config/namespaced/container"
+	"github.com/upbound/provider-gcp-beta/config/namespaced/dataform"
 	"github.com/upbound/provider-gcp-beta/config/namespaced/networksecurity"
 	"github.com/upbound/provider-gcp-beta/hack"
 )
@@ -61,6 +62,7 @@ func GetProviderNamespaced(_ context.Context, sdkProvider *schema.Provider, gene
 	registerTerraformConversions(pc)
 	for _, configure := range []func(provider *ujconfig.Provider){
 		container.Configure,
+		dataform.Configure,
 		networksecurity.Configure,
 		compute.Configure,
 	} {

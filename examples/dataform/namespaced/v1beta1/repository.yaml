@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2025 Upbound Inc. <https://upbound.io>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: dataform.gcp-beta.m.upbound.io/v1beta1
+kind: Repository
+metadata:
+  annotations:
+    meta.upbound.io/example-id: dataform/v1beta1/repository
+  labels:
+    testing.upbound.io/example-name: dataform_repository
+  name: dataform-repository
+  namespace: upbound-system
+spec:
+  forProvider:
+    region: us-central1
