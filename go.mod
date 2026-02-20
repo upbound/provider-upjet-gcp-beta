@@ -2,7 +2,7 @@ module github.com/upbound/provider-gcp-beta
 
 tool golang.org/x/tools/cmd/goimports
 
-go 1.24.11
+go 1.24.13
 
 require (
 	dario.cat/mergo v1.0.2
