@@ -1738,6 +1738,9 @@ type NodePoolQueuedProvisioningParameters struct {
 
 type NodePoolUpgradeSettingsBlueGreenSettingsInitParameters struct {
 
+	// Specifies the autoscaled policy settings for blue-green upgrades.
+	AutoscaledRolloutPolicy *UpgradeSettingsBlueGreenSettingsAutoscaledRolloutPolicyInitParameters `json:"autoscaledRolloutPolicy,omitempty" tf:"autoscaled_rollout_policy,omitempty"`
+
 	// Time needed after draining the entire blue pool.
 	// After this period, the blue pool will be cleaned up.
 	NodePoolSoakDuration *string `json:"nodePoolSoakDuration,omitempty" tf:"node_pool_soak_duration,omitempty"`
@@ -1747,6 +1750,9 @@ type NodePoolUpgradeSettingsBlueGreenSettingsInitParameters struct {
 }
 
 type NodePoolUpgradeSettingsBlueGreenSettingsObservation struct {
+
+	// Specifies the autoscaled policy settings for blue-green upgrades.
+	AutoscaledRolloutPolicy *UpgradeSettingsBlueGreenSettingsAutoscaledRolloutPolicyObservation `json:"autoscaledRolloutPolicy,omitempty" tf:"autoscaled_rollout_policy,omitempty"`
 
 	// Time needed after draining the entire blue pool.
 	// After this period, the blue pool will be cleaned up.
@@ -1758,6 +1764,10 @@ type NodePoolUpgradeSettingsBlueGreenSettingsObservation struct {
 
 type NodePoolUpgradeSettingsBlueGreenSettingsParameters struct {
 
+	// Specifies the autoscaled policy settings for blue-green upgrades.
+	// +kubebuilder:validation:Optional
+	AutoscaledRolloutPolicy *UpgradeSettingsBlueGreenSettingsAutoscaledRolloutPolicyParameters `json:"autoscaledRolloutPolicy,omitempty" tf:"autoscaled_rollout_policy,omitempty"`
+
 	// Time needed after draining the entire blue pool.
 	// After this period, the blue pool will be cleaned up.
 	// +kubebuilder:validation:Optional
@@ -1765,7 +1775,7 @@ type NodePoolUpgradeSettingsBlueGreenSettingsParameters struct {
 
 	// Specifies the standard policy settings for blue-green upgrades.
 	// +kubebuilder:validation:Optional
-	StandardRolloutPolicy *UpgradeSettingsBlueGreenSettingsStandardRolloutPolicyParameters `json:"standardRolloutPolicy" tf:"standard_rollout_policy,omitempty"`
+	StandardRolloutPolicy *UpgradeSettingsBlueGreenSettingsStandardRolloutPolicyParameters `json:"standardRolloutPolicy,omitempty" tf:"standard_rollout_policy,omitempty"`
 }
 
 type NodePoolUpgradeSettingsInitParameters_2 struct {
@@ -1869,6 +1879,25 @@ type UpgradeSettingsBlueGreenSettingsStandardRolloutPolicyParameters struct {
 	// (Optionial) Soak time after each batch gets drained.
 	// +kubebuilder:validation:Optional
 	BatchSoakDuration *string `json:"batchSoakDuration,omitempty" tf:"batch_soak_duration,omitempty"`
+}
+
+type UpgradeSettingsBlueGreenSettingsAutoscaledRolloutPolicyInitParameters struct {
+
+	// Time in seconds to wait after cordoning the blue pool before draining the nodes.
+	WaitForDrainDuration *string `json:"waitForDrainDuration,omitempty" tf:"wait_for_drain_duration,omitempty"`
+}
+
+type UpgradeSettingsBlueGreenSettingsAutoscaledRolloutPolicyObservation struct {
+
+	// Time in seconds to wait after cordoning the blue pool before draining the nodes.
+	WaitForDrainDuration *string `json:"waitForDrainDuration,omitempty" tf:"wait_for_drain_duration,omitempty"`
+}
+
+type UpgradeSettingsBlueGreenSettingsAutoscaledRolloutPolicyParameters struct {
+
+	// Time in seconds to wait after cordoning the blue pool before draining the nodes.
+	// +kubebuilder:validation:Optional
+	WaitForDrainDuration *string `json:"waitForDrainDuration,omitempty" tf:"wait_for_drain_duration,omitempty"`
 }
 
 // NodePoolSpec defines the desired state of NodePool

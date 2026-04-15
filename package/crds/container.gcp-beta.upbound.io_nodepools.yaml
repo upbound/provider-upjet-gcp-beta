@@ -704,6 +704,17 @@ spec:
                             Structure is documented below
                           items:
                             properties:
+                              autoscaledRolloutPolicy:
+                                description: Specifies the autoscaled policy settings
+                                  for blue-green upgrades.
+                                items:
+                                  properties:
+                                    waitForDrainDuration:
+                                      description: Time in seconds to wait after cordoning
+                                        the blue pool before draining the nodes.
+                                      type: string
+                                  type: object
+                                type: array
                               nodePoolSoakDuration:
                                 description: |-
                                   Time needed after draining the entire blue pool.
@@ -1316,6 +1327,17 @@ spec:
                             Structure is documented below
                           items:
                             properties:
+                              autoscaledRolloutPolicy:
+                                description: Specifies the autoscaled policy settings
+                                  for blue-green upgrades.
+                                items:
+                                  properties:
+                                    waitForDrainDuration:
+                                      description: Time in seconds to wait after cordoning
+                                        the blue pool before draining the nodes.
+                                      type: string
+                                  type: object
+                                type: array
                               nodePoolSoakDuration:
                                 description: |-
                                   Time needed after draining the entire blue pool.
@@ -2045,6 +2067,17 @@ spec:
                             Structure is documented below
                           items:
                             properties:
+                              autoscaledRolloutPolicy:
+                                description: Specifies the autoscaled policy settings
+                                  for blue-green upgrades.
+                                items:
+                                  properties:
+                                    waitForDrainDuration:
+                                      description: Time in seconds to wait after cordoning
+                                        the blue pool before draining the nodes.
+                                      type: string
+                                  type: object
+                                type: array
                               nodePoolSoakDuration:
                                 description: |-
                                   Time needed after draining the entire blue pool.
@@ -2909,6 +2942,15 @@ spec:
                           The settings to adjust blue green upgrades.
                           Structure is documented below
                         properties:
+                          autoscaledRolloutPolicy:
+                            description: Specifies the autoscaled policy settings
+                              for blue-green upgrades.
+                            properties:
+                              waitForDrainDuration:
+                                description: Time in seconds to wait after cordoning
+                                  the blue pool before draining the nodes.
+                                type: string
+                            type: object
                           nodePoolSoakDuration:
                             description: |-
                               Time needed after draining the entire blue pool.
@@ -3582,6 +3624,15 @@ spec:
                           The settings to adjust blue green upgrades.
                           Structure is documented below
                         properties:
+                          autoscaledRolloutPolicy:
+                            description: Specifies the autoscaled policy settings
+                              for blue-green upgrades.
+                            properties:
+                              waitForDrainDuration:
+                                description: Time in seconds to wait after cordoning
+                                  the blue pool before draining the nodes.
+                                type: string
+                            type: object
                           nodePoolSoakDuration:
                             description: |-
                               Time needed after draining the entire blue pool.
@@ -4296,6 +4347,15 @@ spec:
                           The settings to adjust blue green upgrades.
                           Structure is documented below
                         properties:
+                          autoscaledRolloutPolicy:
+                            description: Specifies the autoscaled policy settings
+                              for blue-green upgrades.
+                            properties:
+                              waitForDrainDuration:
+                                description: Time in seconds to wait after cordoning
+                                  the blue pool before draining the nodes.
+                                type: string
+                            type: object
                           nodePoolSoakDuration:
                             description: |-
                               Time needed after draining the entire blue pool.
