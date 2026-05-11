@@ -10,7 +10,7 @@ import "github.com/crossplane/upjet/v2/pkg/config"
 // ResourceConfigurators.
 func Configure(p *config.Provider) {
 	p.AddResourceConfigurator("google_network_security_server_tls_policy", func(r *config.Resource) {
-		config.MarkAsRequired(r.TerraformResource, "location")
+		r.MarkAsRequired("location")
 		r.ShortGroup = "networksecurity"
 		r.Kind = "ServerTLSPolicy"
 	})

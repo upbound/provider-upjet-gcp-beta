@@ -116,7 +116,7 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 				"kubeconfig": kcb,
 			}, nil
 		}
-		config.MarkAsRequired(r.TerraformResource, "location")
+		r.MarkAsRequired("location")
 		r.TerraformCustomDiff = func(diff *terraform.InstanceDiff, _ *terraform.InstanceState, _ *terraform.ResourceConfig) (*terraform.InstanceDiff, error) {
 			if diff != nil {
 				delete(diff.Attributes, "tpu_config.#")
