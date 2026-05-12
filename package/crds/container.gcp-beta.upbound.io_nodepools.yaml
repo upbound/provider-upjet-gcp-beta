@@ -388,6 +388,8 @@ spec:
                         ephemeralStorageLocalSsdConfig:
                           items:
                             properties:
+                              dataCacheCount:
+                                type: number
                               localSsdCount:
                                 type: number
                             type: object
@@ -401,6 +403,8 @@ spec:
                                 type: boolean
                             type: object
                           type: array
+                        flexStart:
+                          type: boolean
                         gcfsConfig:
                           items:
                             properties:
@@ -466,11 +470,27 @@ spec:
                         kubeletConfig:
                           items:
                             properties:
+                              allowedUnsafeSysctls:
+                                items:
+                                  type: string
+                                type: array
+                              containerLogMaxFiles:
+                                type: number
+                              containerLogMaxSize:
+                                type: string
                               cpuCfsQuota:
                                 type: boolean
                               cpuCfsQuotaPeriod:
                                 type: string
                               cpuManagerPolicy:
+                                type: string
+                              imageGcHighThresholdPercent:
+                                type: number
+                              imageGcLowThresholdPercent:
+                                type: number
+                              imageMaximumGcAge:
+                                type: string
+                              imageMinimumGcAge:
                                 type: string
                               insecureKubeletReadonlyPortEnabled:
                                 type: string
@@ -491,6 +511,15 @@ spec:
                             properties:
                               cgroupMode:
                                 type: string
+                              hugepagesConfig:
+                                items:
+                                  properties:
+                                    hugepageSize1G:
+                                      type: number
+                                    hugepageSize2M:
+                                      type: number
+                                  type: object
+                                type: array
                               sysctls:
                                 additionalProperties:
                                   type: string
@@ -507,9 +536,16 @@ spec:
                           type: array
                         localSsdCount:
                           type: number
+                        localSsdEncryptionMode:
+                          description: |-
+                            Possible Local SSD encryption modes:
+                            Accepted values are:
+                          type: string
                         loggingVariant:
                           type: string
                         machineType:
+                          type: string
+                        maxRunDuration:
                           type: string
                         metadata:
                           additionalProperties:
@@ -578,6 +614,82 @@ spec:
                           type: array
                         serviceAccount:
                           type: string
+                        serviceAccountRef:
+                          description: Reference to a ServiceAccount in cloudplatform
+                            to populate serviceAccount.
+                          properties:
+                            name:
+                              description: Name of the referenced object.
+                              type: string
+                            policy:
+                              description: Policies for referencing.
+                              properties:
+                                resolution:
+                                  default: Required
+                                  description: |-
+                                    Resolution specifies whether resolution of this reference is required.
+                                    The default is 'Required', which means the reconcile will fail if the
+                                    reference cannot be resolved. 'Optional' means this reference will be
+                                    a no-op if it cannot be resolved.
+                                  enum:
+                                  - Required
+                                  - Optional
+                                  type: string
+                                resolve:
+                                  description: |-
+                                    Resolve specifies when this reference should be resolved. The default
+                                    is 'IfNotPresent', which will attempt to resolve the reference only when
+                                    the corresponding field is not present. Use 'Always' to resolve the
+                                    reference on every reconcile.
+                                  enum:
+                                  - Always
+                                  - IfNotPresent
+                                  type: string
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        serviceAccountSelector:
+                          description: Selector for a ServiceAccount in cloudplatform
+                            to populate serviceAccount.
+                          properties:
+                            matchControllerRef:
+                              description: |-
+                                MatchControllerRef ensures an object with the same controller reference
+                                as the selecting object is selected.
+                              type: boolean
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: MatchLabels ensures an object with matching
+                                labels is selected.
+                              type: object
+                            policy:
+                              description: Policies for selection.
+                              properties:
+                                resolution:
+                                  default: Required
+                                  description: |-
+                                    Resolution specifies whether resolution of this reference is required.
+                                    The default is 'Required', which means the reconcile will fail if the
+                                    reference cannot be resolved. 'Optional' means this reference will be
+                                    a no-op if it cannot be resolved.
+                                  enum:
+                                  - Required
+                                  - Optional
+                                  type: string
+                                resolve:
+                                  description: |-
+                                    Resolve specifies when this reference should be resolved. The default
+                                    is 'IfNotPresent', which will attempt to resolve the reference only when
+                                    the corresponding field is not present. Use 'Always' to resolve the
+                                    reference on every reconcile.
+                                  enum:
+                                  - Always
+                                  - IfNotPresent
+                                  type: string
+                              type: object
+                          type: object
                         shieldedInstanceConfig:
                           items:
                             properties:
@@ -610,6 +722,10 @@ spec:
                           type: array
                         spot:
                           type: boolean
+                        storagePools:
+                          items:
+                            type: string
+                          type: array
                         tags:
                           items:
                             type: string
@@ -624,6 +740,20 @@ spec:
                                   of your reservation as its value.
                                 type: string
                               value:
+                                type: string
+                            type: object
+                          type: array
+                        windowsNodeConfig:
+                          description: |-
+                            Parameters used in creating the node pool. See
+                            google_container_cluster for schema.
+                          items:
+                            properties:
+                              osversion:
+                                description: |-
+                                  The Kubernetes version for the nodes in this pool. Note that if this field
+                                  and auto_upgrade are both specified, they will fight each other for what the node version should
+                                  be, so setting both is highly discouraged.
                                 type: string
                             type: object
                           type: array
@@ -1000,6 +1130,8 @@ spec:
                         ephemeralStorageLocalSsdConfig:
                           items:
                             properties:
+                              dataCacheCount:
+                                type: number
                               localSsdCount:
                                 type: number
                             type: object
@@ -1013,6 +1145,8 @@ spec:
                                 type: boolean
                             type: object
                           type: array
+                        flexStart:
+                          type: boolean
                         gcfsConfig:
                           items:
                             properties:
@@ -1078,11 +1212,27 @@ spec:
                         kubeletConfig:
                           items:
                             properties:
+                              allowedUnsafeSysctls:
+                                items:
+                                  type: string
+                                type: array
+                              containerLogMaxFiles:
+                                type: number
+                              containerLogMaxSize:
+                                type: string
                               cpuCfsQuota:
                                 type: boolean
                               cpuCfsQuotaPeriod:
                                 type: string
                               cpuManagerPolicy:
+                                type: string
+                              imageGcHighThresholdPercent:
+                                type: number
+                              imageGcLowThresholdPercent:
+                                type: number
+                              imageMaximumGcAge:
+                                type: string
+                              imageMinimumGcAge:
                                 type: string
                               insecureKubeletReadonlyPortEnabled:
                                 type: string
@@ -1103,6 +1253,15 @@ spec:
                             properties:
                               cgroupMode:
                                 type: string
+                              hugepagesConfig:
+                                items:
+                                  properties:
+                                    hugepageSize1G:
+                                      type: number
+                                    hugepageSize2M:
+                                      type: number
+                                  type: object
+                                type: array
                               sysctls:
                                 additionalProperties:
                                   type: string
@@ -1119,9 +1278,16 @@ spec:
                           type: array
                         localSsdCount:
                           type: number
+                        localSsdEncryptionMode:
+                          description: |-
+                            Possible Local SSD encryption modes:
+                            Accepted values are:
+                          type: string
                         loggingVariant:
                           type: string
                         machineType:
+                          type: string
+                        maxRunDuration:
                           type: string
                         metadata:
                           additionalProperties:
@@ -1190,6 +1356,82 @@ spec:
                           type: array
                         serviceAccount:
                           type: string
+                        serviceAccountRef:
+                          description: Reference to a ServiceAccount in cloudplatform
+                            to populate serviceAccount.
+                          properties:
+                            name:
+                              description: Name of the referenced object.
+                              type: string
+                            policy:
+                              description: Policies for referencing.
+                              properties:
+                                resolution:
+                                  default: Required
+                                  description: |-
+                                    Resolution specifies whether resolution of this reference is required.
+                                    The default is 'Required', which means the reconcile will fail if the
+                                    reference cannot be resolved. 'Optional' means this reference will be
+                                    a no-op if it cannot be resolved.
+                                  enum:
+                                  - Required
+                                  - Optional
+                                  type: string
+                                resolve:
+                                  description: |-
+                                    Resolve specifies when this reference should be resolved. The default
+                                    is 'IfNotPresent', which will attempt to resolve the reference only when
+                                    the corresponding field is not present. Use 'Always' to resolve the
+                                    reference on every reconcile.
+                                  enum:
+                                  - Always
+                                  - IfNotPresent
+                                  type: string
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        serviceAccountSelector:
+                          description: Selector for a ServiceAccount in cloudplatform
+                            to populate serviceAccount.
+                          properties:
+                            matchControllerRef:
+                              description: |-
+                                MatchControllerRef ensures an object with the same controller reference
+                                as the selecting object is selected.
+                              type: boolean
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: MatchLabels ensures an object with matching
+                                labels is selected.
+                              type: object
+                            policy:
+                              description: Policies for selection.
+                              properties:
+                                resolution:
+                                  default: Required
+                                  description: |-
+                                    Resolution specifies whether resolution of this reference is required.
+                                    The default is 'Required', which means the reconcile will fail if the
+                                    reference cannot be resolved. 'Optional' means this reference will be
+                                    a no-op if it cannot be resolved.
+                                  enum:
+                                  - Required
+                                  - Optional
+                                  type: string
+                                resolve:
+                                  description: |-
+                                    Resolve specifies when this reference should be resolved. The default
+                                    is 'IfNotPresent', which will attempt to resolve the reference only when
+                                    the corresponding field is not present. Use 'Always' to resolve the
+                                    reference on every reconcile.
+                                  enum:
+                                  - Always
+                                  - IfNotPresent
+                                  type: string
+                              type: object
+                          type: object
                         shieldedInstanceConfig:
                           items:
                             properties:
@@ -1222,6 +1464,10 @@ spec:
                           type: array
                         spot:
                           type: boolean
+                        storagePools:
+                          items:
+                            type: string
+                          type: array
                         tags:
                           items:
                             type: string
@@ -1236,6 +1482,20 @@ spec:
                                   of your reservation as its value.
                                 type: string
                               value:
+                                type: string
+                            type: object
+                          type: array
+                        windowsNodeConfig:
+                          description: |-
+                            Parameters used in creating the node pool. See
+                            google_container_cluster for schema.
+                          items:
+                            properties:
+                              osversion:
+                                description: |-
+                                  The Kubernetes version for the nodes in this pool. Note that if this field
+                                  and auto_upgrade are both specified, they will fight each other for what the node version should
+                                  be, so setting both is highly discouraged.
                                 type: string
                             type: object
                           type: array
@@ -1727,6 +1987,8 @@ spec:
                         ephemeralStorageLocalSsdConfig:
                           items:
                             properties:
+                              dataCacheCount:
+                                type: number
                               localSsdCount:
                                 type: number
                             type: object
@@ -1740,6 +2002,8 @@ spec:
                                 type: boolean
                             type: object
                           type: array
+                        flexStart:
+                          type: boolean
                         gcfsConfig:
                           items:
                             properties:
@@ -1805,11 +2069,27 @@ spec:
                         kubeletConfig:
                           items:
                             properties:
+                              allowedUnsafeSysctls:
+                                items:
+                                  type: string
+                                type: array
+                              containerLogMaxFiles:
+                                type: number
+                              containerLogMaxSize:
+                                type: string
                               cpuCfsQuota:
                                 type: boolean
                               cpuCfsQuotaPeriod:
                                 type: string
                               cpuManagerPolicy:
+                                type: string
+                              imageGcHighThresholdPercent:
+                                type: number
+                              imageGcLowThresholdPercent:
+                                type: number
+                              imageMaximumGcAge:
+                                type: string
+                              imageMinimumGcAge:
                                 type: string
                               insecureKubeletReadonlyPortEnabled:
                                 type: string
@@ -1830,6 +2110,15 @@ spec:
                             properties:
                               cgroupMode:
                                 type: string
+                              hugepagesConfig:
+                                items:
+                                  properties:
+                                    hugepageSize1G:
+                                      type: number
+                                    hugepageSize2M:
+                                      type: number
+                                  type: object
+                                type: array
                               sysctls:
                                 additionalProperties:
                                   type: string
@@ -1846,9 +2135,16 @@ spec:
                           type: array
                         localSsdCount:
                           type: number
+                        localSsdEncryptionMode:
+                          description: |-
+                            Possible Local SSD encryption modes:
+                            Accepted values are:
+                          type: string
                         loggingVariant:
                           type: string
                         machineType:
+                          type: string
+                        maxRunDuration:
                           type: string
                         metadata:
                           additionalProperties:
@@ -1949,6 +2245,10 @@ spec:
                           type: array
                         spot:
                           type: boolean
+                        storagePools:
+                          items:
+                            type: string
+                          type: array
                         tags:
                           items:
                             type: string
@@ -1963,6 +2263,20 @@ spec:
                                   of your reservation as its value.
                                 type: string
                               value:
+                                type: string
+                            type: object
+                          type: array
+                        windowsNodeConfig:
+                          description: |-
+                            Parameters used in creating the node pool. See
+                            google_container_cluster for schema.
+                          items:
+                            properties:
+                              osversion:
+                                description: |-
+                                  The Kubernetes version for the nodes in this pool. Note that if this field
+                                  and auto_upgrade are both specified, they will fight each other for what the node version should
+                                  be, so setting both is highly discouraged.
                                 type: string
                             type: object
                           type: array
