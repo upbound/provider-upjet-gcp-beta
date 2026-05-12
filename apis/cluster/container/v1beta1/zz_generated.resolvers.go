@@ -10,14 +10,72 @@ import (
 	"context"
 	reference "github.com/crossplane/crossplane-runtime/v2/pkg/reference"
 	xpresource "github.com/crossplane/crossplane-runtime/v2/pkg/resource"
+	resource "github.com/crossplane/upjet/v2/pkg/resource"
 	errors "github.com/pkg/errors"
 	common "github.com/upbound/provider-gcp-beta/config/cluster/common"
 	apisresolver "github.com/upbound/provider-gcp-beta/internal/apis"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func (mg *NodePool) ResolveReferences( // ResolveReferences of this NodePool.
+func (mg *Cluster) ResolveReferences( // ResolveReferences of this Cluster.
 	ctx context.Context, c client.Reader) error {
+	var m xpresource.Managed
+	var l xpresource.ManagedList
+	r := reference.NewAPIResolver(c, mg)
+
+	var rsp reference.ResolutionResponse
+	var err error
+
+	for i3 := 0; i3 < len(mg.Spec.ForProvider.NodeConfig); i3++ {
+		{
+			m, l, err = apisresolver.GetManagedResource("cloudplatform.gcp-beta.upbound.io", "v1beta1", "ServiceAccount", "ServiceAccountList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.NodeConfig[i3].ServiceAccount),
+				Extract:      resource.ExtractParamPath("email", true),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.ForProvider.NodeConfig[i3].ServiceAccountRef,
+				Selector:     mg.Spec.ForProvider.NodeConfig[i3].ServiceAccountSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.ForProvider.NodeConfig[i3].ServiceAccount")
+		}
+		mg.Spec.ForProvider.NodeConfig[i3].ServiceAccount = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.ForProvider.NodeConfig[i3].ServiceAccountRef = rsp.ResolvedReference
+
+	}
+	for i3 := 0; i3 < len(mg.Spec.InitProvider.NodeConfig); i3++ {
+		{
+			m, l, err = apisresolver.GetManagedResource("cloudplatform.gcp-beta.upbound.io", "v1beta1", "ServiceAccount", "ServiceAccountList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.NodeConfig[i3].ServiceAccount),
+				Extract:      resource.ExtractParamPath("email", true),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.InitProvider.NodeConfig[i3].ServiceAccountRef,
+				Selector:     mg.Spec.InitProvider.NodeConfig[i3].ServiceAccountSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.InitProvider.NodeConfig[i3].ServiceAccount")
+		}
+		mg.Spec.InitProvider.NodeConfig[i3].ServiceAccount = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.InitProvider.NodeConfig[i3].ServiceAccountRef = rsp.ResolvedReference
+
+	}
+
+	return nil
+}
+
+// ResolveReferences of this NodePool.
+func (mg *NodePool) ResolveReferences(ctx context.Context, c client.Reader) error {
 	var m xpresource.Managed
 	var l xpresource.ManagedList
 	r := reference.NewAPIResolver(c, mg)
@@ -44,6 +102,51 @@ func (mg *NodePool) ResolveReferences( // ResolveReferences of this NodePool.
 	}
 	mg.Spec.ForProvider.Cluster = reference.ToPtrValue(rsp.ResolvedValue)
 	mg.Spec.ForProvider.ClusterRef = rsp.ResolvedReference
+
+	for i3 := 0; i3 < len(mg.Spec.ForProvider.NodeConfig); i3++ {
+		{
+			m, l, err = apisresolver.GetManagedResource("cloudplatform.gcp-beta.upbound.io", "v1beta1", "ServiceAccount", "ServiceAccountList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.NodeConfig[i3].ServiceAccount),
+				Extract:      resource.ExtractParamPath("email", true),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.ForProvider.NodeConfig[i3].ServiceAccountRef,
+				Selector:     mg.Spec.ForProvider.NodeConfig[i3].ServiceAccountSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.ForProvider.NodeConfig[i3].ServiceAccount")
+		}
+		mg.Spec.ForProvider.NodeConfig[i3].ServiceAccount = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.ForProvider.NodeConfig[i3].ServiceAccountRef = rsp.ResolvedReference
+
+	}
+	for i3 := 0; i3 < len(mg.Spec.InitProvider.NodeConfig); i3++ {
+		{
+			m, l, err = apisresolver.GetManagedResource("cloudplatform.gcp-beta.upbound.io", "v1beta1", "ServiceAccount", "ServiceAccountList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.NodeConfig[i3].ServiceAccount),
+				Extract:      resource.ExtractParamPath("email", true),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.InitProvider.NodeConfig[i3].ServiceAccountRef,
+				Selector:     mg.Spec.InitProvider.NodeConfig[i3].ServiceAccountSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.InitProvider.NodeConfig[i3].ServiceAccount")
+		}
+		mg.Spec.InitProvider.NodeConfig[i3].ServiceAccount = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.InitProvider.NodeConfig[i3].ServiceAccountRef = rsp.ResolvedReference
+
+	}
 
 	return nil
 }
