@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Open Backport PR
-        uses: korthout/backport-action@be567af183754f6a5d831ae90f648954763f17f5 # v3
+        uses: korthout/backport-action@d07416681cab29bf2661702f925f020aaa962997 # v3
         with:
           github_token: ${{ secrets.UPBOUND_GITHUB_BOT_TOKEN }}
           github_workspace: ${{ github.workspace }}
