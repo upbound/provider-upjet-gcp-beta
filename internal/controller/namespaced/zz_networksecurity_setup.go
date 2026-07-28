@@ -37,3 +37,15 @@ func SetupGated_networksecurity(mgr ctrl.Manager, o controller.Options) error {
 	}
 	return nil
 }
+
+// SetupWebhookWithManager_networksecurity registers conversion webhooks for all resource kinds in the group.
+func SetupWebhookWithManager_networksecurity(mgr ctrl.Manager) error {
+	for _, setup := range []func(ctrl.Manager) error{
+		servertlspolicy.SetupWebhookWithManager,
+	} {
+		if err := setup(mgr); err != nil {
+			return err
+		}
+	}
+	return nil
+}

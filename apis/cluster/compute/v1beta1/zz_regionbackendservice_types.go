@@ -10,7 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	v1 "github.com/crossplane/crossplane-runtime/v2/apis/common/v1"
+	v2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 )
 
 type BackendInitParameters struct {
@@ -1180,7 +1180,7 @@ type IapInitParameters struct {
 
 	// OAuth2 Client Secret for IAP
 	// Note: This property is sensitive and will not be displayed in the plan.
-	Oauth2ClientSecretSecretRef *v1.SecretKeySelector `json:"oauth2ClientSecretSecretRef,omitempty" tf:"-"`
+	Oauth2ClientSecretSecretRef *v2.SecretKeySelector `json:"oauth2ClientSecretSecretRef,omitempty" tf:"-"`
 }
 
 type IapObservation struct {
@@ -1205,7 +1205,7 @@ type IapParameters struct {
 	// OAuth2 Client Secret for IAP
 	// Note: This property is sensitive and will not be displayed in the plan.
 	// +kubebuilder:validation:Optional
-	Oauth2ClientSecretSecretRef *v1.SecretKeySelector `json:"oauth2ClientSecretSecretRef,omitempty" tf:"-"`
+	Oauth2ClientSecretSecretRef *v2.SecretKeySelector `json:"oauth2ClientSecretSecretRef,omitempty" tf:"-"`
 }
 
 type IntervalInitParameters struct {
@@ -1616,11 +1616,11 @@ type RegionBackendServiceInitParameters struct {
 
 	// References to HealthCheck in compute to populate healthChecks.
 	// +kubebuilder:validation:Optional
-	HealthChecksRefs []v1.Reference `json:"healthChecksRefs,omitempty" tf:"-"`
+	HealthChecksRefs []v2.Reference `json:"healthChecksRefs,omitempty" tf:"-"`
 
 	// Selector for a list of HealthCheck in compute to populate healthChecks.
 	// +kubebuilder:validation:Optional
-	HealthChecksSelector *v1.Selector `json:"healthChecksSelector,omitempty" tf:"-"`
+	HealthChecksSelector *v2.Selector `json:"healthChecksSelector,omitempty" tf:"-"`
 
 	// Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
 	// Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
@@ -2001,11 +2001,11 @@ type RegionBackendServiceParameters struct {
 
 	// References to HealthCheck in compute to populate healthChecks.
 	// +kubebuilder:validation:Optional
-	HealthChecksRefs []v1.Reference `json:"healthChecksRefs,omitempty" tf:"-"`
+	HealthChecksRefs []v2.Reference `json:"healthChecksRefs,omitempty" tf:"-"`
 
 	// Selector for a list of HealthCheck in compute to populate healthChecks.
 	// +kubebuilder:validation:Optional
-	HealthChecksSelector *v1.Selector `json:"healthChecksSelector,omitempty" tf:"-"`
+	HealthChecksSelector *v2.Selector `json:"healthChecksSelector,omitempty" tf:"-"`
 
 	// Specifies preference of traffic to the backend (from the proxy and from the client for proxyless gRPC).
 	// Possible values are: IPV4_ONLY, PREFER_IPV6, IPV6_ONLY.
@@ -2273,8 +2273,8 @@ type TTLParameters struct {
 
 // RegionBackendServiceSpec defines the desired state of RegionBackendService
 type RegionBackendServiceSpec struct {
-	v1.ResourceSpec `json:",inline"`
-	ForProvider     RegionBackendServiceParameters `json:"forProvider"`
+	v2.ClusterManagedResourceSpec `json:",inline"`
+	ForProvider                   RegionBackendServiceParameters `json:"forProvider"`
 	// THIS IS A BETA FIELD. It will be honored
 	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
@@ -2290,8 +2290,8 @@ type RegionBackendServiceSpec struct {
 
 // RegionBackendServiceStatus defines the observed state of RegionBackendService.
 type RegionBackendServiceStatus struct {
-	v1.ResourceStatus `json:",inline"`
-	AtProvider        RegionBackendServiceObservation `json:"atProvider,omitempty"`
+	v2.ManagedResourceStatus `json:",inline"`
+	AtProvider               RegionBackendServiceObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true

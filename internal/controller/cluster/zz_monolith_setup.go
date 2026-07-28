@@ -61,3 +61,23 @@ func SetupGated_monolith(mgr ctrl.Manager, o controller.Options) error {
 	}
 	return nil
 }
+
+// SetupWebhookWithManager_monolith registers conversion webhooks for all resource kinds in the group.
+func SetupWebhookWithManager_monolith(mgr ctrl.Manager) error {
+	for _, setup := range []func(ctrl.Manager) error{
+		projectserviceidentity.SetupWebhookWithManager,
+		serviceaccount.SetupWebhookWithManager,
+		healthcheck.SetupWebhookWithManager,
+		regionbackendservice.SetupWebhookWithManager,
+		regionsecuritypolicy.SetupWebhookWithManager,
+		cluster.SetupWebhookWithManager,
+		nodepool.SetupWebhookWithManager,
+		servertlspolicy.SetupWebhookWithManager,
+		providerconfig.SetupWebhookWithManager,
+	} {
+		if err := setup(mgr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
