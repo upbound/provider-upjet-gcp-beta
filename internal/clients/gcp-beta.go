@@ -9,9 +9,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	xpv1 "github.com/crossplane/crossplane-runtime/v2/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/v2/pkg/fieldpath"
 	"github.com/crossplane/crossplane-runtime/v2/pkg/resource"
+	xpv2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 	"github.com/crossplane/upjet/v2/pkg/terraform"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	tfsdk "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -113,14 +113,14 @@ func TerraformSetupBuilder(tfProvider *schema.Provider) terraform.SetupFn { //no
 		}
 
 		switch pcSpec.Credentials.Source { //nolint:exhaustive
-		case xpv1.CredentialsSourceInjectedIdentity:
+		case xpv2.CredentialsSourceInjectedIdentity:
 			// We don't need to do anything here, as the TF Provider will take care of workloadIdentity etc.
 		case impersonateServiceAccount:
 			if pcSpec.Credentials.ImpersonateServiceAccountSpec.Name != "" {
 				ps.Configuration[keyImpersonateServiceAccount] = pcSpec.Credentials.ImpersonateServiceAccountSpec.Name
 			}
 		case credentialsSourceAccessToken:
-			data, err := resource.CommonCredentialExtractor(ctx, xpv1.CredentialsSourceSecret, client, pcSpec.Credentials.CommonCredentialSelectors)
+			data, err := resource.CommonCredentialExtractor(ctx, xpv2.CredentialsSourceSecret, client, pcSpec.Credentials.CommonCredentialSelectors)
 			if err != nil {
 				return ps, errors.Wrap(err, errExtractTokenCredentials)
 			}
