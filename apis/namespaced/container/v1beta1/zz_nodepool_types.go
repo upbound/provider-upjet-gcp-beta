@@ -13,6 +13,25 @@ import (
 	v2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 )
 
+type BlueGreenSettingsAutoscaledRolloutPolicyInitParameters struct {
+
+	// Time in seconds to wait after cordoning the blue pool before draining the nodes.
+	WaitForDrainDuration *string `json:"waitForDrainDuration,omitempty" tf:"wait_for_drain_duration,omitempty"`
+}
+
+type BlueGreenSettingsAutoscaledRolloutPolicyObservation struct {
+
+	// Time in seconds to wait after cordoning the blue pool before draining the nodes.
+	WaitForDrainDuration *string `json:"waitForDrainDuration,omitempty" tf:"wait_for_drain_duration,omitempty"`
+}
+
+type BlueGreenSettingsAutoscaledRolloutPolicyParameters struct {
+
+	// Time in seconds to wait after cordoning the blue pool before draining the nodes.
+	// +kubebuilder:validation:Optional
+	WaitForDrainDuration *string `json:"waitForDrainDuration,omitempty" tf:"wait_for_drain_duration,omitempty"`
+}
+
 type ContainerdConfigPrivateRegistryAccessConfigCertificateAuthorityDomainConfigGCPSecretManagerCertificateConfigInitParameters struct {
 	SecretURI *string `json:"secretUri,omitempty" tf:"secret_uri,omitempty"`
 }
@@ -32,7 +51,7 @@ type NetworkConfigAdditionalNodeNetworkConfigsInitParameters struct {
 	// Name of the VPC where the additional interface belongs.
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
 
-	// Name of the subnetwork where the additional pod network belongs.
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
 
@@ -41,7 +60,7 @@ type NetworkConfigAdditionalNodeNetworkConfigsObservation struct {
 	// Name of the VPC where the additional interface belongs.
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
 
-	// Name of the subnetwork where the additional pod network belongs.
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
 
@@ -51,7 +70,7 @@ type NetworkConfigAdditionalNodeNetworkConfigsParameters struct {
 	// +kubebuilder:validation:Optional
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
 
-	// Name of the subnetwork where the additional pod network belongs.
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 	// +kubebuilder:validation:Optional
 	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
@@ -68,7 +87,7 @@ type NetworkConfigAdditionalPodNetworkConfigsInitParameters struct {
 	// The name of the secondary range on the subnet which provides IP address for this pod range.
 	SecondaryPodRange *string `json:"secondaryPodRange,omitempty" tf:"secondary_pod_range,omitempty"`
 
-	// Name of the subnetwork where the additional pod network belongs.
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
 
@@ -84,7 +103,7 @@ type NetworkConfigAdditionalPodNetworkConfigsObservation struct {
 	// The name of the secondary range on the subnet which provides IP address for this pod range.
 	SecondaryPodRange *string `json:"secondaryPodRange,omitempty" tf:"secondary_pod_range,omitempty"`
 
-	// Name of the subnetwork where the additional pod network belongs.
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
 
@@ -102,7 +121,7 @@ type NetworkConfigAdditionalPodNetworkConfigsParameters struct {
 	// +kubebuilder:validation:Optional
 	SecondaryPodRange *string `json:"secondaryPodRange,omitempty" tf:"secondary_pod_range,omitempty"`
 
-	// Name of the subnetwork where the additional pod network belongs.
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
 	// +kubebuilder:validation:Optional
 	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
@@ -146,6 +165,25 @@ type NodeConfigContainerdConfigPrivateRegistryAccessConfigParameters struct {
 
 	// +kubebuilder:validation:Optional
 	CertificateAuthorityDomainConfig []NodeConfigContainerdConfigPrivateRegistryAccessConfigCertificateAuthorityDomainConfigParameters `json:"certificateAuthorityDomainConfig,omitempty" tf:"certificate_authority_domain_config,omitempty"`
+
+	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
+	// +kubebuilder:validation:Optional
+	Enabled *bool `json:"enabled" tf:"enabled,omitempty"`
+}
+
+type NodeConfigContainerdConfigWritableCgroupsInitParameters struct {
+
+	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type NodeConfigContainerdConfigWritableCgroupsObservation struct {
+
+	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
+	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
+}
+
+type NodeConfigContainerdConfigWritableCgroupsParameters struct {
 
 	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
 	// +kubebuilder:validation:Optional
@@ -198,6 +236,188 @@ type NodeConfigGuestAcceleratorGpuSharingConfigParameters struct {
 	MaxSharedClientsPerGpu *float64 `json:"maxSharedClientsPerGpu" tf:"max_shared_clients_per_gpu,omitempty"`
 }
 
+type NodeConfigKubeletConfigEvictionMinimumReclaimInitParameters struct {
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionMinimumReclaimObservation struct {
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionMinimumReclaimParameters struct {
+
+	// +kubebuilder:validation:Optional
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionSoftGracePeriodInitParameters struct {
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionSoftGracePeriodObservation struct {
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionSoftGracePeriodParameters struct {
+
+	// +kubebuilder:validation:Optional
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionSoftInitParameters struct {
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionSoftObservation struct {
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigEvictionSoftParameters struct {
+
+	// +kubebuilder:validation:Optional
+	ImagefsAvailable *string `json:"imagefsAvailable,omitempty" tf:"imagefs_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ImagefsInodesFree *string `json:"imagefsInodesFree,omitempty" tf:"imagefs_inodes_free,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	MemoryAvailable *string `json:"memoryAvailable,omitempty" tf:"memory_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NodefsAvailable *string `json:"nodefsAvailable,omitempty" tf:"nodefs_available,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	NodefsInodesFree *string `json:"nodefsInodesFree,omitempty" tf:"nodefs_inodes_free,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	PidAvailable *string `json:"pidAvailable,omitempty" tf:"pid_available,omitempty"`
+}
+
+type NodeConfigKubeletConfigMemoryManagerInitParameters struct {
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+}
+
+type NodeConfigKubeletConfigMemoryManagerObservation struct {
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+}
+
+type NodeConfigKubeletConfigMemoryManagerParameters struct {
+
+	// +kubebuilder:validation:Optional
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+}
+
+type NodeConfigKubeletConfigTopologyManagerInitParameters struct {
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+
+	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
+}
+
+type NodeConfigKubeletConfigTopologyManagerObservation struct {
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+
+	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
+}
+
+type NodeConfigKubeletConfigTopologyManagerParameters struct {
+
+	// +kubebuilder:validation:Optional
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	Scope *string `json:"scope,omitempty" tf:"scope,omitempty"`
+}
+
 type NodeConfigLinuxNodeConfigHugepagesConfigInitParameters struct {
 	HugepageSize1G *float64 `json:"hugepageSize1G,omitempty" tf:"hugepage_size_1g,omitempty"`
 
@@ -217,6 +437,20 @@ type NodeConfigLinuxNodeConfigHugepagesConfigParameters struct {
 
 	// +kubebuilder:validation:Optional
 	HugepageSize2M *float64 `json:"hugepageSize2M,omitempty" tf:"hugepage_size_2m,omitempty"`
+}
+
+type NodeConfigLinuxNodeConfigNodeKernelModuleLoadingInitParameters struct {
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+}
+
+type NodeConfigLinuxNodeConfigNodeKernelModuleLoadingObservation struct {
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
+}
+
+type NodeConfigLinuxNodeConfigNodeKernelModuleLoadingParameters struct {
+
+	// +kubebuilder:validation:Optional
+	Policy *string `json:"policy,omitempty" tf:"policy,omitempty"`
 }
 
 type NodeConfigSoleTenantConfigNodeAffinityInitParameters struct {
@@ -505,6 +739,9 @@ type NodePoolNetworkConfigObservation struct {
 
 	// The ID of the secondary range for pod IPs. If create_pod_range is true, this ID is used for the new range. If create_pod_range is false, uses an existing secondary range with this ID.
 	PodRange *string `json:"podRange,omitempty" tf:"pod_range,omitempty"`
+
+	// The subnetwork path for the node pool. Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}. If the cluster is associated with multiple subnetworks, the subnetwork for the node pool is picked based on the IP utilization during node pool creation and is immutable
+	Subnetwork *string `json:"subnetwork,omitempty" tf:"subnetwork,omitempty"`
 }
 
 type NodePoolNetworkConfigParameters struct {
@@ -566,11 +803,15 @@ type NodePoolNetworkConfigPodCidrOverprovisionConfigParameters struct {
 type NodePoolNodeConfigAdvancedMachineFeaturesInitParameters struct {
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
 
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
+
 	ThreadsPerCore *float64 `json:"threadsPerCore,omitempty" tf:"threads_per_core,omitempty"`
 }
 
 type NodePoolNodeConfigAdvancedMachineFeaturesObservation struct {
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
+
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
 
 	ThreadsPerCore *float64 `json:"threadsPerCore,omitempty" tf:"threads_per_core,omitempty"`
 }
@@ -581,22 +822,65 @@ type NodePoolNodeConfigAdvancedMachineFeaturesParameters struct {
 	EnableNestedVirtualization *bool `json:"enableNestedVirtualization,omitempty" tf:"enable_nested_virtualization,omitempty"`
 
 	// +kubebuilder:validation:Optional
+	PerformanceMonitoringUnit *string `json:"performanceMonitoringUnit,omitempty" tf:"performance_monitoring_unit,omitempty"`
+
+	// +kubebuilder:validation:Optional
 	ThreadsPerCore *float64 `json:"threadsPerCore" tf:"threads_per_core,omitempty"`
 }
 
+type NodePoolNodeConfigBootDiskInitParameters struct {
+	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
+
+	ProvisionedIops *float64 `json:"provisionedIops,omitempty" tf:"provisioned_iops,omitempty"`
+
+	ProvisionedThroughput *float64 `json:"provisionedThroughput,omitempty" tf:"provisioned_throughput,omitempty"`
+
+	SizeGb *float64 `json:"sizeGb,omitempty" tf:"size_gb,omitempty"`
+}
+
+type NodePoolNodeConfigBootDiskObservation struct {
+	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
+
+	ProvisionedIops *float64 `json:"provisionedIops,omitempty" tf:"provisioned_iops,omitempty"`
+
+	ProvisionedThroughput *float64 `json:"provisionedThroughput,omitempty" tf:"provisioned_throughput,omitempty"`
+
+	SizeGb *float64 `json:"sizeGb,omitempty" tf:"size_gb,omitempty"`
+}
+
+type NodePoolNodeConfigBootDiskParameters struct {
+
+	// +kubebuilder:validation:Optional
+	DiskType *string `json:"diskType,omitempty" tf:"disk_type,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ProvisionedIops *float64 `json:"provisionedIops,omitempty" tf:"provisioned_iops,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	ProvisionedThroughput *float64 `json:"provisionedThroughput,omitempty" tf:"provisioned_throughput,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	SizeGb *float64 `json:"sizeGb,omitempty" tf:"size_gb,omitempty"`
+}
+
 type NodePoolNodeConfigConfidentialNodesInitParameters_2 struct {
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
 
 	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type NodePoolNodeConfigConfidentialNodesObservation_2 struct {
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
 
 	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
 	Enabled *bool `json:"enabled,omitempty" tf:"enabled,omitempty"`
 }
 
 type NodePoolNodeConfigConfidentialNodesParameters_2 struct {
+
+	// +kubebuilder:validation:Optional
+	ConfidentialInstanceType *string `json:"confidentialInstanceType,omitempty" tf:"confidential_instance_type,omitempty"`
 
 	// Makes nodes obtainable through the ProvisioningRequest API exclusively.
 	// +kubebuilder:validation:Optional
@@ -605,16 +889,23 @@ type NodePoolNodeConfigConfidentialNodesParameters_2 struct {
 
 type NodePoolNodeConfigContainerdConfigInitParameters struct {
 	PrivateRegistryAccessConfig *NodeConfigContainerdConfigPrivateRegistryAccessConfigInitParameters `json:"privateRegistryAccessConfig,omitempty" tf:"private_registry_access_config,omitempty"`
+
+	WritableCgroups *NodeConfigContainerdConfigWritableCgroupsInitParameters `json:"writableCgroups,omitempty" tf:"writable_cgroups,omitempty"`
 }
 
 type NodePoolNodeConfigContainerdConfigObservation struct {
 	PrivateRegistryAccessConfig *NodeConfigContainerdConfigPrivateRegistryAccessConfigObservation `json:"privateRegistryAccessConfig,omitempty" tf:"private_registry_access_config,omitempty"`
+
+	WritableCgroups *NodeConfigContainerdConfigWritableCgroupsObservation `json:"writableCgroups,omitempty" tf:"writable_cgroups,omitempty"`
 }
 
 type NodePoolNodeConfigContainerdConfigParameters struct {
 
 	// +kubebuilder:validation:Optional
 	PrivateRegistryAccessConfig *NodeConfigContainerdConfigPrivateRegistryAccessConfigParameters `json:"privateRegistryAccessConfig,omitempty" tf:"private_registry_access_config,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	WritableCgroups *NodeConfigContainerdConfigWritableCgroupsParameters `json:"writableCgroups,omitempty" tf:"writable_cgroups,omitempty"`
 }
 
 type NodePoolNodeConfigEffectiveTaintsInitParameters struct {
@@ -792,6 +1083,8 @@ type NodePoolNodeConfigHostMaintenancePolicyParameters struct {
 type NodePoolNodeConfigInitParameters_2 struct {
 	AdvancedMachineFeatures *NodePoolNodeConfigAdvancedMachineFeaturesInitParameters `json:"advancedMachineFeatures,omitempty" tf:"advanced_machine_features,omitempty"`
 
+	BootDisk *NodePoolNodeConfigBootDiskInitParameters `json:"bootDisk,omitempty" tf:"boot_disk,omitempty"`
+
 	BootDiskKMSKey *string `json:"bootDiskKmsKey,omitempty" tf:"boot_disk_kms_key,omitempty"`
 
 	ConfidentialNodes *NodePoolNodeConfigConfidentialNodesInitParameters_2 `json:"confidentialNodes,omitempty" tf:"confidential_nodes,omitempty"`
@@ -835,8 +1128,6 @@ type NodePoolNodeConfigInitParameters_2 struct {
 
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
-	// Possible Local SSD encryption modes:
-	// Accepted values are:
 	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
 
 	LoggingVariant *string `json:"loggingVariant,omitempty" tf:"logging_variant,omitempty"`
@@ -857,8 +1148,6 @@ type NodePoolNodeConfigInitParameters_2 struct {
 
 	Preemptible *bool `json:"preemptible,omitempty" tf:"preemptible,omitempty"`
 
-	// The configuration of the desired reservation which instances could take capacity from.
-	// Structure is documented below.
 	ReservationAffinity *NodePoolNodeConfigReservationAffinityInitParameters `json:"reservationAffinity,omitempty" tf:"reservation_affinity,omitempty"`
 
 	// +mapType=granular
@@ -915,6 +1204,14 @@ type NodePoolNodeConfigKubeletConfigInitParameters struct {
 
 	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
 
+	EvictionMaxPodGracePeriodSeconds *float64 `json:"evictionMaxPodGracePeriodSeconds,omitempty" tf:"eviction_max_pod_grace_period_seconds,omitempty"`
+
+	EvictionMinimumReclaim *NodeConfigKubeletConfigEvictionMinimumReclaimInitParameters `json:"evictionMinimumReclaim,omitempty" tf:"eviction_minimum_reclaim,omitempty"`
+
+	EvictionSoft *NodeConfigKubeletConfigEvictionSoftInitParameters `json:"evictionSoft,omitempty" tf:"eviction_soft,omitempty"`
+
+	EvictionSoftGracePeriod *NodeConfigKubeletConfigEvictionSoftGracePeriodInitParameters `json:"evictionSoftGracePeriod,omitempty" tf:"eviction_soft_grace_period,omitempty"`
+
 	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
 
 	ImageGcLowThresholdPercent *float64 `json:"imageGcLowThresholdPercent,omitempty" tf:"image_gc_low_threshold_percent,omitempty"`
@@ -925,7 +1222,15 @@ type NodePoolNodeConfigKubeletConfigInitParameters struct {
 
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
+	MaxParallelImagePulls *float64 `json:"maxParallelImagePulls,omitempty" tf:"max_parallel_image_pulls,omitempty"`
+
+	MemoryManager *NodeConfigKubeletConfigMemoryManagerInitParameters `json:"memoryManager,omitempty" tf:"memory_manager,omitempty"`
+
 	PodPidsLimit *float64 `json:"podPidsLimit,omitempty" tf:"pod_pids_limit,omitempty"`
+
+	SingleProcessOomKill *bool `json:"singleProcessOomKill,omitempty" tf:"single_process_oom_kill,omitempty"`
+
+	TopologyManager *NodeConfigKubeletConfigTopologyManagerInitParameters `json:"topologyManager,omitempty" tf:"topology_manager,omitempty"`
 }
 
 type NodePoolNodeConfigKubeletConfigObservation struct {
@@ -941,6 +1246,14 @@ type NodePoolNodeConfigKubeletConfigObservation struct {
 
 	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
 
+	EvictionMaxPodGracePeriodSeconds *float64 `json:"evictionMaxPodGracePeriodSeconds,omitempty" tf:"eviction_max_pod_grace_period_seconds,omitempty"`
+
+	EvictionMinimumReclaim *NodeConfigKubeletConfigEvictionMinimumReclaimObservation `json:"evictionMinimumReclaim,omitempty" tf:"eviction_minimum_reclaim,omitempty"`
+
+	EvictionSoft *NodeConfigKubeletConfigEvictionSoftObservation `json:"evictionSoft,omitempty" tf:"eviction_soft,omitempty"`
+
+	EvictionSoftGracePeriod *NodeConfigKubeletConfigEvictionSoftGracePeriodObservation `json:"evictionSoftGracePeriod,omitempty" tf:"eviction_soft_grace_period,omitempty"`
+
 	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
 
 	ImageGcLowThresholdPercent *float64 `json:"imageGcLowThresholdPercent,omitempty" tf:"image_gc_low_threshold_percent,omitempty"`
@@ -951,7 +1264,15 @@ type NodePoolNodeConfigKubeletConfigObservation struct {
 
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
+	MaxParallelImagePulls *float64 `json:"maxParallelImagePulls,omitempty" tf:"max_parallel_image_pulls,omitempty"`
+
+	MemoryManager *NodeConfigKubeletConfigMemoryManagerObservation `json:"memoryManager,omitempty" tf:"memory_manager,omitempty"`
+
 	PodPidsLimit *float64 `json:"podPidsLimit,omitempty" tf:"pod_pids_limit,omitempty"`
+
+	SingleProcessOomKill *bool `json:"singleProcessOomKill,omitempty" tf:"single_process_oom_kill,omitempty"`
+
+	TopologyManager *NodeConfigKubeletConfigTopologyManagerObservation `json:"topologyManager,omitempty" tf:"topology_manager,omitempty"`
 }
 
 type NodePoolNodeConfigKubeletConfigParameters struct {
@@ -975,6 +1296,18 @@ type NodePoolNodeConfigKubeletConfigParameters struct {
 	ContainerLogMaxSize *string `json:"containerLogMaxSize,omitempty" tf:"container_log_max_size,omitempty"`
 
 	// +kubebuilder:validation:Optional
+	EvictionMaxPodGracePeriodSeconds *float64 `json:"evictionMaxPodGracePeriodSeconds,omitempty" tf:"eviction_max_pod_grace_period_seconds,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	EvictionMinimumReclaim *NodeConfigKubeletConfigEvictionMinimumReclaimParameters `json:"evictionMinimumReclaim,omitempty" tf:"eviction_minimum_reclaim,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	EvictionSoft *NodeConfigKubeletConfigEvictionSoftParameters `json:"evictionSoft,omitempty" tf:"eviction_soft,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	EvictionSoftGracePeriod *NodeConfigKubeletConfigEvictionSoftGracePeriodParameters `json:"evictionSoftGracePeriod,omitempty" tf:"eviction_soft_grace_period,omitempty"`
+
+	// +kubebuilder:validation:Optional
 	ImageGcHighThresholdPercent *float64 `json:"imageGcHighThresholdPercent,omitempty" tf:"image_gc_high_threshold_percent,omitempty"`
 
 	// +kubebuilder:validation:Optional
@@ -990,7 +1323,19 @@ type NodePoolNodeConfigKubeletConfigParameters struct {
 	InsecureKubeletReadonlyPortEnabled *string `json:"insecureKubeletReadonlyPortEnabled,omitempty" tf:"insecure_kubelet_readonly_port_enabled,omitempty"`
 
 	// +kubebuilder:validation:Optional
+	MaxParallelImagePulls *float64 `json:"maxParallelImagePulls,omitempty" tf:"max_parallel_image_pulls,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	MemoryManager *NodeConfigKubeletConfigMemoryManagerParameters `json:"memoryManager,omitempty" tf:"memory_manager,omitempty"`
+
+	// +kubebuilder:validation:Optional
 	PodPidsLimit *float64 `json:"podPidsLimit,omitempty" tf:"pod_pids_limit,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	SingleProcessOomKill *bool `json:"singleProcessOomKill,omitempty" tf:"single_process_oom_kill,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	TopologyManager *NodeConfigKubeletConfigTopologyManagerParameters `json:"topologyManager,omitempty" tf:"topology_manager,omitempty"`
 }
 
 type NodePoolNodeConfigLinuxNodeConfigInitParameters struct {
@@ -998,8 +1343,14 @@ type NodePoolNodeConfigLinuxNodeConfigInitParameters struct {
 
 	HugepagesConfig *NodeConfigLinuxNodeConfigHugepagesConfigInitParameters `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
 
+	NodeKernelModuleLoading *NodeConfigLinuxNodeConfigNodeKernelModuleLoadingInitParameters `json:"nodeKernelModuleLoading,omitempty" tf:"node_kernel_module_loading,omitempty"`
+
 	// +mapType=granular
 	Sysctls map[string]*string `json:"sysctls,omitempty" tf:"sysctls,omitempty"`
+
+	TransparentHugepageDefrag *string `json:"transparentHugepageDefrag,omitempty" tf:"transparent_hugepage_defrag,omitempty"`
+
+	TransparentHugepageEnabled *string `json:"transparentHugepageEnabled,omitempty" tf:"transparent_hugepage_enabled,omitempty"`
 }
 
 type NodePoolNodeConfigLinuxNodeConfigObservation struct {
@@ -1007,8 +1358,14 @@ type NodePoolNodeConfigLinuxNodeConfigObservation struct {
 
 	HugepagesConfig *NodeConfigLinuxNodeConfigHugepagesConfigObservation `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
 
+	NodeKernelModuleLoading *NodeConfigLinuxNodeConfigNodeKernelModuleLoadingObservation `json:"nodeKernelModuleLoading,omitempty" tf:"node_kernel_module_loading,omitempty"`
+
 	// +mapType=granular
 	Sysctls map[string]*string `json:"sysctls,omitempty" tf:"sysctls,omitempty"`
+
+	TransparentHugepageDefrag *string `json:"transparentHugepageDefrag,omitempty" tf:"transparent_hugepage_defrag,omitempty"`
+
+	TransparentHugepageEnabled *string `json:"transparentHugepageEnabled,omitempty" tf:"transparent_hugepage_enabled,omitempty"`
 }
 
 type NodePoolNodeConfigLinuxNodeConfigParameters struct {
@@ -1020,8 +1377,17 @@ type NodePoolNodeConfigLinuxNodeConfigParameters struct {
 	HugepagesConfig *NodeConfigLinuxNodeConfigHugepagesConfigParameters `json:"hugepagesConfig,omitempty" tf:"hugepages_config,omitempty"`
 
 	// +kubebuilder:validation:Optional
+	NodeKernelModuleLoading *NodeConfigLinuxNodeConfigNodeKernelModuleLoadingParameters `json:"nodeKernelModuleLoading,omitempty" tf:"node_kernel_module_loading,omitempty"`
+
+	// +kubebuilder:validation:Optional
 	// +mapType=granular
 	Sysctls map[string]*string `json:"sysctls,omitempty" tf:"sysctls,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	TransparentHugepageDefrag *string `json:"transparentHugepageDefrag,omitempty" tf:"transparent_hugepage_defrag,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	TransparentHugepageEnabled *string `json:"transparentHugepageEnabled,omitempty" tf:"transparent_hugepage_enabled,omitempty"`
 }
 
 type NodePoolNodeConfigLocalNvmeSsdBlockConfigInitParameters struct {
@@ -1040,6 +1406,8 @@ type NodePoolNodeConfigLocalNvmeSsdBlockConfigParameters struct {
 
 type NodePoolNodeConfigObservation_2 struct {
 	AdvancedMachineFeatures *NodePoolNodeConfigAdvancedMachineFeaturesObservation `json:"advancedMachineFeatures,omitempty" tf:"advanced_machine_features,omitempty"`
+
+	BootDisk *NodePoolNodeConfigBootDiskObservation `json:"bootDisk,omitempty" tf:"boot_disk,omitempty"`
 
 	BootDiskKMSKey *string `json:"bootDiskKmsKey,omitempty" tf:"boot_disk_kms_key,omitempty"`
 
@@ -1086,8 +1454,6 @@ type NodePoolNodeConfigObservation_2 struct {
 
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
-	// Possible Local SSD encryption modes:
-	// Accepted values are:
 	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
 
 	LoggingVariant *string `json:"loggingVariant,omitempty" tf:"logging_variant,omitempty"`
@@ -1108,8 +1474,6 @@ type NodePoolNodeConfigObservation_2 struct {
 
 	Preemptible *bool `json:"preemptible,omitempty" tf:"preemptible,omitempty"`
 
-	// The configuration of the desired reservation which instances could take capacity from.
-	// Structure is documented below.
 	ReservationAffinity *NodePoolNodeConfigReservationAffinityObservation `json:"reservationAffinity,omitempty" tf:"reservation_affinity,omitempty"`
 
 	// +mapType=granular
@@ -1147,6 +1511,9 @@ type NodePoolNodeConfigParameters_2 struct {
 
 	// +kubebuilder:validation:Optional
 	AdvancedMachineFeatures *NodePoolNodeConfigAdvancedMachineFeaturesParameters `json:"advancedMachineFeatures,omitempty" tf:"advanced_machine_features,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	BootDisk *NodePoolNodeConfigBootDiskParameters `json:"bootDisk,omitempty" tf:"boot_disk,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	BootDiskKMSKey *string `json:"bootDiskKmsKey,omitempty" tf:"boot_disk_kms_key,omitempty"`
@@ -1211,8 +1578,6 @@ type NodePoolNodeConfigParameters_2 struct {
 	// +kubebuilder:validation:Optional
 	LocalSsdCount *float64 `json:"localSsdCount,omitempty" tf:"local_ssd_count,omitempty"`
 
-	// Possible Local SSD encryption modes:
-	// Accepted values are:
 	// +kubebuilder:validation:Optional
 	LocalSsdEncryptionMode *string `json:"localSsdEncryptionMode,omitempty" tf:"local_ssd_encryption_mode,omitempty"`
 
@@ -1242,8 +1607,6 @@ type NodePoolNodeConfigParameters_2 struct {
 	// +kubebuilder:validation:Optional
 	Preemptible *bool `json:"preemptible,omitempty" tf:"preemptible,omitempty"`
 
-	// The configuration of the desired reservation which instances could take capacity from.
-	// Structure is documented below.
 	// +kubebuilder:validation:Optional
 	ReservationAffinity *NodePoolNodeConfigReservationAffinityParameters `json:"reservationAffinity,omitempty" tf:"reservation_affinity,omitempty"`
 
@@ -1403,14 +1766,21 @@ type NodePoolNodeConfigShieldedInstanceConfigParameters_2 struct {
 }
 
 type NodePoolNodeConfigSoleTenantConfigInitParameters struct {
+	MinNodeCpus *float64 `json:"minNodeCpus,omitempty" tf:"min_node_cpus,omitempty"`
+
 	NodeAffinity []NodeConfigSoleTenantConfigNodeAffinityInitParameters `json:"nodeAffinity,omitempty" tf:"node_affinity,omitempty"`
 }
 
 type NodePoolNodeConfigSoleTenantConfigObservation struct {
+	MinNodeCpus *float64 `json:"minNodeCpus,omitempty" tf:"min_node_cpus,omitempty"`
+
 	NodeAffinity []NodeConfigSoleTenantConfigNodeAffinityObservation `json:"nodeAffinity,omitempty" tf:"node_affinity,omitempty"`
 }
 
 type NodePoolNodeConfigSoleTenantConfigParameters struct {
+
+	// +kubebuilder:validation:Optional
+	MinNodeCpus *float64 `json:"minNodeCpus,omitempty" tf:"min_node_cpus,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	NodeAffinity []NodeConfigSoleTenantConfigNodeAffinityParameters `json:"nodeAffinity" tf:"node_affinity,omitempty"`
@@ -1738,6 +2108,9 @@ type NodePoolQueuedProvisioningParameters struct {
 
 type NodePoolUpgradeSettingsBlueGreenSettingsInitParameters struct {
 
+	// Autoscaled rollout policy for blue-green upgrade.
+	AutoscaledRolloutPolicy *BlueGreenSettingsAutoscaledRolloutPolicyInitParameters `json:"autoscaledRolloutPolicy,omitempty" tf:"autoscaled_rollout_policy,omitempty"`
+
 	// Time needed after draining the entire blue pool.
 	// After this period, the blue pool will be cleaned up.
 	NodePoolSoakDuration *string `json:"nodePoolSoakDuration,omitempty" tf:"node_pool_soak_duration,omitempty"`
@@ -1747,6 +2120,9 @@ type NodePoolUpgradeSettingsBlueGreenSettingsInitParameters struct {
 }
 
 type NodePoolUpgradeSettingsBlueGreenSettingsObservation struct {
+
+	// Autoscaled rollout policy for blue-green upgrade.
+	AutoscaledRolloutPolicy *BlueGreenSettingsAutoscaledRolloutPolicyObservation `json:"autoscaledRolloutPolicy,omitempty" tf:"autoscaled_rollout_policy,omitempty"`
 
 	// Time needed after draining the entire blue pool.
 	// After this period, the blue pool will be cleaned up.
@@ -1758,6 +2134,10 @@ type NodePoolUpgradeSettingsBlueGreenSettingsObservation struct {
 
 type NodePoolUpgradeSettingsBlueGreenSettingsParameters struct {
 
+	// Autoscaled rollout policy for blue-green upgrade.
+	// +kubebuilder:validation:Optional
+	AutoscaledRolloutPolicy *BlueGreenSettingsAutoscaledRolloutPolicyParameters `json:"autoscaledRolloutPolicy,omitempty" tf:"autoscaled_rollout_policy,omitempty"`
+
 	// Time needed after draining the entire blue pool.
 	// After this period, the blue pool will be cleaned up.
 	// +kubebuilder:validation:Optional
@@ -1765,7 +2145,7 @@ type NodePoolUpgradeSettingsBlueGreenSettingsParameters struct {
 
 	// Specifies the standard policy settings for blue-green upgrades.
 	// +kubebuilder:validation:Optional
-	StandardRolloutPolicy *UpgradeSettingsBlueGreenSettingsStandardRolloutPolicyParameters `json:"standardRolloutPolicy" tf:"standard_rollout_policy,omitempty"`
+	StandardRolloutPolicy *UpgradeSettingsBlueGreenSettingsStandardRolloutPolicyParameters `json:"standardRolloutPolicy,omitempty" tf:"standard_rollout_policy,omitempty"`
 }
 
 type NodePoolUpgradeSettingsInitParameters_2 struct {

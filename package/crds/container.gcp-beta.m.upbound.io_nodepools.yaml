@@ -228,8 +228,12 @@ spec:
                                 belongs.
                               type: string
                             subnetwork:
-                              description: Name of the subnetwork where the additional
-                                pod network belongs.
+                              description: 'The subnetwork path for the node pool.
+                                Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                                If the cluster is associated with multiple subnetworks,
+                                the subnetwork for the node pool is picked based on
+                                the IP utilization during node pool creation and is
+                                immutable'
                               type: string
                           type: object
                         type: array
@@ -252,8 +256,12 @@ spec:
                                 subnet which provides IP address for this pod range.
                               type: string
                             subnetwork:
-                              description: Name of the subnetwork where the additional
-                                pod network belongs.
+                              description: 'The subnetwork path for the node pool.
+                                Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                                If the cluster is associated with multiple subnetworks,
+                                the subnetwork for the node pool is picked based on
+                                the IP utilization during node pool creation and is
+                                immutable'
                               type: string
                           type: object
                         type: array
@@ -308,13 +316,28 @@ spec:
                         properties:
                           enableNestedVirtualization:
                             type: boolean
+                          performanceMonitoringUnit:
+                            type: string
                           threadsPerCore:
+                            type: number
+                        type: object
+                      bootDisk:
+                        properties:
+                          diskType:
+                            type: string
+                          provisionedIops:
+                            type: number
+                          provisionedThroughput:
+                            type: number
+                          sizeGb:
                             type: number
                         type: object
                       bootDiskKmsKey:
                         type: string
                       confidentialNodes:
                         properties:
+                          confidentialInstanceType:
+                            type: string
                           enabled:
                             description: Makes nodes obtainable through the ProvisioningRequest
                               API exclusively.
@@ -338,6 +361,13 @@ spec:
                                       type: object
                                   type: object
                                 type: array
+                              enabled:
+                                description: Makes nodes obtainable through the ProvisioningRequest
+                                  API exclusively.
+                                type: boolean
+                            type: object
+                          writableCgroups:
+                            properties:
                               enabled:
                                 description: Makes nodes obtainable through the ProvisioningRequest
                                   API exclusively.
@@ -439,6 +469,53 @@ spec:
                             type: string
                           cpuManagerPolicy:
                             type: string
+                          evictionMaxPodGracePeriodSeconds:
+                            type: number
+                          evictionMinimumReclaim:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
+                          evictionSoft:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
+                          evictionSoftGracePeriod:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
                           imageGcHighThresholdPercent:
                             type: number
                           imageGcLowThresholdPercent:
@@ -449,8 +526,24 @@ spec:
                             type: string
                           insecureKubeletReadonlyPortEnabled:
                             type: string
+                          maxParallelImagePulls:
+                            type: number
+                          memoryManager:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
                           podPidsLimit:
                             type: number
+                          singleProcessOomKill:
+                            type: boolean
+                          topologyManager:
+                            properties:
+                              policy:
+                                type: string
+                              scope:
+                                type: string
+                            type: object
                         type: object
                       labels:
                         additionalProperties:
@@ -471,11 +564,20 @@ spec:
                               hugepageSize2M:
                                 type: number
                             type: object
+                          nodeKernelModuleLoading:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
                           sysctls:
                             additionalProperties:
                               type: string
                             type: object
                             x-kubernetes-map-type: granular
+                          transparentHugepageDefrag:
+                            type: string
+                          transparentHugepageEnabled:
+                            type: string
                         type: object
                       localNvmeSsdBlockConfig:
                         properties:
@@ -485,9 +587,6 @@ spec:
                       localSsdCount:
                         type: number
                       localSsdEncryptionMode:
-                        description: |-
-                          Possible Local SSD encryption modes:
-                          Accepted values are:
                         type: string
                       loggingVariant:
                         type: string
@@ -512,9 +611,6 @@ spec:
                       preemptible:
                         type: boolean
                       reservationAffinity:
-                        description: |-
-                          The configuration of the desired reservation which instances could take capacity from.
-                          Structure is documented below.
                         properties:
                           consumeReservationType:
                             description: |-
@@ -649,6 +745,8 @@ spec:
                         type: object
                       soleTenantConfig:
                         properties:
+                          minNodeCpus:
+                            type: number
                           nodeAffinity:
                             items:
                               properties:
@@ -768,6 +866,15 @@ spec:
                           The settings to adjust blue green upgrades.
                           Structure is documented below
                         properties:
+                          autoscaledRolloutPolicy:
+                            description: Autoscaled rollout policy for blue-green
+                              upgrade.
+                            properties:
+                              waitForDrainDuration:
+                                description: Time in seconds to wait after cordoning
+                                  the blue pool before draining the nodes.
+                                type: string
+                            type: object
                           nodePoolSoakDuration:
                             description: |-
                               Time needed after draining the entire blue pool.
@@ -907,8 +1014,12 @@ spec:
                                 belongs.
                               type: string
                             subnetwork:
-                              description: Name of the subnetwork where the additional
-                                pod network belongs.
+                              description: 'The subnetwork path for the node pool.
+                                Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                                If the cluster is associated with multiple subnetworks,
+                                the subnetwork for the node pool is picked based on
+                                the IP utilization during node pool creation and is
+                                immutable'
                               type: string
                           type: object
                         type: array
@@ -931,8 +1042,12 @@ spec:
                                 subnet which provides IP address for this pod range.
                               type: string
                             subnetwork:
-                              description: Name of the subnetwork where the additional
-                                pod network belongs.
+                              description: 'The subnetwork path for the node pool.
+                                Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                                If the cluster is associated with multiple subnetworks,
+                                the subnetwork for the node pool is picked based on
+                                the IP utilization during node pool creation and is
+                                immutable'
                               type: string
                           type: object
                         type: array
@@ -987,13 +1102,28 @@ spec:
                         properties:
                           enableNestedVirtualization:
                             type: boolean
+                          performanceMonitoringUnit:
+                            type: string
                           threadsPerCore:
+                            type: number
+                        type: object
+                      bootDisk:
+                        properties:
+                          diskType:
+                            type: string
+                          provisionedIops:
+                            type: number
+                          provisionedThroughput:
+                            type: number
+                          sizeGb:
                             type: number
                         type: object
                       bootDiskKmsKey:
                         type: string
                       confidentialNodes:
                         properties:
+                          confidentialInstanceType:
+                            type: string
                           enabled:
                             description: Makes nodes obtainable through the ProvisioningRequest
                               API exclusively.
@@ -1017,6 +1147,13 @@ spec:
                                       type: object
                                   type: object
                                 type: array
+                              enabled:
+                                description: Makes nodes obtainable through the ProvisioningRequest
+                                  API exclusively.
+                                type: boolean
+                            type: object
+                          writableCgroups:
+                            properties:
                               enabled:
                                 description: Makes nodes obtainable through the ProvisioningRequest
                                   API exclusively.
@@ -1118,6 +1255,53 @@ spec:
                             type: string
                           cpuManagerPolicy:
                             type: string
+                          evictionMaxPodGracePeriodSeconds:
+                            type: number
+                          evictionMinimumReclaim:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
+                          evictionSoft:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
+                          evictionSoftGracePeriod:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
                           imageGcHighThresholdPercent:
                             type: number
                           imageGcLowThresholdPercent:
@@ -1128,8 +1312,24 @@ spec:
                             type: string
                           insecureKubeletReadonlyPortEnabled:
                             type: string
+                          maxParallelImagePulls:
+                            type: number
+                          memoryManager:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
                           podPidsLimit:
                             type: number
+                          singleProcessOomKill:
+                            type: boolean
+                          topologyManager:
+                            properties:
+                              policy:
+                                type: string
+                              scope:
+                                type: string
+                            type: object
                         type: object
                       labels:
                         additionalProperties:
@@ -1150,11 +1350,20 @@ spec:
                               hugepageSize2M:
                                 type: number
                             type: object
+                          nodeKernelModuleLoading:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
                           sysctls:
                             additionalProperties:
                               type: string
                             type: object
                             x-kubernetes-map-type: granular
+                          transparentHugepageDefrag:
+                            type: string
+                          transparentHugepageEnabled:
+                            type: string
                         type: object
                       localNvmeSsdBlockConfig:
                         properties:
@@ -1164,9 +1373,6 @@ spec:
                       localSsdCount:
                         type: number
                       localSsdEncryptionMode:
-                        description: |-
-                          Possible Local SSD encryption modes:
-                          Accepted values are:
                         type: string
                       loggingVariant:
                         type: string
@@ -1191,9 +1397,6 @@ spec:
                       preemptible:
                         type: boolean
                       reservationAffinity:
-                        description: |-
-                          The configuration of the desired reservation which instances could take capacity from.
-                          Structure is documented below.
                         properties:
                           consumeReservationType:
                             description: |-
@@ -1328,6 +1531,8 @@ spec:
                         type: object
                       soleTenantConfig:
                         properties:
+                          minNodeCpus:
+                            type: number
                           nodeAffinity:
                             items:
                               properties:
@@ -1447,6 +1652,15 @@ spec:
                           The settings to adjust blue green upgrades.
                           Structure is documented below
                         properties:
+                          autoscaledRolloutPolicy:
+                            description: Autoscaled rollout policy for blue-green
+                              upgrade.
+                            properties:
+                              waitForDrainDuration:
+                                description: Time in seconds to wait after cordoning
+                                  the blue pool before draining the nodes.
+                                type: string
+                            type: object
                           nodePoolSoakDuration:
                             description: |-
                               Time needed after draining the entire blue pool.
@@ -1660,8 +1874,12 @@ spec:
                                 belongs.
                               type: string
                             subnetwork:
-                              description: Name of the subnetwork where the additional
-                                pod network belongs.
+                              description: 'The subnetwork path for the node pool.
+                                Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                                If the cluster is associated with multiple subnetworks,
+                                the subnetwork for the node pool is picked based on
+                                the IP utilization during node pool creation and is
+                                immutable'
                               type: string
                           type: object
                         type: array
@@ -1684,8 +1902,12 @@ spec:
                                 subnet which provides IP address for this pod range.
                               type: string
                             subnetwork:
-                              description: Name of the subnetwork where the additional
-                                pod network belongs.
+                              description: 'The subnetwork path for the node pool.
+                                Format: projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                                If the cluster is associated with multiple subnetworks,
+                                the subnetwork for the node pool is picked based on
+                                the IP utilization during node pool creation and is
+                                immutable'
                               type: string
                           type: object
                         type: array
@@ -1730,6 +1952,13 @@ spec:
                           If create_pod_range is false, uses an existing secondary
                           range with this ID.
                         type: string
+                      subnetwork:
+                        description: 'The subnetwork path for the node pool. Format:
+                          projects/{project}/regions/{region}/subnetworks/{subnetwork}.
+                          If the cluster is associated with multiple subnetworks,
+                          the subnetwork for the node pool is picked based on the
+                          IP utilization during node pool creation and is immutable'
+                        type: string
                     type: object
                   nodeConfig:
                     description: |-
@@ -1740,13 +1969,28 @@ spec:
                         properties:
                           enableNestedVirtualization:
                             type: boolean
+                          performanceMonitoringUnit:
+                            type: string
                           threadsPerCore:
+                            type: number
+                        type: object
+                      bootDisk:
+                        properties:
+                          diskType:
+                            type: string
+                          provisionedIops:
+                            type: number
+                          provisionedThroughput:
+                            type: number
+                          sizeGb:
                             type: number
                         type: object
                       bootDiskKmsKey:
                         type: string
                       confidentialNodes:
                         properties:
+                          confidentialInstanceType:
+                            type: string
                           enabled:
                             description: Makes nodes obtainable through the ProvisioningRequest
                               API exclusively.
@@ -1770,6 +2014,13 @@ spec:
                                       type: object
                                   type: object
                                 type: array
+                              enabled:
+                                description: Makes nodes obtainable through the ProvisioningRequest
+                                  API exclusively.
+                                type: boolean
+                            type: object
+                          writableCgroups:
+                            properties:
                               enabled:
                                 description: Makes nodes obtainable through the ProvisioningRequest
                                   API exclusively.
@@ -1884,6 +2135,53 @@ spec:
                             type: string
                           cpuManagerPolicy:
                             type: string
+                          evictionMaxPodGracePeriodSeconds:
+                            type: number
+                          evictionMinimumReclaim:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
+                          evictionSoft:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
+                          evictionSoftGracePeriod:
+                            properties:
+                              imagefsAvailable:
+                                type: string
+                              imagefsInodesFree:
+                                type: string
+                              memoryAvailable:
+                                type: string
+                              nodefsAvailable:
+                                type: string
+                              nodefsInodesFree:
+                                type: string
+                              pidAvailable:
+                                type: string
+                            type: object
                           imageGcHighThresholdPercent:
                             type: number
                           imageGcLowThresholdPercent:
@@ -1894,8 +2192,24 @@ spec:
                             type: string
                           insecureKubeletReadonlyPortEnabled:
                             type: string
+                          maxParallelImagePulls:
+                            type: number
+                          memoryManager:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
                           podPidsLimit:
                             type: number
+                          singleProcessOomKill:
+                            type: boolean
+                          topologyManager:
+                            properties:
+                              policy:
+                                type: string
+                              scope:
+                                type: string
+                            type: object
                         type: object
                       labels:
                         additionalProperties:
@@ -1916,11 +2230,20 @@ spec:
                               hugepageSize2M:
                                 type: number
                             type: object
+                          nodeKernelModuleLoading:
+                            properties:
+                              policy:
+                                type: string
+                            type: object
                           sysctls:
                             additionalProperties:
                               type: string
                             type: object
                             x-kubernetes-map-type: granular
+                          transparentHugepageDefrag:
+                            type: string
+                          transparentHugepageEnabled:
+                            type: string
                         type: object
                       localNvmeSsdBlockConfig:
                         properties:
@@ -1930,9 +2253,6 @@ spec:
                       localSsdCount:
                         type: number
                       localSsdEncryptionMode:
-                        description: |-
-                          Possible Local SSD encryption modes:
-                          Accepted values are:
                         type: string
                       loggingVariant:
                         type: string
@@ -1957,9 +2277,6 @@ spec:
                       preemptible:
                         type: boolean
                       reservationAffinity:
-                        description: |-
-                          The configuration of the desired reservation which instances could take capacity from.
-                          Structure is documented below.
                         properties:
                           consumeReservationType:
                             description: |-
@@ -2012,6 +2329,8 @@ spec:
                         type: object
                       soleTenantConfig:
                         properties:
+                          minNodeCpus:
+                            type: number
                           nodeAffinity:
                             items:
                               properties:
@@ -2133,6 +2452,15 @@ spec:
                           The settings to adjust blue green upgrades.
                           Structure is documented below
                         properties:
+                          autoscaledRolloutPolicy:
+                            description: Autoscaled rollout policy for blue-green
+                              upgrade.
+                            properties:
+                              waitForDrainDuration:
+                                description: Time in seconds to wait after cordoning
+                                  the blue pool before draining the nodes.
+                                type: string
+                            type: object
                           nodePoolSoakDuration:
                             description: |-
                               Time needed after draining the entire blue pool.

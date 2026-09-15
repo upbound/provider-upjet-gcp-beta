@@ -11,9 +11,9 @@ require (
 	github.com/crossplane/crossplane-tools v0.0.0-20260719180100-659f1dc036c5
 	github.com/crossplane/crossplane/apis/v2 v2.4.0
 	github.com/crossplane/upjet/v2 v2.4.1-0.20260728103920-4f6e6e10dff2
-	github.com/hashicorp/terraform-json v0.25.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
-	github.com/hashicorp/terraform-provider-google-beta v1.20.1-0.20250610151054-ddaee814b79f
+	github.com/hashicorp/terraform-json v0.27.1
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.1
+	github.com/hashicorp/terraform-provider-google-beta v1.20.1-0.20251209180714-b0e3e7fb0101
 	github.com/pkg/errors v0.9.1
 	google.golang.org/grpc v1.82.1
 	k8s.io/api v0.36.2
@@ -35,7 +35,7 @@ require (
 	cloud.google.com/go/iam v1.5.3 // indirect
 	cloud.google.com/go/longrunning v0.7.0 // indirect
 	cloud.google.com/go/monitoring v1.24.3 // indirect
-	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.79.0 // indirect
+	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.83.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.32.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.54.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.54.0 // indirect
@@ -102,19 +102,20 @@ require (
 	github.com/hashicorp/go-cty v1.5.0 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/go-plugin v1.6.3 // indirect
+	github.com/hashicorp/go-plugin v1.7.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/hashicorp/hcl/v2 v2.23.0 // indirect
+	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hashicorp/terraform-plugin-framework v1.15.0 // indirect
+	github.com/hashicorp/terraform-plugin-framework-timeouts v0.5.0 // indirect
 	github.com/hashicorp/terraform-plugin-framework-validators v0.9.0 // indirect
-	github.com/hashicorp/terraform-plugin-go v0.28.0 // indirect
+	github.com/hashicorp/terraform-plugin-go v0.29.0 // indirect
 	github.com/hashicorp/terraform-plugin-log v0.9.0 // indirect
 	github.com/hashicorp/terraform-plugin-testing v1.5.1 // indirect
-	github.com/hashicorp/terraform-registry-address v0.2.5 // indirect
+	github.com/hashicorp/terraform-registry-address v0.4.0 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect
-	github.com/hashicorp/yamux v0.1.1 // indirect
+	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -136,7 +137,7 @@ require (
 	github.com/oasdiff/oasdiff v1.26.1 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
 	github.com/oasdiff/yaml3 v0.0.14 // indirect
-	github.com/oklog/run v1.0.0 // indirect
+	github.com/oklog/run v1.1.0 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
@@ -164,7 +165,7 @@ require (
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yuin/goldmark v1.8.4 // indirect
-	github.com/zclconf/go-cty v1.16.2 // indirect
+	github.com/zclconf/go-cty v1.17.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.0.3 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.43.0 // indirect
