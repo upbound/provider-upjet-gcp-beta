@@ -10,7 +10,7 @@ require (
 	github.com/crossplane/crossplane-runtime/v2 v2.5.0-rc.0.0.20260908074656-9b2fb6b1d1ff
 	github.com/crossplane/crossplane-tools v0.0.0-20260719180100-659f1dc036c5
 	github.com/crossplane/crossplane/apis/v2 v2.4.3
-	github.com/crossplane/upjet/v2 v2.4.1-0.20260728103920-4f6e6e10dff2
+	github.com/crossplane/upjet/v2 v2.4.2
 	github.com/hashicorp/terraform-json v0.25.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
 	github.com/hashicorp/terraform-provider-google-beta v1.20.1-0.20250610151054-ddaee814b79f
