@@ -1,6 +1,6 @@
 module github.com/upbound/provider-gcp-beta
 
-go 1.26.10
+go 1.27.3
 
 tool golang.org/x/tools/cmd/goimports
 
